@@ -17,6 +17,8 @@ ts-dist
 .serena/
 **/.omo
 .omo/
+**/.claude/taste-signals.jsonl
+**/.claude/taste-watch/
 /result
 refs
 Session.vim
