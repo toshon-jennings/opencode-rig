@@ -8,7 +8,13 @@ export type UpdaterBackend = {
   checkForUpdates(): Promise<{ isUpdateAvailable?: boolean; updateInfo?: { version?: string } } | null | undefined>
   downloadUpdate(): Promise<unknown>
   quitAndInstall(): void
+  // Notify mode only: hand the user off to the release page instead of self-installing.
+  openReleasePage(version: string): Promise<unknown>
 }
+
+// macOS refuses to install an update whose signature it cannot verify, so unsigned
+// builds notify and link out rather than downloading something they cannot apply.
+export type UpdaterMode = "install" | "notify"
 
 type UpdaterPersistence = {
   get(): UpdaterReadyRecord | undefined | Promise<UpdaterReadyRecord | undefined>
@@ -18,12 +24,14 @@ type UpdaterPersistence = {
 
 export function createUpdaterController(input: {
   enabled: boolean
+  mode?: UpdaterMode
   currentVersion: string
   backend: UpdaterBackend
   persistence: UpdaterPersistence
   stop: () => Promise<void>
   log?: (message: string, data?: object) => void
 }) {
+  const mode: UpdaterMode = input.mode ?? "install"
   let state: UpdaterState = input.enabled ? { status: "idle" } : { status: "disabled" }
   let pending: Promise<UpdaterState> | undefined
   const listeners = new Set<(state: UpdaterState) => void>()
@@ -48,6 +56,10 @@ export function createUpdaterController(input: {
         await input.persistence.clear()
         return transition({ status: "up-to-date" })
       }
+
+      // Nothing is downloaded in notify mode, so go straight to ready and let
+      // install() send the user to the release page.
+      if (mode === "notify") return transition({ status: "ready", version })
 
       transition({ status: "downloading", version })
       await input.backend.downloadUpdate()
@@ -76,9 +88,14 @@ export function createUpdaterController(input: {
       return check()
     },
     check,
+    mode,
     async install() {
       if (state.status !== "ready") throw new Error("Update is not ready to install")
       const version = state.version
+      if (mode === "notify") {
+        await input.backend.openReleasePage(version)
+        return
+      }
       transition({ status: "installing", version })
       await input
         .stop()

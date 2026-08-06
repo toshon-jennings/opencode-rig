@@ -1,7 +1,8 @@
-import { app, dialog } from "electron"
+import { app, dialog, shell } from "electron"
 import pkg from "electron-updater"
-import { UPDATER_ENABLED } from "./constants"
+import { UPDATER_ENABLED, UPDATER_MODE } from "./constants"
 import { createUpdaterController, type UpdaterReadyRecord } from "./updater-controller"
+import { releaseUrl } from "../../fork"
 import { getLogger } from "./logging"
 import { getStore } from "./store"
 import { setAppQuitting } from "./windows"
@@ -28,10 +29,12 @@ export function setupAutoUpdater(stop: () => Promise<void>) {
   const store = getStore("opencode.updater")
   return createUpdaterController({
     enabled: UPDATER_ENABLED,
+    mode: UPDATER_MODE,
     currentVersion: app.getVersion(),
     backend: {
       checkForUpdates: () => autoUpdater.checkForUpdates(),
       downloadUpdate: () => autoUpdater.downloadUpdate(),
+      openReleasePage: (version) => shell.openExternal(releaseUrl(version)),
       quitAndInstall: () => {
         // quitAndInstall closes all windows before emitting before-quit, so
         // flag the quit first to keep window ids persisted for restore.
@@ -82,11 +85,17 @@ export async function showUpdaterDialog(controller: ReturnType<typeof setupAutoU
   }
   if (state.status !== "ready") return
 
+  const notify = controller.mode === "notify"
   const response = await dialog.showMessageBox({
     type: "info",
-    message: nativeT("desktop.updater.dialog.ready.message", { version: state.version }),
-    title: nativeT("desktop.updater.dialog.ready.title"),
-    buttons: [nativeT("desktop.updater.dialog.restart"), nativeT("desktop.updater.dialog.later")],
+    message: notify
+      ? nativeT("desktop.updater.dialog.available.message", { version: state.version })
+      : nativeT("desktop.updater.dialog.ready.message", { version: state.version }),
+    title: notify ? nativeT("desktop.updater.dialog.available.title") : nativeT("desktop.updater.dialog.ready.title"),
+    buttons: [
+      notify ? nativeT("desktop.updater.dialog.download") : nativeT("desktop.updater.dialog.restart"),
+      nativeT("desktop.updater.dialog.later"),
+    ],
     defaultId: 0,
     cancelId: 1,
   })
