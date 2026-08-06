@@ -23,14 +23,6 @@ function resolveUsageCommand() {
   return existsSync(bundled) ? bundled : USAGE_SCRIPT
 }
 
-function resolveDatabasePath(): string {
-  if (process.env.OPENCODE_DB) return process.env.OPENCODE_DB
-  const channel = import.meta.env.OPENCODE_CHANNEL ?? "local"
-  if (["latest", "beta", "prod"].includes(channel)) return "opencode.db"
-  return `opencode-${channel.replace(/[^a-zA-Z0-9._-]/g, "-")}.db`
-}
-
-import { CHANNEL } from "./constants"
 import { runDesktopMenuAction } from "./desktop-menu-actions"
 import { setForceFocus } from "./debug"
 import { assertAttachmentBudget, createPickedFileAuthorizations } from "./attachment-picker"
@@ -61,6 +53,7 @@ type Deps = {
   relaunch: () => void
   awaitInitialization: () => Promise<ServerReadyData>
   consumeInitialDeepLinks: () => Promise<string[]> | string[]
+  getDatabasePath: () => string | undefined
   getDefaultServerUrl: () => Promise<string | null> | string | null
   setDefaultServerUrl: (url: string | null) => Promise<void> | void
   isFirstLaunchOnboardingPending: () => Promise<boolean> | boolean
@@ -326,13 +319,13 @@ export function registerIpcHandlers(deps: Deps) {
   // used to execute arbitrary binaries.
   ipcMain.handle("get-usage", () => {
     const command = resolveUsageCommand()
-    const dbPath = resolveDatabasePath()
+    // The sidecar reports an absolute path, which is what the script needs: it uses
+    // OPENCODE_DB verbatim, so a bare filename would resolve against the working directory
+    // and silently open an empty database. Fall back to the script's own default.
+    const databasePath = deps.getDatabasePath()
+    const env = databasePath ? { ...process.env, OPENCODE_DB: databasePath } : process.env
     return new Promise<CommandResult>((resolve) => {
-      execFile(command, [], {
-        timeout: 30_000,
-        maxBuffer: 10 * 1024 * 1024,
-        env: { ...process.env, OPENCODE_DB: dbPath },
-      }, (error, stdout, stderr) => {
+      execFile(command, [], { timeout: 30_000, maxBuffer: 10 * 1024 * 1024, env }, (error, stdout, stderr) => {
         if (!error) {
           resolve({ stdout, stderr, code: 0 })
           return

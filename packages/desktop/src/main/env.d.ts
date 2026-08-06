@@ -15,5 +15,8 @@ declare module "virtual:opencode-server" {
     export const get: typeof import("../../../opencode/dist/types/src/node").Config.get
     export type Info = import("../../../opencode/dist/types/src/node").Config.Info
   }
+  export namespace Database {
+    export const path: typeof import("../../../opencode/dist/types/src/node").Database.path
+  }
   export const bootstrap: typeof import("../../../opencode/dist/types/src/node").bootstrap
 }

@@ -10,7 +10,7 @@ import { DEFAULT_SERVER_URL_KEY } from "./store-keys"
 export type HealthCheck = { wait: Promise<void> }
 
 type SidecarMessage =
-  | { type: "ready" }
+  | { type: "ready"; databasePath?: string }
   | { type: "stopped" }
   | { type: "error"; error: { message: string; stack?: string } }
 
@@ -68,6 +68,7 @@ export async function spawnLocalServer(
     stdio: "pipe",
   })
   let exited = false
+  let databasePath: string | undefined
   const exit = defer<number>()
 
   const onProcessGone = (_event: unknown, details: Details) => {
@@ -109,6 +110,7 @@ export async function spawnLocalServer(
       if (message.type === "ready") {
         if (done) return
         done = true
+        databasePath = message.databasePath
         cleanup()
         resolve()
         return
@@ -165,6 +167,7 @@ export async function spawnLocalServer(
   let stopping: Promise<void> | undefined
 
   return {
+    databasePath,
     listener: {
       stop: () => {
         if (stopping) return stopping

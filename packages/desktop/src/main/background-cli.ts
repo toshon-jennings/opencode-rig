@@ -45,6 +45,9 @@ export async function startBackgroundCli(logger: Logger, shellStateHome?: string
     redact: true,
     stateHome: daemonStateHome,
   })
+  // Asked of the CLI rather than derived here: the filename depends on the channel baked
+  // into that binary at build time, which this process cannot see.
+  const databasePath = await run(binary, ["db", "path"], logger, { stateHome: daemonStateHome }).catch(() => undefined)
   logger.log("v2 CLI background service ready", {
     existing: Boolean(found),
     username: "opencode",
@@ -54,6 +57,7 @@ export async function startBackgroundCli(logger: Logger, shellStateHome?: string
     url,
     username: "opencode",
     password,
+    databasePath,
   }
 }
 

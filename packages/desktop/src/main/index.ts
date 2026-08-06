@@ -51,9 +51,9 @@ import { startBackgroundCli } from "./background-cli"
 import { setNativeTranslations } from "./native-translations"
 
 const APP_NAMES: Record<string, string> = {
-  dev: "OpenCode Dev",
-  beta: "OpenCode Beta",
-  prod: "OpenCode",
+  dev: "OpenCode Workbench Dev",
+  beta: "OpenCode Workbench Beta",
+  prod: "OpenCode Workbench",
 }
 const APP_IDS: Record<string, string> = {
   dev: "ai.opencode.desktop.dev",
@@ -66,6 +66,8 @@ const jsCallStackFeature = "DocumentPolicyIncludeJSCallStacksInCrashReports"
 
 let logger: ReturnType<typeof initLogging>
 let server: SidecarListener | null = null
+// Reported by whichever sidecar started; undefined until then.
+let databasePath: string | undefined
 
 const pendingDeepLinks: string[] = []
 
@@ -138,7 +140,7 @@ const main = Effect.gen(function* () {
     process.env.XDG_STATE_HOME = join(root, "state")
     return root
   })()
-  app.setName(app.isPackaged ? APP_NAMES[CHANNEL] : "OpenCode Dev")
+  app.setName(app.isPackaged ? APP_NAMES[CHANNEL] : "OpenCode Workbench Dev")
   app.setAppUserModelId(appId)
   app.setPath(
     "userData",
@@ -293,6 +295,7 @@ const main = Effect.gen(function* () {
       (e) => Effect.runPromise(e),
     ),
     consumeInitialDeepLinks: () => pendingDeepLinks.splice(0),
+    getDatabasePath: () => databasePath,
     getDefaultServerUrl: () => getDefaultServerUrl(),
     setDefaultServerUrl: (url) => setDefaultServerUrl(url),
     isFirstLaunchOnboardingPending,
@@ -333,6 +336,7 @@ const main = Effect.gen(function* () {
     if (SIDECAR_VERSION === "v2") {
       logger.log("spawning v2 sidecar")
       const sidecar = yield* Effect.promise(() => startBackgroundCli(logger, shellEnv?.XDG_STATE_HOME))
+      databasePath = sidecar.databasePath
       yield* Deferred.succeed(serverReady, {
         url: sidecar.url,
         username: sidecar.username,
@@ -375,7 +379,7 @@ const main = Effect.gen(function* () {
     const password = randomUUID()
 
     logger.log("spawning sidecar", { url })
-    const { listener, health } = yield* Effect.promise(() =>
+    const { listener, health, databasePath: sidecarDatabasePath } = yield* Effect.promise(() =>
       spawnLocalServer(hostname, port, password, {
         userDataPath: app.getPath("userData"),
         onStdout: (message) => writeLog("server", "stdout", { message }),
@@ -384,6 +388,7 @@ const main = Effect.gen(function* () {
       }),
     )
     server = listener
+    databasePath = sidecarDatabasePath
     yield* Deferred.succeed(serverReady, {
       url,
       username: "opencode",
