@@ -166,11 +166,11 @@ Learn more about [agents](https://opencode.ai/docs/agents).
 
 ### Documentation
 
-For more info on how to configure OpenCode, [**head over to our docs**](https://opencode.ai/docs).
+For more info on how to configure OpenCode, [**head over to Docs**](https://opencode.ai/docs).
 
 ### Contributing
 
-If you're interested in contributing to OpenCode, please read our [contributing docs](./CONTRIBUTING.md) before submitting a pull request.
+If you're interested in contributing to OpenCode (**not this fork**), please read [contributing docs](./CONTRIBUTING.md) before submitting a pull request.
 
 ### Building on OpenCode
 
@@ -178,4 +178,4 @@ If you are working on a project that's related to OpenCode and is using "opencod
 
 ---
 
-**Join our community** [Discord](https://discord.gg/opencode) | [X.com](https://x.com/opencode)
+**Join the OpenCode community** [Discord](https://discord.gg/opencode) | [X.com](https://x.com/opencode)
