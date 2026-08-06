@@ -31,6 +31,7 @@ const DEFAULT_SIDEBAR_WIDTH = 344
 const DEFAULT_FILE_TREE_WIDTH = 200
 const DEFAULT_SESSION_WIDTH = 600
 const DEFAULT_TERMINAL_HEIGHT = 280
+const DEFAULT_USAGE_HEIGHT = 220
 const DEFAULT_REVIEW_PANEL_OPENED = false
 export type AvatarColorKey = (typeof AVATAR_COLOR_KEYS)[number]
 
@@ -280,6 +281,9 @@ export const { use: useLayout, provider: LayoutProvider } = createSimpleContext(
         terminal: {
           height: DEFAULT_TERMINAL_HEIGHT,
           opened: false,
+        },
+        usage: {
+          height: DEFAULT_USAGE_HEIGHT,
         },
         review: {
           diffStyle: "split" as ReviewDiffStyle,
@@ -689,6 +693,16 @@ export const { use: useLayout, provider: LayoutProvider } = createSimpleContext(
         height: createMemo(() => store.terminal.height),
         resize(height: number) {
           setStore("terminal", "height", height)
+        },
+      },
+      usage: {
+        height: createMemo(() => store.usage?.height ?? DEFAULT_USAGE_HEIGHT),
+        resize(height: number) {
+          if (!store.usage) {
+            setStore("usage", { height })
+            return
+          }
+          setStore("usage", "height", height)
         },
       },
       review: {

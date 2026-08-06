@@ -1,12 +1,28 @@
 import { execFile } from "node:child_process"
+import { existsSync } from "node:fs"
 import { stat } from "node:fs/promises"
-import { basename, join } from "node:path"
+import { basename, dirname, join } from "node:path"
+import { fileURLToPath } from "node:url"
 import { app, BrowserWindow, clipboard, dialog, ipcMain, shell } from "electron"
 import type { IpcMainEvent, IpcMainInvokeEvent } from "electron"
 import type { DesktopMenuAction } from "@opencode-ai/app/desktop-menu"
 import { parseDesktopNativeBundle, type DesktopNativeBundle } from "@opencode-ai/app/i18n/desktop-native"
 
-import type { FatalRendererError, ServerReadyData, TitlebarTheme } from "../preload/types"
+import type { CommandResult, FatalRendererError, ServerReadyData, TitlebarTheme } from "../preload/types"
+
+const USAGE_SCRIPT = "opencode-usage"
+
+// Prefers the copy shipped in this repo so a fresh clone works with no setup, and falls
+// back to a user-installed `opencode-usage` on PATH. PATH lookups work because
+// preferAppEnv() merges the login-shell env into process.env, so ~/.local/bin resolves
+// even when the app is launched from Finder.
+function resolveUsageCommand() {
+  const bundled = app.isPackaged
+    ? join(process.resourcesPath, USAGE_SCRIPT)
+    : join(dirname(fileURLToPath(import.meta.url)), "../../resources", USAGE_SCRIPT)
+  return existsSync(bundled) ? bundled : USAGE_SCRIPT
+}
+
 import { runDesktopMenuAction } from "./desktop-menu-actions"
 import { setForceFocus } from "./debug"
 import { assertAttachmentBudget, createPickedFileAuthorizations } from "./attachment-picker"
@@ -295,6 +311,29 @@ export function registerIpcHandlers(deps: Deps) {
     runDesktopMenuAction(BrowserWindow.fromWebContents(event.sender), action, {
       checkForUpdates: () => void deps.showUpdater(),
       relaunch: deps.relaunch,
+    })
+  })
+
+  // Takes no arguments from the renderer: the command is fixed here so this cannot be
+  // used to execute arbitrary binaries.
+  ipcMain.handle("get-usage", () => {
+    const command = resolveUsageCommand()
+    return new Promise<CommandResult>((resolve) => {
+      execFile(command, [], { timeout: 30_000, maxBuffer: 10 * 1024 * 1024 }, (error, stdout, stderr) => {
+        if (!error) {
+          resolve({ stdout, stderr, code: 0 })
+          return
+        }
+        if (error.killed) {
+          resolve({ stdout, stderr: "opencode-usage timed out", code: null })
+          return
+        }
+        resolve({
+          stdout,
+          stderr: stderr || error.message,
+          code: typeof error.code === "number" ? error.code : 1,
+        })
+      })
     })
   })
 }

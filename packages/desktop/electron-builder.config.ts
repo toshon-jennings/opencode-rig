@@ -35,6 +35,12 @@ const channel = (() => {
   return "dev"
 })()
 
+// Release feed for this fork. Must NOT point at anomalyco/*: the auto-updater resolves
+// updates from here, so upstream's releases would be offered to fork users and replace
+// this build with the official app.
+const FORK_OWNER = "toshon-jennings"
+const FORK_REPO = "opencode-workbench"
+
 const APP_IDS = {
   dev: "ai.opencode.desktop.dev",
   beta: "ai.opencode.desktop.beta",
@@ -55,7 +61,7 @@ const getBase = (appId: string): Configuration => ({
   extraMetadata: {
     desktopName: `${appId}.desktop`,
   },
-  files: ["out/**/*", "resources/**/*", "!resources/opencode-cli*"],
+  files: ["out/**/*", "resources/**/*", "!resources/opencode-cli*", "!resources/opencode-usage"],
   extraResources: [
     ...(channel === "dev"
       ? [
@@ -66,6 +72,13 @@ const getBase = (appId: string): Configuration => ({
           },
         ]
       : []),
+    // Must stay outside app.asar: the usage panel spawns this as a process, and
+    // executables inside an asar archive cannot be run.
+    {
+      from: "resources/",
+      to: "",
+      filter: ["opencode-usage"],
+    },
     {
       from: "native/",
       to: "native/",
@@ -138,7 +151,7 @@ function getConfig() {
         appId,
         productName: "OpenCode Beta",
         protocols: { name: "OpenCode Beta", schemes: ["opencode"] },
-        publish: { provider: "github", owner: "anomalyco", repo: "opencode-beta", channel: "latest" },
+        publish: { provider: "github", owner: FORK_OWNER, repo: FORK_REPO, channel: "beta" },
         deb: { fpm: [metainfoFpm(appId)] },
         rpm: { packageName: "opencode-beta", fpm: [metainfoFpm(appId)] },
       }
@@ -149,7 +162,7 @@ function getConfig() {
         appId,
         productName: "OpenCode",
         protocols: { name: "OpenCode", schemes: ["opencode"] },
-        publish: { provider: "github", owner: "anomalyco", repo: "opencode", channel: "latest" },
+        publish: { provider: "github", owner: FORK_OWNER, repo: FORK_REPO, channel: "latest" },
         deb: { fpm: [metainfoFpm(appId), legacyDesktopEntryFpm] },
         rpm: { packageName: "opencode", fpm: [metainfoFpm(appId), legacyDesktopEntryFpm] },
       }

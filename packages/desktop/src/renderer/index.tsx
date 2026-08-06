@@ -314,6 +314,10 @@ const createPlatform = (windowState: DesktopWindowState): Platform => {
         type: "image/png",
       })
     },
+
+    getUsage: async () => {
+      return window.api.getUsage()
+    },
   }
 }
 

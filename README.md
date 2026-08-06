@@ -1,49 +1,101 @@
+Community fork of OpenCode adding an integrated terminal and a persistent usage dashboard. Not affiliated with the OpenCode team.
+
+---
+
 <p align="center">
-  <a href="https://opencode.ai">
+  <a href="https://github.com/toshon-jennings/opencode-workbench">
     <picture>
-      <source srcset="packages/console/app/src/asset/logo-ornate-dark.svg" media="(prefers-color-scheme: dark)">
-      <source srcset="packages/console/app/src/asset/logo-ornate-light.svg" media="(prefers-color-scheme: light)">
-      <img src="packages/console/app/src/asset/logo-ornate-light.svg" alt="OpenCode logo">
+      <source srcset="assets/logo-workbench-dark.svg" media="(prefers-color-scheme: dark)">
+      <source srcset="assets/logo-workbench-light.svg" media="(prefers-color-scheme: light)">
+      <img src="assets/logo-workbench-light.svg" alt="opencode-workbench logo">
     </picture>
   </a>
 </p>
-<p align="center">The open source AI coding agent.</p>
+<p align="center">opencode-workbench — an unofficial fork of the open source AI coding agent.</p>
 <p align="center">
-  <a href="https://opencode.ai/discord"><img alt="Discord" src="https://img.shields.io/discord/1391832426048651334?style=flat-square&label=discord" /></a>
-  <a href="https://www.npmjs.com/package/opencode-ai"><img alt="npm" src="https://img.shields.io/npm/v/opencode-ai?style=flat-square" /></a>
-  <a href="https://github.com/anomalyco/opencode/actions/workflows/publish.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/anomalyco/opencode/publish.yml?style=flat-square&branch=dev" /></a>
+  <a href="https://github.com/toshon-jennings/opencode-workbench">github.com/toshon-jennings/opencode-workbench</a>
 </p>
 
-<p align="center">
-  <a href="README.md">English</a> |
-  <a href="README.zh.md">简体中文</a> |
-  <a href="README.zht.md">繁體中文</a> |
-  <a href="README.ko.md">한국어</a> |
-  <a href="README.de.md">Deutsch</a> |
-  <a href="README.es.md">Español</a> |
-  <a href="README.fr.md">Français</a> |
-  <a href="README.it.md">Italiano</a> |
-  <a href="README.da.md">Dansk</a> |
-  <a href="README.ja.md">日本語</a> |
-  <a href="README.pl.md">Polski</a> |
-  <a href="README.ru.md">Русский</a> |
-  <a href="README.bs.md">Bosanski</a> |
-  <a href="README.ar.md">العربية</a> |
-  <a href="README.no.md">Norsk</a> |
-  <a href="README.br.md">Português (Brasil)</a> |
-  <a href="README.th.md">ไทย</a> |
-  <a href="README.tr.md">Türkçe</a> |
-  <a href="README.uk.md">Українська</a> |
-  <a href="README.bn.md">বাংলা</a> |
-  <a href="README.gr.md">Ελληνικά</a> |
-  <a href="README.vi.md">Tiếng Việt</a>
-</p>
+> [!IMPORTANT]
+> **This is an unofficial community fork.** It is not built, maintained, endorsed, or
+> supported by the OpenCode team, and it is not affiliated with them in any way.
+>
+> Please do not file issues about this fork on the upstream tracker, and do not ask the
+> OpenCode maintainers for support with it. Report problems with this fork at
+> [toshon-jennings/opencode-workbench/issues](https://github.com/toshon-jennings/opencode-workbench/issues).
+>
+> For the official project, see [opencode.ai](https://opencode.ai) and
+> [anomalyco/opencode](https://github.com/anomalyco/opencode).
+> "OpenCode" and the OpenCode logo belong to their respective owners; the mark above is a
+> modified version used only to distinguish this fork.
+
+### What this fork adds
+
+#### Persistent usage dashboard
+
+A panel pinned across the bottom of the session view, reporting per model: messages,
+input / output / reasoning tokens, cache reads and writes, and cost — plus a `TOTAL` row.
+
+- **Always visible.** No toggle, keybind, or slash command — it is part of the session
+  layout, like the message timeline or the prompt input.
+- **Live.** Refreshes every 30 seconds and on mount, with a last-updated stamp in the
+  header and a manual **Refresh** button.
+- **Resizable.** Drag its top edge; the height persists across restarts.
+- **Quiet on failure.** If the underlying command is missing or errors, the panel shows a
+  muted message instead of breaking the session view.
+- **Desktop only.** Web builds render nothing, since the panel needs local command
+  execution.
+
+#### Integrated terminal
+
+A terminal available directly in the session view, kept alongside the usage dashboard in
+the same workbench layout so you can run commands without leaving the conversation.
+
+#### Requirements
+
+The dashboard shells out to [`packages/desktop/resources/opencode-usage`](packages/desktop/resources/opencode-usage),
+which ships with this repository — a fresh clone works with no extra setup. It reads the
+local OpenCode database at `~/.local/share/opencode/opencode.db` (override with
+`$OPENCODE_DB`) and needs the `sqlite3` binary on your system.
+
+If that bundled script is missing, the app falls back to any `opencode-usage` on your
+login shell's `PATH`. If neither resolves, the panel renders a muted error and nothing
+else breaks.
+
+To substitute your own, print a `sqlite3 -header -column` style table with exactly these
+eight columns, one row per model plus a `TOTAL` row:
+
+```
+model  msgs  input  output  reasoning  cache_read  cache_write  cost
+```
+
+#### Versioning
+
+This fork versions **independently of upstream**, starting at `0.1.0`. Upstream is on the
+`1.18.x` line, so there is no overlap and no ambiguity about which project a given version
+refers to. The upstream release this fork is currently rebased on is recorded as
+`upstreamBase` in the root `package.json`.
+
+Releases and the desktop auto-updater resolve against
+[this fork's releases](https://github.com/toshon-jennings/opencode-workbench/releases) —
+never upstream's.
+
+---
+
+Everything else is upstream OpenCode. See [upstream's docs](https://opencode.ai/docs) for
+the underlying feature set.
 
 [![OpenCode Terminal UI](packages/web/src/assets/lander/screenshot.png)](https://opencode.ai)
 
 ---
 
 ### Installation
+
+> [!WARNING]
+> The commands below install **upstream OpenCode**, not this fork. This fork is not
+> published to npm, Homebrew, Scoop, the AUR, or any other package registry. To run it,
+> clone [this repository](https://github.com/toshon-jennings/opencode-workbench) and
+> build from source.
 
 ```bash
 # YOLO

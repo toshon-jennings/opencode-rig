@@ -91,6 +91,7 @@ import { createReviewPanelV2State } from "@/pages/session/v2/review-panel-v2-sta
 import { reviewDiffDirectory, reviewDiffNeedsLoad, reviewRootDirectory } from "@/pages/session/v2/review-diff-kinds"
 import { TerminalPanel } from "@/pages/session/terminal-panel"
 import { TerminalPanelV2 } from "@/pages/session/terminal-panel-v2"
+import { UsagePanel } from "@/pages/session/usage-panel"
 import { useComposerCommands } from "@/pages/session/use-composer-commands"
 import { useSessionCommands } from "@/pages/session/use-session-commands"
 import { useSessionHashScroll } from "@/pages/session/use-session-hash-scroll"
@@ -107,6 +108,7 @@ import { createSessionLineage } from "./session/session-lineage"
 type FollowupItem = FollowupDraft & { id: string }
 type FollowupEdit = Pick<FollowupItem, "id" | "prompt" | "context">
 const emptyFollowups: FollowupItem[] = []
+const USAGE_PANEL_HEIGHT_MIN = 120
 
 type ChangeMode = "git" | "branch" | "turn"
 type VcsMode = "git" | "branch"
@@ -487,6 +489,9 @@ export default function Page() {
     if (available === undefined) return 1000
     return sessionPanelWidthMax({ available, split: splitReview() })
   })
+  const usagePanelMax = createMemo(() =>
+    typeof window === "undefined" ? USAGE_PANEL_HEIGHT_MIN : Math.round(window.innerHeight * 0.6),
+  )
   // Clamp at render time so window or sidebar resizes squeeze the chat panel
   // instead of the review pane, without overwriting the persisted width.
   const sessionPanelResizedWidth = createMemo(() =>
@@ -2382,6 +2387,32 @@ export default function Page() {
       <Show when={!newSessionDesign()}>
         <TerminalPanel />
       </Show>
+
+      <div
+        class="shrink-0"
+        classList={{
+          "px-2 pb-2": settings.general.newLayoutDesigns(),
+        }}
+      >
+        <div class="relative" style={{ height: `${layout.usage.height()}px` }}>
+          <ResizeHandle
+            direction="vertical"
+            size={layout.usage.height()}
+            min={USAGE_PANEL_HEIGHT_MIN}
+            max={usagePanelMax()}
+            onResize={(height) => layout.usage.resize(height)}
+          />
+          <div
+            class="h-full overflow-hidden"
+            classList={{
+              "rounded-[10px]": settings.general.newLayoutDesigns(),
+              "border-t border-border-weaker-base": !settings.general.newLayoutDesigns(),
+            }}
+          >
+            <UsagePanel />
+          </div>
+        </div>
+      </div>
     </SessionRouteFrame>
   )
 }

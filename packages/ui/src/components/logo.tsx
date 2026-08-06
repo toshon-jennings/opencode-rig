@@ -27,6 +27,7 @@ export const Splash = (props: Pick<ComponentProps<"svg">, "ref" | "class">) => {
     >
       <path d="M60 80H20V40H60V80Z" fill="var(--icon-base)" />
       <path d="M60 20H20V80H60V20ZM80 100H0V0H80V100Z" fill="var(--icon-strong-base)" />
+      <rect data-slot="logo-cursor" x="30" y="64" width="20" height="6" fill="var(--icon-strong-base)" />
     </svg>
   )
 }
@@ -35,7 +36,7 @@ export const Logo = (props: { class?: string }) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 234 42"
+      viewBox="0 0 264 42"
       fill="none"
       classList={{ [props.class ?? ""]: !!props.class }}
     >
@@ -56,6 +57,7 @@ export const Logo = (props: { class?: string }) => {
         <path d="M198 12H186V30H198V12ZM204 36H180V6H198V0H204V36Z" fill="var(--icon-strong-base)" />
         <path d="M234 24V30H216V24H234Z" fill="var(--icon-weak-base)" />
         <path d="M216 12V18H228V12H216ZM234 24H216V30H234V36H210V6H234V24Z" fill="var(--icon-strong-base)" />
+        <rect data-slot="logo-cursor" x="246" y="30" width="18" height="6" fill="var(--icon-strong-base)" />
       </g>
     </svg>
   )

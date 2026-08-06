@@ -113,4 +113,7 @@ export type ElectronAPI = {
   setForceFocus: (enabled: boolean) => Promise<void>
   recordFatalRendererError: (error: FatalRendererError) => Promise<void>
   setNativeTranslations: (bundle: DesktopNativeBundle) => Promise<void>
+  getUsage: () => Promise<CommandResult>
 }
+
+export type CommandResult = { stdout: string; stderr: string; code: number | null }

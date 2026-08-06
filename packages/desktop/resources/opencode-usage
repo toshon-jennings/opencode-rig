@@ -1,0 +1,28 @@
+#!/bin/bash
+# Prints per-model token and cost totals from the local OpenCode database as a
+# `sqlite3 -header -column` table. Consumed by the desktop usage panel
+# (packages/app/src/pages/session/usage-panel.tsx), which expects exactly these
+# eight columns plus a trailing TOTAL row.
+DB="${OPENCODE_DB:-$HOME/.local/share/opencode/opencode.db}"
+sqlite3 -header -column "$DB" "
+SELECT model, msgs, input, output, reasoning, cache_read, cache_write, cost FROM (
+  SELECT COALESCE(json_extract(data,'\$.modelID'),'unknown') AS model,
+         COUNT(*) AS msgs,
+         SUM(json_extract(data,'\$.tokens.input')) AS input,
+         SUM(json_extract(data,'\$.tokens.output')) AS output,
+         SUM(json_extract(data,'\$.tokens.reasoning')) AS reasoning,
+         SUM(json_extract(data,'\$.tokens.cache.read')) AS cache_read,
+         SUM(json_extract(data,'\$.tokens.cache.write')) AS cache_write,
+         SUM(json_extract(data,'\$.cost')) AS cost
+  FROM message WHERE json_extract(data,'\$.role')='assistant'
+  GROUP BY json_extract(data,'\$.modelID')
+  UNION ALL
+  SELECT 'TOTAL', COUNT(*),
+         SUM(json_extract(data,'\$.tokens.input')),
+         SUM(json_extract(data,'\$.tokens.output')),
+         SUM(json_extract(data,'\$.tokens.reasoning')),
+         SUM(json_extract(data,'\$.tokens.cache.read')),
+         SUM(json_extract(data,'\$.tokens.cache.write')),
+         SUM(json_extract(data,'\$.cost'))
+  FROM message WHERE json_extract(data,'\$.role')='assistant'
+) ORDER BY CASE WHEN model='TOTAL' THEN 1 ELSE 0 END, input DESC"
