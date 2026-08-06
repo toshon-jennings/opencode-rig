@@ -41,6 +41,23 @@ jobs:
           fi
           echo "value=$version" >> "$GITHUB_OUTPUT"
 
+      # GitHub rejects a published (non-draft) release whose tag does not already exist,
+      # and electron-builder's parallel asset uploads each race to create it. Creating the
+      # tag up front makes that deterministic. Idempotent, so a tag-triggered run is a no-op.
+      - name: Ensure release tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.value }}
+        run: |
+          tag="v$VERSION"
+          if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" >/dev/null 2>&1; then
+            echo "Tag $tag already exists"
+          else
+            gh api "repos/$GITHUB_REPOSITORY/git/refs" \
+              -f ref="refs/tags/$tag" -f sha="$GITHUB_SHA" >/dev/null
+            echo "Created tag $tag at $GITHUB_SHA"
+          fi
+
       # Signing is optional: without these the build still produces a DMG, just an
       # unsigned one. Setting APPLE_SIGNING_ENABLED turns on notarization with no edits here.
       - name: Import signing certificate
