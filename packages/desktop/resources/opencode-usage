@@ -1,10 +1,38 @@
 #!/bin/bash
-# Prints per-model token and cost totals from the local OpenCode database as a
+# Prints per-model token and cost totals from the local OpenCode databases as a
 # `sqlite3 -header -column` table. Consumed by the desktop usage panel
 # (packages/app/src/pages/session/usage-panel.tsx), which expects exactly these
 # eight columns plus a trailing TOTAL row.
+#
+# OpenCode keeps a separate database per release channel (opencode.db,
+# opencode-dev.db, ...), so a single build only ever sees a slice of the history.
+# Totals are aggregated across every channel database sitting next to $OPENCODE_DB.
+# Each is attached read-only: this reports on the data, it never writes to it.
 DB="${OPENCODE_DB:-$HOME/.local/share/opencode/opencode.db}"
-sqlite3 -header -column "$DB" "
+DIR="$(dirname "$DB")"
+
+attach=""
+union=""
+count=0
+for candidate in "$DIR"/opencode*.db; do
+  # Skips stray or half-created files; an empty database would otherwise abort the query.
+  [ -s "$candidate" ] || continue
+  [ -n "$(sqlite3 "$candidate" "SELECT 1 FROM sqlite_master WHERE type='table' AND name='message'" 2>/dev/null)" ] || continue
+  count=$((count + 1))
+  escaped=$(printf '%s' "$candidate" | sed "s/'/''/g")
+  attach="${attach}ATTACH DATABASE 'file:${escaped}?mode=ro' AS db${count};"
+  [ -n "$union" ] && union="${union} UNION ALL "
+  union="${union}SELECT data FROM db${count}.message"
+done
+
+if [ "$count" -eq 0 ]; then
+  echo "No OpenCode database with usage data found in $DIR" >&2
+  exit 1
+fi
+
+sqlite3 -header -column "" "
+$attach
+WITH messages AS ($union)
 SELECT model, msgs, input, output, reasoning, cache_read, cache_write, cost FROM (
   SELECT COALESCE(json_extract(data,'\$.modelID'),'unknown') AS model,
          COUNT(*) AS msgs,
@@ -14,7 +42,7 @@ SELECT model, msgs, input, output, reasoning, cache_read, cache_write, cost FROM
          SUM(json_extract(data,'\$.tokens.cache.read')) AS cache_read,
          SUM(json_extract(data,'\$.tokens.cache.write')) AS cache_write,
          SUM(json_extract(data,'\$.cost')) AS cost
-  FROM message WHERE json_extract(data,'\$.role')='assistant'
+  FROM messages WHERE json_extract(data,'\$.role')='assistant'
   GROUP BY json_extract(data,'\$.modelID')
   UNION ALL
   SELECT 'TOTAL', COUNT(*),
@@ -24,5 +52,5 @@ SELECT model, msgs, input, output, reasoning, cache_read, cache_write, cost FROM
          SUM(json_extract(data,'\$.tokens.cache.read')),
          SUM(json_extract(data,'\$.tokens.cache.write')),
          SUM(json_extract(data,'\$.cost'))
-  FROM message WHERE json_extract(data,'\$.role')='assistant'
+  FROM messages WHERE json_extract(data,'\$.role')='assistant'
 ) ORDER BY CASE WHEN model='TOTAL' THEN 1 ELSE 0 END, input DESC"
