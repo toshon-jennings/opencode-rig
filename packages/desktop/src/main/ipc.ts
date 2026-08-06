@@ -23,6 +23,14 @@ function resolveUsageCommand() {
   return existsSync(bundled) ? bundled : USAGE_SCRIPT
 }
 
+function resolveDatabasePath(): string {
+  if (process.env.OPENCODE_DB) return process.env.OPENCODE_DB
+  const channel = import.meta.env.OPENCODE_CHANNEL ?? "local"
+  if (["latest", "beta", "prod"].includes(channel)) return "opencode.db"
+  return `opencode-${channel.replace(/[^a-zA-Z0-9._-]/g, "-")}.db`
+}
+
+import { CHANNEL } from "./constants"
 import { runDesktopMenuAction } from "./desktop-menu-actions"
 import { setForceFocus } from "./debug"
 import { assertAttachmentBudget, createPickedFileAuthorizations } from "./attachment-picker"
@@ -318,8 +326,13 @@ export function registerIpcHandlers(deps: Deps) {
   // used to execute arbitrary binaries.
   ipcMain.handle("get-usage", () => {
     const command = resolveUsageCommand()
+    const dbPath = resolveDatabasePath()
     return new Promise<CommandResult>((resolve) => {
-      execFile(command, [], { timeout: 30_000, maxBuffer: 10 * 1024 * 1024 }, (error, stdout, stderr) => {
+      execFile(command, [], {
+        timeout: 30_000,
+        maxBuffer: 10 * 1024 * 1024,
+        env: { ...process.env, OPENCODE_DB: dbPath },
+      }, (error, stdout, stderr) => {
         if (!error) {
           resolve({ stdout, stderr, code: 0 })
           return
