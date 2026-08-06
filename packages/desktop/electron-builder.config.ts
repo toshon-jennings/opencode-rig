@@ -5,6 +5,8 @@ import { promisify } from "node:util"
 
 import type { Configuration } from "electron-builder"
 
+import { FORK_OWNER, FORK_REPO } from "./fork"
+
 const execFileAsync = promisify(execFile)
 const packageDir = path.dirname(fileURLToPath(import.meta.url))
 const rootDir = path.resolve(packageDir, "../..")
@@ -35,11 +37,9 @@ const channel = (() => {
   return "dev"
 })()
 
-// Release feed for this fork. Must NOT point at anomalyco/*: the auto-updater resolves
-// updates from here, so upstream's releases would be offered to fork users and replace
-// this build with the official app.
-const FORK_OWNER = "toshon-jennings"
-const FORK_REPO = "opencode-workbench"
+// Signing is opt-in: a fork without Apple credentials still produces a working DMG,
+// it just cannot be notarized. Notarizing unconditionally would fail the whole build.
+const signed = Boolean(process.env.CSC_LINK || process.env.CSC_KEYCHAIN || process.env.APPLE_API_KEY)
 
 const APP_IDS = {
   dev: "ai.opencode.desktop.dev",
@@ -88,15 +88,18 @@ const getBase = (appId: string): Configuration => ({
   mac: {
     category: "public.app-category.developer-tools",
     icon: `resources/icons/icon.icns`,
-    hardenedRuntime: true,
+    hardenedRuntime: signed,
     gatekeeperAssess: false,
     entitlements: "resources/entitlements.plist",
     entitlementsInherit: "resources/entitlements.plist",
-    notarize: true,
+    notarize: signed,
+    // null tells electron-builder to skip signing outright rather than hunt for an
+    // identity and emit a warning per artifact.
+    identity: signed ? undefined : null,
     target: ["dmg", "zip"],
   },
   dmg: {
-    sign: true,
+    sign: signed,
   },
   protocols: {
     name: "OpenCode Workbench",
@@ -151,7 +154,7 @@ function getConfig() {
         appId,
         productName: "OpenCode Workbench Beta",
         protocols: { name: "OpenCode Workbench Beta", schemes: ["opencode"] },
-        publish: { provider: "github", owner: FORK_OWNER, repo: FORK_REPO, channel: "beta" },
+        publish: { provider: "github", owner: FORK_OWNER, repo: FORK_REPO, channel: "beta", releaseType: "release" },
         deb: { fpm: [metainfoFpm(appId)] },
         rpm: { packageName: "opencode-beta", fpm: [metainfoFpm(appId)] },
       }
@@ -162,7 +165,8 @@ function getConfig() {
         appId,
         productName: "OpenCode Workbench",
         protocols: { name: "OpenCode Workbench", schemes: ["opencode"] },
-        publish: { provider: "github", owner: FORK_OWNER, repo: FORK_REPO, channel: "latest" },
+        // Not a draft: the updater cannot read latest-mac.yml from an unpublished release.
+        publish: { provider: "github", owner: FORK_OWNER, repo: FORK_REPO, channel: "latest", releaseType: "release" },
         deb: { fpm: [metainfoFpm(appId), legacyDesktopEntryFpm] },
         rpm: { packageName: "opencode", fpm: [metainfoFpm(appId), legacyDesktopEntryFpm] },
       }
