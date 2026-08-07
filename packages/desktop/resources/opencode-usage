@@ -1,6 +1,6 @@
 #!/bin/bash
 # Prints per-model token and cost totals from the local OpenCode databases as a
-# `sqlite3 -header -column` table. Consumed by the desktop usage panel
+# `sqlite3 -header -column` table. Consumed by the workbench usage panel
 # (packages/app/src/pages/session/usage-panel.tsx), which expects exactly these
 # eight columns plus a trailing TOTAL row.
 #

@@ -308,6 +308,7 @@ export const { use: useLayout, provider: LayoutProvider } = createSimpleContext(
         home: {
           selection: { server: server.key } as HomeProjectSelection,
         },
+        webWorkbenchInitialized: false,
       }),
     )
     const [ephemeral, setEphemeral] = createStore({
@@ -420,6 +421,17 @@ export const { use: useLayout, provider: LayoutProvider } = createSimpleContext(
       if (!active) return
       usage.pruned = true
       prune(active)
+    })
+
+    createEffect(() => {
+      if (!ready() || platform.platform !== "web") return
+      if (store.webWorkbenchInitialized) return
+      batch(() => {
+        setStore("terminal", "opened", true)
+        setStore("review", "panelOpened", true)
+        setStore("fileTree", "opened", true)
+        setStore("webWorkbenchInitialized", true)
+      })
     })
 
     onMount(() => {

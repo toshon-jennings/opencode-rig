@@ -39,6 +39,7 @@ export interface Settings {
     agentVisibilityInitialized?: boolean
     newInterfaceNoticeDismissed?: boolean
     shouldDisplayTabsToast?: boolean
+    webWorkbenchInitialized?: boolean
   }
   appearance: {
     fontSize: number
@@ -316,6 +317,16 @@ export const { use: useSettings, provider: SettingsProvider } = createSimpleCont
       const existing = hasExistingWebState(settingsInit, launchState.previous)
       if (!layoutTransitionClassified()) setStore("general", "layoutTransitionEligible", existing)
       initializeAgentVisibility(existing)
+    })
+
+    createEffect(() => {
+      if (!ready() || platform.platform !== "web") return
+      if (store.general?.webWorkbenchInitialized) return
+      batch(() => {
+        setStore("general", "showFileTree", true)
+        setStore("general", "showTerminal", true)
+        setStore("general", "webWorkbenchInitialized", true)
+      })
     })
 
     createEffect(() => {
