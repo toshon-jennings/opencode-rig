@@ -91,7 +91,7 @@ the underlying feature set.
 
 ### Installation
 
-#### Homebrew (macOS and Linux)
+#### Homebrew (macOS desktop app)
 
 ```bash
 brew install toshon-jennings/tap/oc-rig
@@ -101,15 +101,10 @@ Or tap first, then install:
 
 ```bash
 brew tap toshon-jennings/tap
-brew install oc-rig
+brew install --cask oc-rig
 ```
 
-Then run:
-
-```bash
-cd <project>
-oc-rig
-```
+Then launch **OpenCode Rig** from your Applications folder (or Spotlight).
 
 #### From source
 
