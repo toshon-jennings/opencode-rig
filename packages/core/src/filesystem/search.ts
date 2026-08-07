@@ -27,11 +27,17 @@ export const ripgrepLayer = Layer.effect(
     const location = yield* Location.Service
     const ripgrep = yield* Ripgrep.Service
     const scope = yield* Scope.Scope
+    const directories = new Set(
+      location.vcs
+        ? []
+        : (yield* fs.readDirectoryEntries(location.directory).pipe(Effect.catch(() => Effect.succeed([]))))
+            .filter((entry) => entry.type === "directory")
+            .map((entry) => entry.name + path.sep),
+    )
     const state = {
       files: [] as string[],
-      directories: [] as string[],
+      directories: Array.from(directories),
     }
-    const directories = new Set<string>()
     yield* ripgrep
       .find({
         cwd: location.directory,
@@ -106,8 +112,10 @@ export const ripgrepLayer = Layer.effect(
               : input.type === "directory"
                 ? state.directories
                 : [...state.files, ...state.directories]
-          return fuzzysort.go(input.query, items, { limit: input.limit ?? 50 }).map((item) => {
-            const relative = item.target
+          const matches = input.query
+            ? fuzzysort.go(input.query, items, { limit: input.limit ?? 50 }).map((item) => item.target)
+            : (input.type === undefined ? [...state.directories, ...state.files] : items).slice(0, input.limit ?? 50)
+          return matches.map((relative) => {
             const type = relative.endsWith(path.sep) ? ("directory" as const) : ("file" as const)
             return FileSystem.Entry.make({
               path: RelativePath.make(relative),
@@ -232,7 +240,12 @@ export const fffLayer = Layer.effect(
   }),
 )
 
-const layer = Layer.unwrap(Effect.sync(() => (Flag.OPENCODE_DISABLE_FFF || !Fff.available() ? ripgrepLayer : fffLayer)))
+const layer = Layer.unwrap(
+  Effect.gen(function* () {
+    const location = yield* Location.Service
+    return Flag.OPENCODE_DISABLE_FFF || !location.vcs || !Fff.available() ? ripgrepLayer : fffLayer
+  }),
+)
 
 export const locationLayer = layer
 

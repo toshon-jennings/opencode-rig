@@ -1,8 +1,12 @@
-import { describe, expect } from "bun:test"
+import { describe, expect, test } from "bun:test"
 import fs from "fs/promises"
 import path from "path"
-import { Effect } from "effect"
+import { Effect, Layer } from "effect"
 import { LayerNode } from "@opencode-ai/core/effect/layer-node"
+import { FileSystemSearch } from "@opencode-ai/core/filesystem/search"
+import { FSUtil } from "@opencode-ai/core/fs-util"
+import { Location } from "@opencode-ai/core/location"
+import { ProjectV2 } from "@opencode-ai/core/project"
 import { Ripgrep } from "@opencode-ai/core/ripgrep"
 import { AbsolutePath, RelativePath } from "@opencode-ai/core/schema"
 import { tmpdir } from "../fixture/tmpdir"
@@ -41,4 +45,33 @@ describe("Ripgrep", () => {
       }),
     ),
   )
+})
+
+test("non-git search exposes direct child directories before background indexing completes", async () => {
+  await using tmp = await tmpdir()
+  await Promise.all([fs.mkdir(path.join(tmp.path, "Documents")), fs.mkdir(path.join(tmp.path, "Downloads"))])
+  const directory = AbsolutePath.make(tmp.path)
+  const dependencies = LayerNode.compile(LayerNode.group([FSUtil.node, Ripgrep.node]))
+  const location = Layer.succeed(
+    Location.Service,
+    Location.Service.of({
+      directory,
+      workspaceID: undefined,
+      project: { id: ProjectV2.ID.global, directory },
+      vcs: undefined,
+    }),
+  )
+  const layer = FileSystemSearch.ripgrepLayer.pipe(Layer.provide(Layer.merge(dependencies, location)))
+
+  const result = await Effect.runPromise(
+    FileSystemSearch.Service.use((search) => search.find({ query: "", limit: 50 })).pipe(
+      Effect.provide(layer),
+      Effect.scoped,
+    ),
+  )
+
+  expect(result.map((entry) => entry.path)).toEqual([
+    RelativePath.make(`Documents${path.sep}`),
+    RelativePath.make(`Downloads${path.sep}`),
+  ])
 })
