@@ -85,9 +85,9 @@ function cell(row: UsageRow, key: (typeof COLUMNS)[number]["key"]) {
 
 export function UsagePanel() {
   const platform = usePlatform()
-  // Command execution is desktop-only; render nothing elsewhere.
-  const run = platform.getUsage
-  if (!run) return null
+  // The platform omits Usage when the host cannot provide a local report.
+  if (!platform.getUsage) return null
+  const run = () => platform.getUsage!()
 
   const [data, setData] = createSignal<UsageData>()
   const [error, setError] = createSignal<string>()
@@ -143,7 +143,7 @@ export function UsagePanel() {
         <Show when={!error() && data()}>
           {(usage) => (
             <table class="w-full text-12-regular">
-              <thead class="sticky top-0 bg-v2-background-bg-base">
+              <thead class="sticky top-0 z-10 bg-v2-background-bg-base">
                 <tr>
                   <For each={COLUMNS}>
                     {(col, index) => (
@@ -177,7 +177,7 @@ export function UsagePanel() {
               </tbody>
               <Show when={usage().total}>
                 {(total) => (
-                  <tfoot>
+                  <tfoot class="sticky bottom-0 z-10 bg-v2-background-bg-base">
                     <tr class="border-t border-border-weaker-base">
                       <For each={COLUMNS}>
                         {(col, index) => (

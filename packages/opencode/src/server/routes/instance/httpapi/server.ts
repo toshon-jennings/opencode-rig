@@ -1,4 +1,8 @@
 import { Config as EffectConfig, Context, Effect, Layer } from "effect"
+import { execFile } from "node:child_process"
+import { existsSync } from "node:fs"
+import { resolve } from "node:path"
+import { fileURLToPath } from "node:url"
 import { HttpApiBuilder, OpenApi } from "effect/unstable/httpapi"
 import { HttpClient, HttpMiddleware, HttpRouter, HttpServer, HttpServerResponse } from "effect/unstable/http"
 import * as Socket from "effect/unstable/socket/Socket"
@@ -191,6 +195,49 @@ const docRoute = HttpRouter.use((router) => router.add("GET", "/doc", () => Effe
   Layer.provide(authOnlyRouterLayer),
 )
 
+const usageCommand = (() => {
+  const source = [
+    fileURLToPath(new URL("../../../../../../desktop/resources/opencode-usage", import.meta.url)),
+    resolve("packages/desktop/resources/opencode-usage"),
+    resolve("../desktop/resources/opencode-usage"),
+  ].find(existsSync)
+  return source ?? "opencode-usage"
+})()
+
+const getUsage = () =>
+  new Promise<{ stdout: string; stderr: string; code: number | null }>((resolve) => {
+    execFile(
+      usageCommand,
+      [],
+      {
+        timeout: 30_000,
+        maxBuffer: 10 * 1024 * 1024,
+        env: { ...process.env, OPENCODE_DB: Database.path() },
+      },
+      (error, stdout, stderr) => {
+        if (!error) {
+          resolve({ stdout, stderr, code: 0 })
+          return
+        }
+        if (error.killed) {
+          resolve({ stdout, stderr: "opencode-usage timed out", code: null })
+          return
+        }
+        resolve({
+          stdout,
+          stderr: stderr || error.message,
+          code: typeof error.code === "number" ? error.code : 1,
+        })
+      },
+    )
+  })
+
+const usageRoute = HttpRouter.use((router) =>
+  router.add("GET", "/usage", () =>
+    Effect.promise(getUsage).pipe(Effect.map((result) => HttpServerResponse.jsonUnsafe(result))),
+  ),
+).pipe(Layer.provide(authOnlyRouterLayer))
+
 const uiRoute = HttpRouter.use((router) =>
   Effect.gen(function* () {
     const fs = yield* FSUtil.Service
@@ -280,6 +327,7 @@ export function createRoutes(
     instanceRoutes,
     serverRoutes,
     docRoute,
+    usageRoute,
     uiRoute,
   ).pipe(
     Layer.provide([

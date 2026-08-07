@@ -7,7 +7,7 @@ import { type Platform, PlatformProvider } from "@/context/platform"
 import { createBrowserDraftStore } from "@/utils/draft-store"
 import { dict as en } from "@/i18n/en"
 import { dict as zh } from "@/i18n/zh"
-import { authFromToken } from "@/utils/server"
+import { authFromToken, authTokenFromCredentials } from "@/utils/server"
 import pkg from "../package.json"
 import { ServerConnection } from "./context/server"
 
@@ -69,7 +69,7 @@ const notify: Platform["notify"] = async (title, description, onClick) => {
 
   const notification = new Notification(title, {
     body: description ?? "",
-    icon: "https://opencode.ai/favicon-96x96-v3.png",
+    icon: "/favicon-96x96-v3.png?v=workbench-1",
   })
 
   notification.onclick = () => {
@@ -115,6 +115,21 @@ const clearAuthToken = () => {
   history.replaceState(null, "", location.pathname + (params.size ? `?${params}` : "") + location.hash)
 }
 
+const auth = authFromToken(new URLSearchParams(location.search).get("auth_token"))
+clearAuthToken()
+
+const getUsage: NonNullable<Platform["getUsage"]> = async () => {
+  const response = await fetch(new URL("/usage", location.origin), {
+    headers: auth?.password
+      ? {
+          Authorization: `Basic ${authTokenFromCredentials(auth)}`,
+        }
+      : undefined,
+  })
+  if (!response.ok) throw new Error(`Unable to load usage (${response.status})`)
+  return response.json()
+}
+
 const platform: Platform = {
   platform: "web",
   draftStore: createBrowserDraftStore(),
@@ -122,6 +137,7 @@ const platform: Platform = {
   openExternal,
   restart,
   notify,
+  getUsage,
   getDefaultServer: async () => {
     const stored = readDefaultServerUrl()
     return stored ? ServerConnection.Key.make(stored) : null
@@ -149,8 +165,6 @@ if (import.meta.env.VITE_SENTRY_DSN) {
 }
 
 if (root instanceof HTMLElement) {
-  const auth = authFromToken(new URLSearchParams(location.search).get("auth_token"))
-  clearAuthToken()
   const server: ServerConnection.Http = {
     type: "http",
     authToken: !!auth,

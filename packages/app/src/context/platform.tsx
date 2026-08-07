@@ -122,7 +122,7 @@ type PlatformBase = {
   /** Record a fatal renderer error in platform logs (desktop only) */
   recordFatalRendererError?(error: FatalRendererErrorLog): Promise<void>
 
-  /** Run the `opencode-usage` command and return its output (desktop only) */
+  /** Load the local `opencode-usage` report */
   getUsage?(): Promise<{ stdout: string; stderr: string; code: number | null }>
 }
 
