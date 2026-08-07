@@ -204,8 +204,8 @@ if (!Script.preview) {
   const tap = `https://x-access-token:${token}@github.com/toshon-jennings/homebrew-oc-rig.git`
   await $`rm -rf ./dist/homebrew-oc-rig`
   await $`git clone ${tap} ./dist/homebrew-oc-rig`
-  await Bun.file("./dist/homebrew-oc-rig/oc-rig.rb").write(homebrewFormula)
-  await $`cd ./dist/homebrew-oc-rig && git add oc-rig.rb`
+  await Bun.file("./dist/homebrew-oc-rig/Formula/oc-rig.rb").write(homebrewFormula)
+  await $`cd ./dist/homebrew-oc-rig && git add Formula/oc-rig.rb`
   if ((await $`cd ./dist/homebrew-oc-rig && git diff --cached --quiet`.nothrow()).exitCode !== 0) {
     await $`cd ./dist/homebrew-oc-rig && git commit -m "Update to v${Script.version}"`
     await $`cd ./dist/homebrew-oc-rig && git push`
