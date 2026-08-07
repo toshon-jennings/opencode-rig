@@ -4,7 +4,7 @@
   "description": "AI-powered development tool",
   "private": true,
   "// version": "Canonical version for this fork. Independent of upstream's line; see README.",
-  "version": "0.1.0",
+  "version": "0.1.197",
   "// upstreamBase": "The anomalyco/opencode release this fork is currently rebased on.",
   "upstreamBase": "1.18.14",
   "type": "module",
