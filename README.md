@@ -94,13 +94,13 @@ the underlying feature set.
 #### Homebrew (macOS and Linux)
 
 ```bash
-brew install toshon-jennings/oc-rig/oc-rig
+brew install toshon-jennings/tap/oc-rig
 ```
 
 Or tap first, then install:
 
 ```bash
-brew tap toshon-jennings/oc-rig
+brew tap toshon-jennings/tap
 brew install oc-rig
 ```
 
