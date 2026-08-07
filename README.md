@@ -91,27 +91,30 @@ the underlying feature set.
 
 ### Installation
 
-> [!WARNING]
-> The commands below install **upstream OpenCode**, not this fork. This fork is not
-> published to npm, Homebrew, Scoop, the AUR, or any other package registry. To run it,
-> clone [this repository](https://github.com/toshon-jennings/opencode-rig) and
-> build from source.
+#### Homebrew (macOS and Linux)
 
 ```bash
-# YOLO
-curl -fsSL https://opencode.ai/install | bash
-
-# Package managers
-npm i -g opencode-ai@latest        # or bun/pnpm/yarn
-scoop install opencode             # Windows
-choco install opencode             # Windows
-brew install anomalyco/tap/opencode # macOS and Linux (recommended, always up to date)
-brew install opencode              # macOS and Linux (official brew formula, updated less)
-sudo pacman -S opencode            # Arch Linux (Stable)
-paru -S opencode-bin               # Arch Linux (Latest from AUR)
-mise use -g opencode               # Any OS
-nix run nixpkgs#opencode           # or github:anomalyco/opencode for latest dev branch
+brew install toshon-jennings/oc-rig/oc-rig
 ```
+
+Or tap first, then install:
+
+```bash
+brew tap toshon-jennings/oc-rig
+brew install oc-rig
+```
+
+Then run:
+
+```bash
+cd <project>
+oc-rig
+```
+
+#### From source
+
+Clone [this repository](https://github.com/toshon-jennings/opencode-rig) and
+build from source — see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 > [!TIP]
 > Remove versions older than 0.1.x before installing.
