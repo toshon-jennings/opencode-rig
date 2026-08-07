@@ -3,7 +3,7 @@
 // page). Must NOT point at anomalyco/*: the updater resolves updates from here, so
 // upstream's releases would be offered to fork users and replace this build.
 export const FORK_OWNER = "toshon-jennings"
-export const FORK_REPO = "opencode-workbench"
+export const FORK_REPO = "opencode-rig"
 
 export const releasesUrl = `https://github.com/${FORK_OWNER}/${FORK_REPO}/releases`
 

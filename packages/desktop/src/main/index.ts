@@ -51,9 +51,9 @@ import { startBackgroundCli } from "./background-cli"
 import { setNativeTranslations } from "./native-translations"
 
 const APP_NAMES: Record<string, string> = {
-  dev: "OpenCode Workbench Dev",
-  beta: "OpenCode Workbench Beta",
-  prod: "OpenCode Workbench",
+  dev: "OpenCode Rig Dev",
+  beta: "OpenCode Rig Beta",
+  prod: "OpenCode Rig",
 }
 const APP_IDS: Record<string, string> = {
   dev: "ai.opencode.desktop.dev",
@@ -140,7 +140,7 @@ const main = Effect.gen(function* () {
     process.env.XDG_STATE_HOME = join(root, "state")
     return root
   })()
-  app.setName(app.isPackaged ? APP_NAMES[CHANNEL] : "OpenCode Workbench Dev")
+  app.setName(app.isPackaged ? APP_NAMES[CHANNEL] : "OpenCode Rig Dev")
   app.setAppUserModelId(appId)
   app.setPath(
     "userData",

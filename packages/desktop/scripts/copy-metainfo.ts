@@ -5,7 +5,7 @@ const channel = arg === "dev" || arg === "beta" || arg === "prod" ? arg : resolv
 
 const appId = channel === "prod" ? "ai.opencode.desktop" : `ai.opencode.desktop.${channel}`
 const productName =
-  channel === "prod" ? "OpenCode Workbench" : `OpenCode Workbench ${channel.charAt(0).toUpperCase() + channel.slice(1)}`
+  channel === "prod" ? "OpenCode Rig" : `OpenCode Rig ${channel.charAt(0).toUpperCase() + channel.slice(1)}`
 const summary = `Open source AI coding agent${channel !== "prod" ? ` (${channel})` : ""}`
 
 const xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -32,9 +32,9 @@ const xml = `<?xml version="1.0" encoding="UTF-8"?>
 
   <content_rating type="oars-1.1" />
 
-  <url type="bugtracker">https://github.com/toshon-jennings/opencode-workbench/issues</url>
-  <url type="homepage">https://github.com/toshon-jennings/opencode-workbench</url>
-  <url type="vcs-browser">https://github.com/toshon-jennings/opencode-workbench</url>
+  <url type="bugtracker">https://github.com/toshon-jennings/opencode-rig/issues</url>
+  <url type="homepage">https://github.com/toshon-jennings/opencode-rig</url>
+  <url type="vcs-browser">https://github.com/toshon-jennings/opencode-rig</url>
 
   <screenshots>
     <screenshot type="default">

@@ -102,7 +102,7 @@ const getBase = (appId: string): Configuration => ({
     sign: signed,
   },
   protocols: {
-    name: "OpenCode Workbench",
+    name: "OpenCode Rig",
     schemes: ["opencode"],
   },
   win: {
@@ -143,7 +143,7 @@ function getConfig() {
       return {
         ...base,
         appId,
-        productName: "OpenCode Workbench Dev",
+        productName: "OpenCode Rig Dev",
         deb: { fpm: [metainfoFpm(appId)] },
         rpm: { packageName: "opencode-dev", fpm: [metainfoFpm(appId)] },
       }
@@ -152,8 +152,8 @@ function getConfig() {
       return {
         ...base,
         appId,
-        productName: "OpenCode Workbench Beta",
-        protocols: { name: "OpenCode Workbench Beta", schemes: ["opencode"] },
+        productName: "OpenCode Rig Beta",
+        protocols: { name: "OpenCode Rig Beta", schemes: ["opencode"] },
         publish: { provider: "github", owner: FORK_OWNER, repo: FORK_REPO, channel: "beta", releaseType: "release" },
         deb: { fpm: [metainfoFpm(appId)] },
         rpm: { packageName: "opencode-beta", fpm: [metainfoFpm(appId)] },
@@ -163,8 +163,8 @@ function getConfig() {
       return {
         ...base,
         appId,
-        productName: "OpenCode Workbench",
-        protocols: { name: "OpenCode Workbench", schemes: ["opencode"] },
+        productName: "OpenCode Rig",
+        protocols: { name: "OpenCode Rig", schemes: ["opencode"] },
         // Not a draft: the updater cannot read latest-mac.yml from an unpublished release.
         publish: { provider: "github", owner: FORK_OWNER, repo: FORK_REPO, channel: "latest", releaseType: "release" },
         deb: { fpm: [metainfoFpm(appId), legacyDesktopEntryFpm] },

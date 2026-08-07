@@ -3,17 +3,17 @@ Community fork of OpenCode adding an integrated terminal and a persistent usage 
 ---
 
 <p align="center">
-  <a href="https://github.com/toshon-jennings/opencode-workbench">
+  <a href="https://github.com/toshon-jennings/opencode-rig">
     <picture>
-      <source srcset="assets/logo-workbench-dark.svg" media="(prefers-color-scheme: dark)">
-      <source srcset="assets/logo-workbench-light.svg" media="(prefers-color-scheme: light)">
-      <img src="assets/logo-workbench-light.svg" alt="opencode-workbench logo">
+      <source srcset="assets/logo-rig-dark.svg" media="(prefers-color-scheme: dark)">
+      <source srcset="assets/logo-rig-light.svg" media="(prefers-color-scheme: light)">
+      <img src="assets/logo-rig-light.svg" alt="opencode-rig logo">
     </picture>
   </a>
 </p>
-<p align="center">opencode-workbench — an unofficial fork of the open source AI coding agent.</p>
+<p align="center">opencode-rig — an unofficial fork of the open source AI coding agent.</p>
 <p align="center">
-  <a href="https://github.com/toshon-jennings/opencode-workbench">github.com/toshon-jennings/opencode-workbench</a>
+  <a href="https://github.com/toshon-jennings/opencode-rig">github.com/toshon-jennings/opencode-rig</a>
 </p>
 
 > [!IMPORTANT]
@@ -22,7 +22,7 @@ Community fork of OpenCode adding an integrated terminal and a persistent usage 
 >
 > Please do not file issues about this fork on the upstream tracker, and do not ask the
 > OpenCode maintainers for support with it. Report problems with this fork at
-> [toshon-jennings/opencode-workbench/issues](https://github.com/toshon-jennings/opencode-workbench/issues).
+> [toshon-jennings/opencode-rig/issues](https://github.com/toshon-jennings/opencode-rig/issues).
 >
 > For the official project, see [opencode.ai](https://opencode.ai) and
 > [anomalyco/opencode](https://github.com/anomalyco/opencode).
@@ -49,7 +49,7 @@ input / output / reasoning tokens, cache reads and writes, and cost — plus a `
 #### Integrated terminal
 
 A terminal available directly in the session view, kept alongside the usage dashboard in
-the same workbench layout so you can run commands without leaving the conversation.
+the same layout so you can run commands without leaving the conversation.
 
 #### Requirements
 
@@ -77,7 +77,7 @@ refers to. The upstream release this fork is currently rebased on is recorded as
 `upstreamBase` in the root `package.json`.
 
 Releases and the desktop auto-updater resolve against
-[this fork's releases](https://github.com/toshon-jennings/opencode-workbench/releases) —
+[this fork's releases](https://github.com/toshon-jennings/opencode-rig/releases) —
 never upstream's.
 
 ---
@@ -94,7 +94,7 @@ the underlying feature set.
 > [!WARNING]
 > The commands below install **upstream OpenCode**, not this fork. This fork is not
 > published to npm, Homebrew, Scoop, the AUR, or any other package registry. To run it,
-> clone [this repository](https://github.com/toshon-jennings/opencode-workbench) and
+> clone [this repository](https://github.com/toshon-jennings/opencode-rig) and
 > build from source.
 
 ```bash

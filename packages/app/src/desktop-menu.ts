@@ -286,12 +286,12 @@ export const DESKTOP_MENU: DesktopMenu[] = [
       {
         type: "item",
         labelKey: "desktop.menu.shareFeedback",
-        href: "https://github.com/toshon-jennings/opencode-workbench/issues/new?template=feature-request.yml",
+        href: "https://github.com/toshon-jennings/opencode-rig/issues/new?template=feature-request.yml",
       },
       {
         type: "item",
         labelKey: "desktop.menu.reportBug",
-        href: "https://github.com/toshon-jennings/opencode-workbench/issues/new?template=bug-report.yml",
+        href: "https://github.com/toshon-jennings/opencode-rig/issues/new?template=bug-report.yml",
       },
     ],
   },
