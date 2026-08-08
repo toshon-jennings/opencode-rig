@@ -1222,4 +1222,9 @@ export const dict = {
   "error.childStore.persistedProjectIconCreateFailed": "ไม่สามารถสร้างไอคอนโปรเจกต์ถาวร",
   "error.childStore.storeCreateFailed": "ไม่สามารถสร้างที่เก็บ",
   "terminal.connectionLost.abnormalClose": "WebSocket ปิดอย่างผิดปกติ: {{code}}",
+  "model.tag.reasoning": "Reasoning",
+  "model.tag.vision": "Vision",
+  "model.tag.tools": "Tools",
+  "model.tooltip.tools": "Tools",
+  "model.tooltip.tools.supported": "Tool calling supported",
 }

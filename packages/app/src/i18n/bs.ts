@@ -1241,4 +1241,9 @@ export const dict = {
   "error.childStore.persistedProjectIconCreateFailed": "Nije uspjelo kreiranje trajne ikone projekta",
   "error.childStore.storeCreateFailed": "Nije uspjelo kreiranje skladišta",
   "terminal.connectionLost.abnormalClose": "WebSocket zatvoren nenormalno: {{code}}",
+  "model.tag.reasoning": "Reasoning",
+  "model.tag.vision": "Vision",
+  "model.tag.tools": "Tools",
+  "model.tooltip.tools": "Tools",
+  "model.tooltip.tools.supported": "Tool calling supported",
 }

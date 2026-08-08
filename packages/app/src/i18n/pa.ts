@@ -1145,4 +1145,9 @@ export const dict = {
   "workspace.reset.archived.one": "1 سیشن آرکائیو کیتا جائے گا۔",
   "workspace.reset.archived.many": "{{count}} سیشن آرکائیو کیتے جان گے۔",
   "workspace.reset.note": "ایہ ورک اسپیس نو ڈیفالٹ برانچ نال ملاون لئی ری سیٹ کرے گا۔",
+  "model.tag.reasoning": "Reasoning",
+  "model.tag.vision": "Vision",
+  "model.tag.tools": "Tools",
+  "model.tooltip.tools": "Tools",
+  "model.tooltip.tools.supported": "Tool calling supported",
 }

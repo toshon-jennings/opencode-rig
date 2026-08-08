@@ -1244,4 +1244,9 @@ export const dict = {
   "error.childStore.persistedProjectIconCreateFailed": "Kalıcı proje simgesi oluşturulamadı",
   "error.childStore.storeCreateFailed": "Depo oluşturulamadı",
   "terminal.connectionLost.abnormalClose": "WebSocket anormal şekilde kapandı: {{code}}",
+  "model.tag.reasoning": "Reasoning",
+  "model.tag.vision": "Vision",
+  "model.tag.tools": "Tools",
+  "model.tooltip.tools": "Tools",
+  "model.tooltip.tools.supported": "Tool calling supported",
 } satisfies Partial<Record<Keys, string>>

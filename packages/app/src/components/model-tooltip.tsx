@@ -71,9 +71,9 @@ export const ModelTooltip: Component<{ model: ModelInfo; latest?: boolean; free?
   }
   const inputs = () => {
     if (props.model.capabilities) {
-      const input = props.model.capabilities.input
+      const input = props.model.capabilities.input as any
       const order: Array<InputKey> = ["text", "image", "audio", "video", "pdf"]
-      const entries = order.filter((key) => input[key]).map((key) => inputLabel(key))
+      const entries = order.filter((key) => Array.isArray(input) ? input.includes(key) : input[key]).map((key) => inputLabel(key))
       return entries.length ? entries.join(", ") : undefined
     }
     const raw = props.model.modalities?.input
@@ -102,6 +102,9 @@ export const ModelTooltip: Component<{ model: ModelInfo; latest?: boolean; free?
           {(value) => <ModelTooltipRow name={language.t("model.tooltip.inputs")} value={value()} />}
         </Show>
         <ModelTooltipRow name={language.t("model.tooltip.reasoning")} value={reasoning()} />
+        <Show when={(props.model.capabilities as any)?.tools}>
+          <ModelTooltipRow name={language.t("model.tooltip.tools")} value={language.t("model.tooltip.tools.supported")} />
+        </Show>
         <ModelTooltipRow name={language.t("model.tooltip.context.label")} value={contextLimit()} />
       </div>
     )
@@ -118,6 +121,9 @@ export const ModelTooltip: Component<{ model: ModelInfo; latest?: boolean; free?
         )}
       </Show>
       <div class="text-12-regular text-text-invert-base">{reasoning()}</div>
+      <Show when={(props.model.capabilities as any)?.tools}>
+        <div class="text-12-regular text-text-invert-base">{language.t("model.tooltip.tools.supported")}</div>
+      </Show>
       <div class="text-12-regular text-text-invert-base">{context()}</div>
     </div>
   )

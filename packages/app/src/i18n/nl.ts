@@ -1155,4 +1155,9 @@ export const dict = {
   "workspace.reset.archived.many": "{{count}} sessies worden gearchiveerd.",
   "workspace.reset.note":
     "Hierdoor wordt de werkruimte opnieuw ingesteld zodat deze overeenkomt met de standaardbranch.",
+  "model.tag.reasoning": "Reasoning",
+  "model.tag.vision": "Vision",
+  "model.tag.tools": "Tools",
+  "model.tooltip.tools": "Tools",
+  "model.tooltip.tools.supported": "Tool calling supported",
 }
