@@ -127,6 +127,9 @@ export const dict: Record<string, string> = {
   "ui.promptInput.chooseVariant": "मॉडल वेरिएंट चुनें",
   "ui.promptInput.send": "भेजें",
   "ui.promptInput.stop": "रोकें",
+  "ui.promptInput.pin": "संदर्भ पिन करें",
+  "ui.promptInput.unpin": "संदर्भ अनपिन करें",
+  "ui.promptInput.tokens": "{{count}}t",
 
   "ui.tabs.close": "टैब बंद करें",
   "ui.textField.copyToClipboard": "क्लिपबोर्ड पर कॉपी करें",

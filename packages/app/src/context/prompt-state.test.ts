@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test"
 import { createRoot } from "solid-js"
-import { createPromptState, DEFAULT_PROMPT } from "./prompt-state"
+import { createPromptState, DEFAULT_PROMPT, estimateContextTokens } from "./prompt-state"
 
 describe("prompt state initialization", () => {
   test("initializes prompt text, cursor, and model together", () => {
@@ -25,5 +25,10 @@ describe("prompt state initialization", () => {
       expect(prompt.model.current()).toBeUndefined()
       dispose()
     })
+  })
+
+  test("uses the shared context breakdown estimator", () => {
+    expect(estimateContextTokens({ type: "file", path: "src/index.ts", preview: "12345" })).toBe(2)
+    expect(estimateContextTokens({ type: "file", path: "src/index.ts" })).toBe(0)
   })
 })

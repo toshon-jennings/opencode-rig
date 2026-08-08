@@ -162,6 +162,7 @@ export const { use: usePrompt, provider: PromptProvider } = createSimpleContext(
         updateComment: (path: string, commentID: string, next: Partial<FileContextItem> & { comment?: string }) =>
           session().context.updateComment(path, commentID, next),
         replaceComments: (items: FileContextItem[]) => session().context.replaceComments(items),
+        togglePin: (key: string) => session().context.togglePin(key),
       },
       set: (prompt: Prompt, cursorPosition?: number, scope?: PromptScope) => pick(scope).set(prompt, cursorPosition),
       reset: (scope?: PromptScope) => pick(scope).reset(),

@@ -110,6 +110,9 @@ export const dict: Record<Keys, string> = {
   "ui.promptInput.chooseVariant": "Velg modellvariant",
   "ui.promptInput.send": "Send",
   "ui.promptInput.stop": "Stopp",
+  "ui.promptInput.pin": "Fest kontekst",
+  "ui.promptInput.unpin": "Løsne kontekst",
+  "ui.promptInput.tokens": "{{count}}t",
 
   "ui.tabs.close": "Lukk fane",
 

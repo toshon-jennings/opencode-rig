@@ -296,6 +296,7 @@ export function createPromptSubmit(input: PromptSubmitInput) {
 
   const clearContext = (target: ReturnType<ReturnType<typeof usePrompt>["capture"]>) => {
     for (const item of target.context.items()) {
+      if (item.pinned) continue
       target.context.remove(item.key)
     }
   }

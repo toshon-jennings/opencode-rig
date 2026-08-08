@@ -193,5 +193,8 @@ export const dict: Record<string, string> = {
   "ui.promptInput.chooseVariant": "Valitse mallivariantti",
   "ui.promptInput.send": "Lähetä",
   "ui.promptInput.stop": "Pysäytä",
+  "ui.promptInput.pin": "Kiinnitä konteksti",
+  "ui.promptInput.unpin": "Irrota konteksti",
+  "ui.promptInput.tokens": "{{count}}t",
   "ui.tabs.close": "Sulje välilehti",
 }

@@ -9,7 +9,7 @@ export type SessionContextBreakdownSegment = {
   percent: number
 }
 
-const estimateTokens = (chars: number) => Math.ceil(chars / 4)
+export const estimateTokens = (chars: number) => Math.ceil(chars / 4)
 const toPercent = (tokens: number, input: number) => (tokens / input) * 100
 const toPercentLabel = (tokens: number, input: number) => Math.round(toPercent(tokens, input) * 10) / 10
 

@@ -133,6 +133,9 @@ export const dict = {
   "ui.promptInput.chooseVariant": "选择模型变体",
   "ui.promptInput.send": "发送",
   "ui.promptInput.stop": "停止",
+  "ui.promptInput.pin": "固定上下文",
+  "ui.promptInput.unpin": "取消固定上下文",
+  "ui.promptInput.tokens": "{{count}}t",
 
   "ui.tabs.close": "关闭标签页",
 

@@ -131,6 +131,9 @@ export const dict = {
   "ui.promptInput.chooseVariant": "เลือกรูปแบบโมเดล",
   "ui.promptInput.send": "ส่ง",
   "ui.promptInput.stop": "หยุด",
+  "ui.promptInput.pin": "ปักหมุดบริบท",
+  "ui.promptInput.unpin": "เลิกปักหมุดบริบท",
+  "ui.promptInput.tokens": "{{count}}t",
 
   "ui.tabs.close": "ปิดแท็บ",
 

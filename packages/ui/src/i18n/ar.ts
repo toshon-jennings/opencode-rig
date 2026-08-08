@@ -147,6 +147,9 @@ export const dict = {
   "ui.promptInput.chooseVariant": "اختيار متغير النموذج",
   "ui.promptInput.send": "إرسال",
   "ui.promptInput.stop": "إيقاف",
+  "ui.promptInput.pin": "تثبيت السياق",
+  "ui.promptInput.unpin": "إلغاء تثبيت السياق",
+  "ui.promptInput.tokens": "{{count}}t",
 
   "ui.tabs.close": "إغلاق علامة التبويب",
 

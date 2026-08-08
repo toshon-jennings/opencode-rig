@@ -7,6 +7,7 @@ import { Persist, persisted } from "@/utils/persist"
 import type { ServerScope } from "@/utils/server-scope"
 import type { BlobReference } from "@/utils/draft-store"
 import type { Platform } from "@/context/platform"
+import { estimateTokens } from "@/components/session/session-context-breakdown"
 
 interface PartBase {
   content: string
@@ -59,10 +60,15 @@ export type FileContextItem = {
   commentID?: string
   commentOrigin?: "review" | "file"
   preview?: string
+  pinned?: boolean
 }
 
 export type ContextItem = FileContextItem
 export type PromptScope = { draftID: string } | { dir: string; id?: string }
+
+export function estimateContextTokens(item: ContextItem) {
+  return estimateTokens(item.preview?.length ?? 0)
+}
 
 export const DEFAULT_PROMPT: Prompt = [{ type: "text", content: "", start: 0, end: 0 }]
 
@@ -228,6 +234,11 @@ function createPromptStateValue(store: PromptStore, setStore: SetStoreFunction<P
           ...current.filter((item) => !isCommentItem(item)),
           ...items.map((item) => ({ ...item, key: contextItemKey(item) })),
         ])
+      },
+      togglePin(key: string) {
+        setStore("context", "items", (items) =>
+          items.map((item) => (item.key === key ? { ...item, pinned: !item.pinned } : item)),
+        )
       },
     },
     set: actions.set,

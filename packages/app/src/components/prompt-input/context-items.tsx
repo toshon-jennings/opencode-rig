@@ -6,16 +6,28 @@ import { Tooltip } from "@opencode-ai/ui/tooltip"
 import { TooltipV2 } from "@opencode-ai/ui/v2/tooltip-v2"
 import { getDirectory, getFilename, getFilenameTruncated } from "@opencode-ai/core/util/path"
 import type { ContextItem } from "@/context/prompt"
+import { estimateContextTokens } from "@/context/prompt-state"
 
 type PromptContextItem = ContextItem & { key: string }
+type ContextItemTranslationKey =
+  | "prompt.context.pin"
+  | "prompt.context.unpin"
+  | "prompt.context.removeFile"
+  | "prompt.context.tokens"
 
 type ContextItemsProps = {
   items: PromptContextItem[]
   active: (item: PromptContextItem) => boolean
   openComment: (item: PromptContextItem) => void
   remove: (item: PromptContextItem) => void
+  onPin: (item: PromptContextItem) => void
   newLayoutDesigns: boolean
-  t: (key: string) => string
+  t: (key: ContextItemTranslationKey, params?: Record<string, string | number | boolean>) => string
+}
+
+function formatTokens(count: number) {
+  if (count >= 1000) return `${Math.round(count / 100) / 10}k`
+  return String(count)
 }
 
 export const PromptContextItems: Component<ContextItemsProps> = (props) => {
@@ -51,10 +63,11 @@ export const PromptContextItems: Component<ContextItemsProps> = (props) => {
               >
                 <div
                   classList={{
-                    "group shrink-0 flex flex-col rounded-[6px] pl-2 pr-1 py-1 max-w-[200px] h-12 cursor-default transition-all transition-transform shadow-xs-border hover:shadow-xs-border-hover": true,
+                    "group shrink-0 flex flex-col rounded-[6px] pl-2 pr-1 py-1 max-w-[200px] h-14 cursor-default transition-all transition-transform shadow-xs-border hover:shadow-xs-border-hover": true,
                     "hover:bg-surface-interactive-weak": !!item.commentID && !selected,
                     "bg-surface-interactive-hover hover:bg-surface-interactive-hover shadow-xs-border-hover": selected,
                     "bg-background-stronger": !selected,
+                    "ring-1 ring-border-info": item.pinned,
                   }}
                   onClick={() => props.openComment(item)}
                 >
@@ -74,9 +87,21 @@ export const PromptContextItems: Component<ContextItemsProps> = (props) => {
                     </div>
                     <IconButton
                       type="button"
-                      icon="close-small"
+                      icon={item.pinned ? "pin-active" : "pin"}
                       variant="ghost"
                       class="ml-auto size-3.5 text-text-weak hover:text-text-strong transition-all"
+                      classList={{ "text-text-strong": item.pinned }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        props.onPin(item)
+                      }}
+                      aria-label={item.pinned ? props.t("prompt.context.unpin") : props.t("prompt.context.pin")}
+                    />
+                    <IconButton
+                      type="button"
+                      icon="close-small"
+                      variant="ghost"
+                      class="size-3.5 text-text-weak hover:text-text-strong transition-all"
                       onClick={(e) => {
                         e.stopPropagation()
                         props.remove(item)
@@ -84,9 +109,16 @@ export const PromptContextItems: Component<ContextItemsProps> = (props) => {
                       aria-label={props.t("prompt.context.removeFile")}
                     />
                   </div>
-                  <Show when={item.comment}>
-                    {(comment) => <div class="text-12-regular text-text-strong ml-5 pr-1 truncate">{comment()}</div>}
-                  </Show>
+                  <div class="flex items-center gap-1.5 ml-5 pr-1">
+                    <Show when={item.preview}>
+                      <span class="text-11-regular text-text-weak shrink-0">
+                        {props.t("prompt.context.tokens", { count: String(formatTokens(estimateContextTokens(item))) })}
+                      </span>
+                    </Show>
+                    <Show when={item.comment}>
+                      {(comment) => <span class="text-12-regular text-text-strong truncate">{comment()}</span>}
+                    </Show>
+                  </div>
                 </div>
               </Dynamic>
             )
