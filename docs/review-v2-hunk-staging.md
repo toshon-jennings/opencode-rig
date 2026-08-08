@@ -10,8 +10,9 @@ Before a mutation, the Core service locks the repository, verifies that both `HE
 the captured revision, and checks the reverse application before writing. Duplicate selected IDs are treated as overlapping, and a
 changed revision is stale. Both conditions return a conflict without changing the worktree.
 
-Reject reverse-applies the selected captured hunks. Accept reverse-applies every unselected captured hunk, leaving exactly the
-selected hunks in the working tree. A successful operation returns a freshly captured revision for the UI.
+Reject reverse-applies the selected captured hunks. Accept reverse-applies unselected captured hunks only in files containing a
+selected hunk, leaving unrelated working-tree files unchanged. A successful operation returns a freshly captured revision for the
+UI.
 
 The contract is implemented as a location-scoped Core service and Protocol/Server endpoint rather than extending `SessionRevert`
 or legacy `Vcs.apply`. Core tests exercise accept, reject, stale-state conflict, and overlapping-selection conflict against a real

@@ -32,6 +32,24 @@ describe("Review", () => {
     ),
   )
 
+  it.live("keeps changes in other files when accepting a selected hunk", () =>
+    withReview((directory) =>
+      Effect.gen(function* () {
+        const review = yield* Review.Service
+        yield* Effect.promise(() => fs.writeFile(path.join(directory, "second.txt"), "changed second\n"))
+        const revision = yield* review.capture()
+        const file = revision.files.find((item) => item.path === "file.txt")
+        const selected = file?.hunks[0]
+        if (!selected) throw new Error("Expected first file hunk")
+
+        yield* review.mutate({ revisionID: revision.id, operation: "accept", hunkIDs: [selected.id] })
+
+        expect(yield* read(path.join(directory, "file.txt"))).toContain("changed two")
+        expect(yield* read(path.join(directory, "second.txt"))).toBe("changed second\n")
+      }),
+    ),
+  )
+
   it.live("rejects only selected hunks in a real working tree", () =>
     withReview((directory) =>
       Effect.gen(function* () {

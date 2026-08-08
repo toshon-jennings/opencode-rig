@@ -134,9 +134,10 @@ const layer = Layer.effect(
             })
           }
 
+          const selectedFiles = state.files.filter((file) => file.hunks.some((hunk) => selected.has(hunk.id)))
           const rejected =
             input.operation === "accept"
-              ? selectedHunks(state.files, selected, false)
+              ? selectedHunks(selectedFiles, selected, false)
               : selectedHunks(state.files, selected, true)
           const changes = patch(rejected)
           if (changes) {

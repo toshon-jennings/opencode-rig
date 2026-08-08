@@ -127,7 +127,10 @@ async function requestReview(
 ): Promise<{ readonly data: ReviewRevision }> {
   const headers = reviewHeaders(config?.headers)
   if (body) headers.set("content-type", "application/json")
-  const response = await (config?.fetch ?? globalThis.fetch)(new URL(pathname, config?.baseUrl ?? "http://localhost"), {
+  const url = new URL(pathname, config?.baseUrl ?? "http://localhost")
+  if (config?.directory) url.searchParams.set("location[directory]", config.directory)
+  if (config?.experimental_workspaceID) url.searchParams.set("location[workspace]", config.experimental_workspaceID)
+  const response = await (config?.fetch ?? globalThis.fetch)(url, {
     method: "POST",
     headers,
     body: body ? JSON.stringify(body) : undefined,
