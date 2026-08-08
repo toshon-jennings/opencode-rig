@@ -30,6 +30,9 @@ export const dict: Record<string, string> = {
   "ui.sessionReviewV2.filter.tests": "ٹیسٹس",
   "ui.sessionReviewV2.filter.large": "بڑے فرق",
   "ui.lineComment.ask": "AI سے پوچھیں",
+  "ui.sessionReviewV2.hunk": "ہنک {{number}}",
+  "ui.sessionReviewV2.acceptSelected": "منتخب قبول کریں",
+  "ui.sessionReviewV2.rejectSelected": "منتخب مسترد کریں",
   "ui.sessionReviewV2.empty.noGit.title": "کوئی ٹریک شدہ تبدیلیاں نہیں۔",
   "ui.sessionReviewV2.empty.noGit.description":
     "اس پروجیکٹ میں تبدیلیوں کو ٹریک کریں، ان کا جائزہ لیں اور ان کو کالعدم کریں۔",

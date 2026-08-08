@@ -1,4 +1,5 @@
 import type { FilePart, Project, UserMessage, VcsFileDiff } from "@opencode-ai/sdk/v2"
+import type { ReviewMutation, ReviewRevision } from "@opencode-ai/sdk/v2/client"
 import { getFilename } from "@opencode-ai/core/util/path"
 import { useDialog } from "@opencode-ai/ui/context/dialog"
 import { createQuery, skipToken, useMutation, useQueryClient } from "@tanstack/solid-query"
@@ -705,11 +706,56 @@ export default function Page() {
     }
   })
   const refreshVcs = debounce(() => void queryClient.invalidateQueries({ queryKey: vcsKey() }), 100)
+  const [reviewRevision, setReviewRevision] = createSignal<ReviewRevision | undefined>()
+  let reviewCapture = 0
+
   const reviewDiffs = () => {
     if (reviewMode() === "git" || reviewMode() === "branch")
       // avoids suspense
       return vcsQuery.isFetched ? (vcsQuery.data ?? []) : []
     return turnDiffs()
+  }
+
+  createEffect(() => {
+    const mode = reviewMode()
+    const diffs =
+      mode === "git"
+        ? reviewDiffs()
+            .map((diff) => `${diff.file}\0${diff.patch ?? ""}`)
+            .join("\n")
+        : undefined
+    const capture = ++reviewCapture
+    if (mode !== "git") {
+      setReviewRevision(undefined)
+      return
+    }
+    void sdk()
+      .client.review.capture()
+      .then((result) => {
+        if (capture !== reviewCapture || diffs === undefined) return
+        setReviewRevision(result.data)
+      })
+      .catch((error) => {
+        if (capture !== reviewCapture) return
+        console.debug("[session-review] failed to capture review revision", { error })
+        setReviewRevision(undefined)
+      })
+  })
+
+  const mutateReview = async (input: ReviewMutation) => {
+    const revision = reviewRevision()
+    if (!revision) return
+    try {
+      const result = await sdk().client.review.mutate({
+        revisionID: revision.id,
+        operation: input.operation,
+        hunkIDs: input.hunkIDs,
+      })
+      setReviewRevision(result.data)
+      refreshVcs()
+    } catch (error) {
+      console.debug("[session-review] failed to mutate review revision", { error })
+    }
   }
   const activeReviewFile = () => {
     const diffs = reviewDiffs()
@@ -1348,6 +1394,10 @@ export default function Page() {
     get focusedComment() {
       return comments.focus()
     },
+    get reviewRevision() {
+      return reviewMode() === "git" ? reviewRevision() : undefined
+    },
+    onReviewMutation: mutateReview,
     onFocusedCommentChange: (focus: { file: string; id: string } | null) => {
       // The preview clears the focus once it has opened the comment; persist the
       // focused file as the active selection so the preview stays on it. Skip

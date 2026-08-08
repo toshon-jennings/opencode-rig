@@ -391,6 +391,34 @@
   }
 }
 
+[data-component="session-review-v2"] [data-slot="session-review-v2-hunk-controls"] {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+[data-component="session-review-v2"] [data-slot="session-review-v2-hunk-option"] {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--v2-text-text-weak);
+  font-size: 12px;
+}
+
+[data-component="session-review-v2"] [data-slot="session-review-v2-hunk-action"] {
+  border: 0;
+  background: transparent;
+  color: var(--v2-text-text-base);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+[data-component="session-review-v2"] [data-slot="session-review-v2-hunk-action"]:disabled {
+  color: var(--v2-text-text-weak);
+  cursor: default;
+}
+
 [data-component="session-review-v2"] [data-slot="session-review-v2-file-status"] {
   display: flex;
   align-items: center;

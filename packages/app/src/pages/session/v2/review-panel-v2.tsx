@@ -31,6 +31,7 @@ import {
 } from "@/pages/session/v2/review-diff-kinds"
 import type { ReviewPanelV2State } from "@/pages/session/v2/review-panel-v2-state"
 import type { SelectedLineRange } from "@/context/file"
+import type { ReviewMutation, ReviewRevision } from "@opencode-ai/sdk/v2/client"
 import { applyFileListKeyDown, SessionFileListV2 } from "@/pages/session/v2/session-file-list-v2"
 
 type ReviewDiff = FileDiffInfo | SnapshotFileDiff | VcsFileDiff
@@ -55,6 +56,8 @@ export type ReviewPanelV2Props = {
   comments?: SessionReviewComment[]
   focusedComment?: SessionReviewFocus | null
   onFocusedCommentChange?: (focus: SessionReviewFocus | null) => void
+  reviewRevision?: ReviewRevision
+  onReviewMutation?: (input: ReviewMutation) => void
 }
 
 export function ReviewPanelV2(props: ReviewPanelV2Props) {
@@ -164,6 +167,8 @@ export function ReviewPanelV2(props: ReviewPanelV2Props) {
                   comments={props.comments}
                   focusedComment={props.focusedComment}
                   onFocusedCommentChange={props.onFocusedCommentChange}
+                  review={props.reviewRevision?.files.find((item) => item.path === file)}
+                  onReviewMutation={props.onReviewMutation}
                 />
               )}
             </Show>

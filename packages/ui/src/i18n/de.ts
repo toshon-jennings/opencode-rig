@@ -38,6 +38,9 @@ export const dict = {
   "ui.sessionReviewV2.filter.tests": "Tests",
   "ui.sessionReviewV2.filter.large": "Große Diffs",
   "ui.lineComment.ask": "KI fragen",
+  "ui.sessionReviewV2.hunk": "Abschnitt {{number}}",
+  "ui.sessionReviewV2.acceptSelected": "Auswahl übernehmen",
+  "ui.sessionReviewV2.rejectSelected": "Auswahl verwerfen",
   "ui.sessionReviewV2.empty.noGit.title": "Keine verfolgten Änderungen",
   "ui.sessionReviewV2.empty.noGit.description":
     "Änderungen in diesem Projekt verfolgen, überprüfen und rückgängig machen",

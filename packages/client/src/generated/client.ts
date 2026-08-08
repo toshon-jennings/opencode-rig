@@ -112,6 +112,10 @@ import type {
   ProjectCopiesRemoveOutput,
   ProjectCopiesRefreshInput,
   ProjectCopiesRefreshOutput,
+  ServerReviewCaptureInput,
+  ServerReviewCaptureOutput,
+  ServerReviewMutateInput,
+  ServerReviewMutateOutput,
 } from "./types"
 import { ClientError } from "./client-error"
 
@@ -983,6 +987,33 @@ export function make(options: ClientOptions) {
             successStatus: 204,
             declaredStatuses: [400, 401],
             empty: true,
+          },
+          requestOptions,
+        ),
+    },
+    "server.review": {
+      capture: (input?: ServerReviewCaptureInput, requestOptions?: RequestOptions) =>
+        request<ServerReviewCaptureOutput>(
+          {
+            method: "POST",
+            path: `/api/review`,
+            query: { location: input?.["location"] },
+            successStatus: 200,
+            declaredStatuses: [409, 401, 400],
+            empty: false,
+          },
+          requestOptions,
+        ),
+      mutate: (input: ServerReviewMutateInput, requestOptions?: RequestOptions) =>
+        request<ServerReviewMutateOutput>(
+          {
+            method: "POST",
+            path: `/api/review/${encodeURIComponent(input.revisionID)}`,
+            query: { location: input["location"] },
+            body: { operation: input["operation"], hunkIDs: input["hunkIDs"] },
+            successStatus: 200,
+            declaredStatuses: [409, 401, 400],
+            empty: false,
           },
           requestOptions,
         ),

@@ -101,6 +101,13 @@ export type ProjectCopyError = {
 export const isProjectCopyError = (value: unknown): value is ProjectCopyError =>
   typeof value === "object" && value !== null && "name" in value && value["name"] === "ProjectCopyError"
 
+export type ReviewMutationError = {
+  readonly name: "ReviewMutationError"
+  readonly data: { readonly message: string; readonly reason: "stale" | "overlap" | "not-found" | "non-git" }
+}
+export const isReviewMutationError = (value: unknown): value is ReviewMutationError =>
+  typeof value === "object" && value !== null && "name" in value && value["name"] === "ReviewMutationError"
+
 export type HealthGetOutput = { readonly healthy: true }
 
 export type LocationGetInput = {
@@ -2809,3 +2816,56 @@ export type ProjectCopiesRefreshInput = {
 }
 
 export type ProjectCopiesRefreshOutput = void
+
+export type ServerReviewCaptureInput = {
+  readonly location?: {
+    readonly location?: { readonly directory?: string | undefined; readonly workspace?: string | undefined } | undefined
+  }["location"]
+}
+
+export type ServerReviewCaptureOutput = {
+  readonly location: {
+    readonly directory: string
+    readonly workspaceID?: string
+    readonly project: { readonly id: string; readonly directory: string }
+  }
+  readonly data: {
+    readonly id: string
+    readonly files: ReadonlyArray<{
+      readonly id: string
+      readonly path: string
+      readonly hunks: ReadonlyArray<{ readonly id: string }>
+    }>
+  }
+}
+
+export type ServerReviewMutateInput = {
+  readonly revisionID: { readonly revisionID: string }["revisionID"]
+  readonly location?: {
+    readonly location?: { readonly directory?: string | undefined; readonly workspace?: string | undefined } | undefined
+  }["location"]
+  readonly operation: {
+    readonly operation: "accept" | "reject"
+    readonly hunkIDs: readonly [string, ...Array<string>]
+  }["operation"]
+  readonly hunkIDs: {
+    readonly operation: "accept" | "reject"
+    readonly hunkIDs: readonly [string, ...Array<string>]
+  }["hunkIDs"]
+}
+
+export type ServerReviewMutateOutput = {
+  readonly location: {
+    readonly directory: string
+    readonly workspaceID?: string
+    readonly project: { readonly id: string; readonly directory: string }
+  }
+  readonly data: {
+    readonly id: string
+    readonly files: ReadonlyArray<{
+      readonly id: string
+      readonly path: string
+      readonly hunks: ReadonlyArray<{ readonly id: string }>
+    }>
+  }
+}
