@@ -11,8 +11,9 @@ type ModelInfo = {
     name: string
   }
   capabilities?: {
-    reasoning: boolean
-    input: InputMap
+    reasoning?: boolean
+    toolcall?: boolean
+    input?: InputMap | Array<string>
   }
   modalities?: {
     input: Array<string>
@@ -70,10 +71,14 @@ export const ModelTooltip: Component<{ model: ModelInfo; latest?: boolean; free?
     return `${props.model.name}${suffix}`
   }
   const inputs = () => {
-    if (props.model.capabilities) {
-      const input = props.model.capabilities.input as any
+    if (props.model.capabilities?.input) {
+      const input = props.model.capabilities.input
       const order: Array<InputKey> = ["text", "image", "audio", "video", "pdf"]
-      const entries = order.filter((key) => Array.isArray(input) ? input.includes(key) : input[key]).map((key) => inputLabel(key))
+      if (Array.isArray(input)) {
+        const entries = order.filter((key) => input.includes(key)).map((key) => inputLabel(key))
+        return entries.length ? entries.join(", ") : undefined
+      }
+      const entries = order.filter((key) => input[key]).map((key) => inputLabel(key))
       return entries.length ? entries.join(", ") : undefined
     }
     const raw = props.model.modalities?.input
@@ -90,6 +95,7 @@ export const ModelTooltip: Component<{ model: ModelInfo; latest?: boolean; free?
       ? language.t("model.tooltip.reasoning.allowed")
       : language.t("model.tooltip.reasoning.none")
   }
+  const toolcall = () => props.model.capabilities?.toolcall
   const context = () => language.t("model.tooltip.context", { limit: props.model.limit.context.toLocaleString() })
   const contextLimit = () => props.model.limit.context.toLocaleString(language.intl())
 
@@ -102,7 +108,7 @@ export const ModelTooltip: Component<{ model: ModelInfo; latest?: boolean; free?
           {(value) => <ModelTooltipRow name={language.t("model.tooltip.inputs")} value={value()} />}
         </Show>
         <ModelTooltipRow name={language.t("model.tooltip.reasoning")} value={reasoning()} />
-        <Show when={(props.model.capabilities as any)?.tools}>
+        <Show when={toolcall()}>
           <ModelTooltipRow name={language.t("model.tooltip.tools")} value={language.t("model.tooltip.tools.supported")} />
         </Show>
         <ModelTooltipRow name={language.t("model.tooltip.context.label")} value={contextLimit()} />
@@ -121,7 +127,7 @@ export const ModelTooltip: Component<{ model: ModelInfo; latest?: boolean; free?
         )}
       </Show>
       <div class="text-12-regular text-text-invert-base">{reasoning()}</div>
-      <Show when={(props.model.capabilities as any)?.tools}>
+      <Show when={toolcall()}>
         <div class="text-12-regular text-text-invert-base">{language.t("model.tooltip.tools.supported")}</div>
       </Show>
       <div class="text-12-regular text-text-invert-base">{context()}</div>

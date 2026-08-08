@@ -1152,9 +1152,9 @@ export const dict = {
   "help.tabs.persistence": "Kun avaat sovelluksen uudelleen, välilehtesi ovat yhä avoinna.",
   "help.tabs.worktrees":
     "Uusi ulkoasu ei vielä tue Git-työpuita, mutta tuki on tulossa pian. Jos haluat jatkaa aiemman ulkoasun käyttöä, voit vaihtaa ulkoasua asetuksissa. Huomaa kuitenkin, että uudesta ulkoasusta tulee pysyvä muutaman viikon kuluttua.",
-  "model.tag.reasoning": "Reasoning",
-  "model.tag.vision": "Vision",
-  "model.tag.tools": "Tools",
-  "model.tooltip.tools": "Tools",
-  "model.tooltip.tools.supported": "Tool calling supported",
+  "model.tag.reasoning": "Päättely",
+  "model.tag.vision": "Näkö",
+  "model.tag.tools": "Työkalut",
+  "model.tooltip.tools": "Työkalut",
+  "model.tooltip.tools.supported": "Työkalukutsut tuettu",
 }

@@ -1183,9 +1183,9 @@ export const dict = {
 
   "titlebar.update": "Mettre à jour",
   "titlebar.updateVersion": "Mettre à jour {{version}}",
-  "model.tag.reasoning": "Reasoning",
+  "model.tag.reasoning": "Raisonnement",
   "model.tag.vision": "Vision",
-  "model.tag.tools": "Tools",
-  "model.tooltip.tools": "Tools",
-  "model.tooltip.tools.supported": "Tool calling supported",
+  "model.tag.tools": "Outils",
+  "model.tooltip.tools": "Outils",
+  "model.tooltip.tools.supported": "Appel d'outils pris en charge",
 }

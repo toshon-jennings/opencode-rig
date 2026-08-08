@@ -44,6 +44,53 @@ const sortModelGroups = (a: { category: string; items: ModelItem[] }, b: { categ
   return a.items[0].provider.name.localeCompare(b.items[0].provider.name)
 }
 
+function formatContextLimit(context: number) {
+  if (context >= 1_000_000) {
+    const m = context / 1_000_000
+    return `${m % 1 === 0 ? m : m.toFixed(1)}M`
+  }
+  if (context >= 1_000) {
+    return `${Math.floor(context / 1_000)}k`
+  }
+  return `${context}`
+}
+
+const CapabilityTag: Component<{ v2?: boolean; class?: string; children: JSX.Element }> = (props) => {
+  return (
+    <Show
+      when={props.v2}
+      fallback={<Tag class={`shrink-0 text-[11px] leading-3 py-[2px] ${props.class ?? ""}`}>{props.children}</Tag>}
+    >
+      <TagV2 class={`shrink-0 text-[11px] leading-3 py-[2px] px-1 ${props.class ?? ""}`}>{props.children}</TagV2>
+    </Show>
+  )
+}
+
+const ModelCapabilityChips: Component<{ model: ModelItem; v2?: boolean }> = (props) => {
+  const language = useLanguage()
+
+  return (
+    <div class={`flex items-center gap-1.5 opacity-80 ${props.v2 ? "ml-1 mr-1" : ""}`}>
+      <Show when={props.model.limit?.context}>
+        {(limit) => (
+          <CapabilityTag v2={props.v2} class="font-mono uppercase">
+            {formatContextLimit(limit())}
+          </CapabilityTag>
+        )}
+      </Show>
+      <Show when={props.model.capabilities?.reasoning}>
+        <CapabilityTag v2={props.v2}>{language.t("model.tag.reasoning")}</CapabilityTag>
+      </Show>
+      <Show when={props.model.capabilities?.input?.image}>
+        <CapabilityTag v2={props.v2}>{language.t("model.tag.vision")}</CapabilityTag>
+      </Show>
+      <Show when={props.model.capabilities?.toolcall}>
+        <CapabilityTag v2={props.v2}>{language.t("model.tag.tools")}</CapabilityTag>
+      </Show>
+    </div>
+  )
+}
+
 const ModelList: Component<{
   provider?: string
   class?: string
@@ -100,20 +147,7 @@ const ModelList: Component<{
       {(i) => (
         <div class="w-full flex items-center gap-x-2 text-13-regular">
           <span class="truncate">{i.name}</span>
-          <div class="flex items-center gap-1.5 opacity-80">
-            <Show when={i.limit?.context}>
-              {(limit) => <Tag class="shrink-0 font-mono text-[11px] leading-3 uppercase py-[2px]">{Math.floor(limit() / 1000)}k</Tag>}
-            </Show>
-            <Show when={(i.capabilities as any)?.reasoning || (i as any).reasoning}>
-              <Tag class="shrink-0 text-[11px] leading-3 py-[2px]">{language.t("model.tag.reasoning")}</Tag>
-            </Show>
-            <Show when={(i.capabilities as any)?.input?.image || (i as any).modalities?.input?.includes("image") || (i.capabilities as any)?.input?.includes?.("image")}>
-              <Tag class="shrink-0 text-[11px] leading-3 py-[2px]">{language.t("model.tag.vision")}</Tag>
-            </Show>
-            <Show when={(i.capabilities as any)?.tools}>
-              <Tag class="shrink-0 text-[11px] leading-3 py-[2px]">{language.t("model.tag.tools")}</Tag>
-            </Show>
-          </div>
+          <ModelCapabilityChips model={i} />
           <Show when={isFree(i.provider.id, i.cost)}>
             <Tag>{language.t("model.tag.free")}</Tag>
           </Show>
@@ -497,20 +531,7 @@ function ModelSelectorPopoverV2View(props: {
                                 onSelect={() => selectModel(item)}
                               >
                                 <span class="min-w-0 truncate leading-5">{item.name}</span>
-                                <div class="flex items-center gap-1.5 ml-1 mr-1 opacity-80">
-                                  <Show when={item.limit?.context}>
-                                    {(limit) => <TagV2 class="shrink-0 font-mono text-[11px] leading-3 uppercase py-[2px] px-1">{Math.floor(limit() / 1000)}k</TagV2>}
-                                  </Show>
-                                  <Show when={(item.capabilities as any)?.reasoning || (item as any).reasoning}>
-                                    <TagV2 class="shrink-0 text-[11px] leading-3 py-[2px] px-1">{language.t("model.tag.reasoning")}</TagV2>
-                                  </Show>
-                                  <Show when={(item.capabilities as any)?.input?.image || (item as any).modalities?.input?.includes("image") || (item.capabilities as any)?.input?.includes?.("image")}>
-                                    <TagV2 class="shrink-0 text-[11px] leading-3 py-[2px] px-1">{language.t("model.tag.vision")}</TagV2>
-                                  </Show>
-                                  <Show when={(item.capabilities as any)?.tools}>
-                                    <TagV2 class="shrink-0 text-[11px] leading-3 py-[2px] px-1">{language.t("model.tag.tools")}</TagV2>
-                                  </Show>
-                                </div>
+                                <ModelCapabilityChips model={item} v2 />
                                 <Show when={isFree(item.provider.id, item.cost)}>
                                   <TagV2 class="shrink-0">{language.t("model.tag.free")}</TagV2>
                                 </Show>
