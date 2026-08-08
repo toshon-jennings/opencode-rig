@@ -63,6 +63,8 @@ export type PromptInputV2Comment = {
   commentID?: string
   commentOrigin?: "review" | "file"
   preview?: string
+  pinned?: boolean
+  tokens?: number
 }
 
 export type PromptInputV2PersistedState = {

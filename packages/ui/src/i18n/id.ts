@@ -137,6 +137,9 @@ export const dict: Record<string, string> = {
   "ui.promptInput.chooseVariant": "Pilih varian model",
   "ui.promptInput.send": "Kirim",
   "ui.promptInput.stop": "Hentikan",
+  "ui.promptInput.pin": "Sematkan konteks",
+  "ui.promptInput.unpin": "Lepas sematan konteks",
+  "ui.promptInput.tokens": "{{count}}t",
 
   "ui.tabs.close": "Tutup tab",
 

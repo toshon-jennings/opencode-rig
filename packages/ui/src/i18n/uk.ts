@@ -146,6 +146,9 @@ export const dict: Record<string, string> = {
   "ui.promptInput.chooseVariant": "Вибрати варіант моделі",
   "ui.promptInput.send": "Надіслати",
   "ui.promptInput.stop": "Зупинити",
+  "ui.promptInput.pin": "Закріпити контекст",
+  "ui.promptInput.unpin": "Відкріпити контекст",
+  "ui.promptInput.tokens": "{{count}}t",
 
   "ui.tabs.close": "Закрити вкладку",
 

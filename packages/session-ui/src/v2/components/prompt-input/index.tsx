@@ -44,6 +44,8 @@ export type PromptInputV2Props = {
   variantControlVisible?: boolean
   attachKeybind?: string[]
   attachShortcut?: string
+  onTogglePin?: (comment: PromptInputV2Comment) => void
+  commentTokens?: (comment: PromptInputV2Comment) => number | undefined
 }
 
 export function PromptInputV2(props: PromptInputV2Props) {
@@ -57,6 +59,13 @@ export function PromptInputV2(props: PromptInputV2Props) {
     props.controller.onCursor(promptInputV2Cursor(editor))
   }
   const mode = createMemo(() => state.mode)
+  const comments = createMemo(() =>
+    props.controller.comments().map((comment) => {
+      const tokens = props.commentTokens?.(comment)
+      if (tokens === undefined) return comment
+      return { ...comment, tokens }
+    }),
+  )
   const buttons = createMemo(() => ({
     opacity: mode() === "normal" ? 1 : 0,
     "pointer-events": mode() === "normal" ? ("auto" as const) : ("none" as const),
@@ -133,13 +142,14 @@ export function PromptInputV2(props: PromptInputV2Props) {
         <Show when={state.mode === "normal"}>
           <PromptInputV2Attachments
             attachments={props.controller.attachments()}
-            comments={props.controller.comments()}
+            comments={comments()}
             activeCommentID={state.activeContextID}
             removeLabel={i18n.t("ui.promptInput.removeAttachment")}
             onAttachmentClick={props.controller.openAttachment}
             onAttachmentRemove={(attachment) => props.controller.removeAttachment(attachment.id)}
             onCommentClick={(comment) => props.controller.toggleContext(comment.key)}
             onCommentRemove={(comment) => props.controller.removeContext(comment.key)}
+            onTogglePin={props.onTogglePin}
           />
         </Show>
 
@@ -384,6 +394,7 @@ export function PromptInputV2Attachments(props: {
   onAttachmentRemove: (attachment: PromptInputV2Attachment) => void
   onCommentClick?: (comment: PromptInputV2Comment) => void
   onCommentRemove?: (comment: PromptInputV2Comment) => void
+  onTogglePin?: (comment: PromptInputV2Comment) => void
 }) {
   const i18n = useI18n()
   return (
@@ -410,6 +421,23 @@ export function PromptInputV2Attachments(props: {
                     onClick={() => props.onCommentClick?.(comment)}
                   />
                 </TooltipV2>
+                <Show when={props.onTogglePin}>
+                  <button
+                    type="button"
+                    onClick={() => props.onTogglePin?.(comment)}
+                    class="absolute -top-1 -start-1 size-4 rounded-full bg-v2-icon-icon-muted outline-solid outline-1 outline-v2-icon-icon-contrast flex items-center justify-center transition-opacity"
+                    classList={{
+                      "opacity-100": comment.pinned,
+                      "opacity-0 group-hover:opacity-100": !comment.pinned,
+                    }}
+                    aria-label={comment.pinned ? i18n.t("ui.promptInput.unpin") : i18n.t("ui.promptInput.pin")}
+                  >
+                    <IconV2
+                      name={comment.pinned ? "outline-pin-active" : "outline-pin"}
+                      class="text-v2-icon-icon-contrast"
+                    />
+                  </button>
+                </Show>
                 <button
                   type="button"
                   onClick={() => props.onCommentRemove?.(comment)}
@@ -418,6 +446,15 @@ export function PromptInputV2Attachments(props: {
                 >
                   <IconV2 name="outline-xmark" class="text-v2-icon-icon-contrast" />
                 </button>
+                <Show when={comment.tokens}>
+                  {(tokens) => (
+                    <span class="absolute -bottom-1 start-1 text-[9px] font-medium text-v2-text-text-muted bg-v2-background-bg-base rounded px-0.5">
+                      {i18n.t("ui.promptInput.tokens", {
+                        count: formatTokenCount(tokens()),
+                      })}
+                    </span>
+                  )}
+                </Show>
               </div>
             )}
           </For>
@@ -465,6 +502,11 @@ export function PromptInputV2Attachments(props: {
       </div>
     </Show>
   )
+}
+
+function formatTokenCount(count: number) {
+  if (count >= 1000) return `${Math.round(count / 100) / 10}k`
+  return String(count)
 }
 
 export function PromptInputV2AddMenu(props: {

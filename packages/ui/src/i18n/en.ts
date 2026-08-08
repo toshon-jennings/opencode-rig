@@ -138,6 +138,9 @@ export const dict: Record<string, string> = {
   "ui.promptInput.chooseVariant": "Choose model variant",
   "ui.promptInput.send": "Send",
   "ui.promptInput.stop": "Stop",
+  "ui.promptInput.pin": "Pin context",
+  "ui.promptInput.unpin": "Unpin context",
+  "ui.promptInput.tokens": "{{count}}t",
 
   "ui.tabs.close": "Close tab",
 

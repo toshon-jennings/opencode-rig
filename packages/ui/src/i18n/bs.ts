@@ -139,6 +139,9 @@ export const dict = {
   "ui.promptInput.chooseVariant": "Odaberi varijantu modela",
   "ui.promptInput.send": "Pošalji",
   "ui.promptInput.stop": "Zaustavi",
+  "ui.promptInput.pin": "Zakači kontekst",
+  "ui.promptInput.unpin": "Otkači kontekst",
+  "ui.promptInput.tokens": "{{count}}t",
 
   "ui.tabs.close": "Zatvori karticu",
 

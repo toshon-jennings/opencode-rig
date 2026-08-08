@@ -139,6 +139,9 @@ export const dict = {
   "ui.promptInput.chooseVariant": "Wybierz wariant modelu",
   "ui.promptInput.send": "Wyślij",
   "ui.promptInput.stop": "Zatrzymaj",
+  "ui.promptInput.pin": "Przypnij kontekst",
+  "ui.promptInput.unpin": "Odepnij kontekst",
+  "ui.promptInput.tokens": "{{count}}t",
 
   "ui.tabs.close": "Zamknij kartę",
 

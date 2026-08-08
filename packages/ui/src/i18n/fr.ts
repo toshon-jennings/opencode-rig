@@ -137,6 +137,9 @@ export const dict = {
   "ui.promptInput.chooseVariant": "Choisir la variante du modèle",
   "ui.promptInput.send": "Envoyer",
   "ui.promptInput.stop": "Arrêter",
+  "ui.promptInput.pin": "Épingler le contexte",
+  "ui.promptInput.unpin": "Désépingler le contexte",
+  "ui.promptInput.tokens": "{{count}}t",
 
   "ui.tabs.close": "Fermer l'onglet",
 

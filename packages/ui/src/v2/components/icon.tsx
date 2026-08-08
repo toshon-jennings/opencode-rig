@@ -93,6 +93,14 @@ const icons = {
     viewBox: "0 0 16 16",
     body: `<path fill-rule="evenodd" clip-rule="evenodd" d="M4.99487 5.70186L7.29297 7.99995L4.99487 10.2981L5.70198 11.0052L8.00008 8.70706L10.2982 11.0052L11.0053 10.2981L8.70718 7.99995L11.0053 5.70186L10.2982 4.99475L8.00008 7.29285L5.70198 4.99475L4.99487 5.70186Z" fill="currentColor"/>`,
   },
+  "outline-pin": {
+    viewBox: "0 0 16 16",
+    body: `<path d="M8 2L6 5H3L5.5 7.5L4.5 12L8 9L11.5 12L10.5 7.5L13 5H10L8 2Z" stroke="currentColor" stroke-linejoin="round"/>`,
+  },
+  "outline-pin-active": {
+    viewBox: "0 0 16 16",
+    body: `<path d="M8 2L6 5H3L5.5 7.5L4.5 12L8 9L11.5 12L10.5 7.5L13 5H10L8 2Z" fill="currentColor"/>`,
+  },
   "outline-chevron-down": {
     viewBox: "0 0 16 16",
     body: `<path d="M5 6.5L8 9.5L11 6.5" stroke="currentColor"/>`,

@@ -65,6 +65,7 @@ const prompt = {
     removeComment: () => undefined,
     updateComment: () => undefined,
     replaceComments: () => undefined,
+    togglePin: () => undefined,
     items: () => [],
   },
   capture: () => prompt,
@@ -305,6 +306,45 @@ beforeEach(() => {
 })
 
 describe("prompt submit worktree selection", () => {
+  test("clears unpinned context at the queued turn boundary and preserves pinned context", async () => {
+    params = { id: "session-1" }
+    const items = [
+      { key: "unpinned", type: "file" as const, path: "src/unpinned.ts" },
+      { key: "pinned", type: "file" as const, path: "src/pinned.ts", pinned: true },
+    ]
+    const context = {
+      ...prompt.context,
+      items: () => items,
+      remove: (key: string) => {
+        const index = items.findIndex((item) => item.key === key)
+        if (index >= 0) items.splice(index, 1)
+      },
+    }
+    const target = { ...prompt, context, capture: () => ({ ...prompt, context }) }
+    const submit = createPromptSubmit({
+      prompt: target,
+      info: () => ({ id: "session-1" }),
+      imageAttachments: () => [],
+      commentCount: () => 0,
+      autoAccept: () => false,
+      mode: () => "normal",
+      working: () => true,
+      editor: () => undefined,
+      queueScroll: () => undefined,
+      promptLength: (value) => value.reduce((sum, part) => sum + ("content" in part ? part.content.length : 0), 0),
+      addToHistory: () => undefined,
+      resetHistoryNavigation: () => undefined,
+      setMode: () => undefined,
+      setPopover: () => undefined,
+      shouldQueue: () => true,
+      onQueue: () => undefined,
+    })
+
+    await submit.handleSubmit({ preventDefault: () => undefined } as unknown as Event)
+
+    expect(items).toEqual([{ key: "pinned", type: "file", path: "src/pinned.ts", pinned: true }])
+  })
+
   test("reads the latest worktree accessor value per submit", async () => {
     const submit = createPromptSubmit({
       prompt,

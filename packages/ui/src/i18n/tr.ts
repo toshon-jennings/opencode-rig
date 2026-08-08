@@ -137,6 +137,9 @@ export const dict = {
   "ui.promptInput.chooseVariant": "Model varyantı seç",
   "ui.promptInput.send": "Gönder",
   "ui.promptInput.stop": "Durdur",
+  "ui.promptInput.pin": "Bağlamı sabitle",
+  "ui.promptInput.unpin": "Bağlamın sabitlemesini kaldır",
+  "ui.promptInput.tokens": "{{count}}t",
 
   "ui.tabs.close": "Sekmeyi kapat",
 

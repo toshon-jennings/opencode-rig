@@ -211,6 +211,9 @@ export const dict = {
   "ui.promptInput.chooseVariant": "Vælg modelvariant",
   "ui.promptInput.send": "Send",
   "ui.promptInput.stop": "Stop",
+  "ui.promptInput.pin": "Fastgør kontekst",
+  "ui.promptInput.unpin": "Frigør kontekst",
+  "ui.promptInput.tokens": "{{count}}t",
 
   "ui.tabs.close": "Luk fane",
 }

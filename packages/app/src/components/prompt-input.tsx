@@ -1483,8 +1483,9 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
             if (item.commentID) comments.remove(item.path, item.commentID)
             prompt.context.remove(item.key)
           }}
+          onPin={(item) => prompt.context.togglePin(item.key)}
           newLayoutDesigns={false}
-          t={(key) => language.t(key as Parameters<typeof language.t>[0])}
+          t={(key, params) => language.t(key, params)}
         />
         <PromptImageAttachments
           attachments={imageAttachments()}

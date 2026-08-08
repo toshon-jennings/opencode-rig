@@ -107,6 +107,9 @@ export const dict = {
   "ui.promptInput.chooseVariant": "모델 변형 선택",
   "ui.promptInput.send": "전송",
   "ui.promptInput.stop": "중지",
+  "ui.promptInput.pin": "컨텍스트 고정",
+  "ui.promptInput.unpin": "컨텍스트 고정 해제",
+  "ui.promptInput.tokens": "{{count}}t",
 
   "ui.tabs.close": "탭 닫기",
 

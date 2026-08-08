@@ -130,6 +130,9 @@ export const dict = {
   "ui.promptInput.chooseVariant": "モデルバリアントを選択",
   "ui.promptInput.send": "送信",
   "ui.promptInput.stop": "停止",
+  "ui.promptInput.pin": "コンテキストを固定",
+  "ui.promptInput.unpin": "コンテキストの固定を解除",
+  "ui.promptInput.tokens": "{{count}}t",
 
   "ui.tabs.close": "タブを閉じる",
 

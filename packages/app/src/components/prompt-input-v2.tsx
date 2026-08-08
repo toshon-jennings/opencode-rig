@@ -21,6 +21,7 @@ import { useLanguage } from "@/context/language"
 import { useLayout } from "@/context/layout"
 import { usePermission } from "@/context/permission"
 import { type ImageAttachmentPart, usePrompt } from "@/context/prompt"
+import { estimateContextTokens } from "@/context/prompt-state"
 import { usePlatform } from "@/context/platform"
 import { useSDK } from "@/context/sdk"
 import { useSync } from "@/context/sync"
@@ -42,6 +43,7 @@ export type PromptInputV2ComposerProps = {
 export type PromptInputV2ControllerProps = Omit<PromptInputProps, "class" | "submission">
 export type PromptInputV2ComposerController = PromptInputV2Interaction & {
   readonly model: PromptInputProps["controls"]["model"]
+  togglePin(key: string): void
 }
 
 export function PromptInputV2Composer(props: PromptInputV2ComposerProps) {
@@ -58,6 +60,8 @@ export function PromptInputV2Composer(props: PromptInputV2ComposerProps) {
         variantControlVisible={!props.controller.model.loading}
         attachKeybind={command.keybindParts("file.attach")}
         attachShortcut={command.keybind("file.attach")}
+        onTogglePin={(comment) => props.controller.togglePin(comment.key)}
+        commentTokens={estimateContextTokens}
         modelControl={
           <PromptInputV2ModelControl
             loading={props.controller.model.loading}
@@ -409,6 +413,7 @@ export function usePromptInputV2Controller(props: PromptInputV2ControllerProps):
     },
   })
   Object.defineProperty(controller, "model", { get: () => props.controls.model })
+  Object.defineProperty(controller, "togglePin", { value: (key: string) => prompt.context.togglePin(key) })
 
   command.register("prompt-input", () => [
     {
