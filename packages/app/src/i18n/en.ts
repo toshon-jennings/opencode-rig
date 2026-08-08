@@ -1153,7 +1153,7 @@ export const dict = {
   "workspace.reset.note": "This will reset the workspace to match the default branch.",
   "command.provider.health": "View provider health",
   "command.provider.health.description": "Check provider status, connection health, and latency",
-  "command.followup.mode.toggle": "Toggle follow-up mode",
+  "command.followup.mode.toggle": "Follow-up mode",
   "command.followup.mode.toggle.description": "Switch follow-up mode between steer and queue",
   "toast.followup.mode.title": "Follow-up mode",
   "toast.followup.mode.steer": "Follow-up mode set to Steer",
@@ -1165,4 +1165,4 @@ export const dict = {
   "dialog.mcp.inspector.expand": "Expand server details",
   "dialog.mcp.inspector.collapse": "Collapse server details",
   "dialog.mcp.inspector.required": "Required",
-};
+}
