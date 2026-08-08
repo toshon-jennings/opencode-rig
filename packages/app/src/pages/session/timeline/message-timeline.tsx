@@ -77,6 +77,7 @@ import { observeElementOffsetReconnectAware } from "./observe-element-offset"
 import { createTimelineProjection } from "./projection"
 import { MessageComment, SummaryDiff, TimelineRow, TimelineRowMap } from "./rows"
 import { filterVirtualIndexes } from "./virtual-items"
+import { SteerChip } from "./steer-chip"
 
 const emptyMessages: MessageType[] = []
 const emptyParts: PartType[] = []
@@ -255,6 +256,7 @@ export function MessageTimeline(props: {
   setRevealMessage?: (fn: (id: string) => void) => void
   setScrollToEnd?: (fn: () => void) => void
   setHistoryAnchor?: (handlers: { capture: () => void; restore: (done: boolean) => void }) => void
+  onSteer?: () => void
 }) {
   let touchGesture: number | undefined
 
@@ -1214,6 +1216,19 @@ export function MessageTimeline(props: {
         return (
           <TimelineRowFrame row={assistantPartRow}>
             <div data-slot="session-turn-message-container" class="w-full px-4 md:px-5">
+              <Show
+                when={
+                  workingTurn(assistantPartRow().userMessageID) &&
+                  lastAssistantGroupKey().get(assistantPartRow().userMessageID) === assistantPartRow().group.key &&
+                  props.onSteer
+                }
+              >
+                {(onSteer) => (
+                  <div class="pb-2">
+                    <SteerChip mode={settings.general.followup()} onClick={onSteer()} />
+                  </div>
+                )}
+              </Show>
               <div
                 data-slot="session-turn-assistant-content"
                 aria-hidden={workingTurn(assistantPartRow().userMessageID)}

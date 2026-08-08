@@ -2086,6 +2086,7 @@ export default function Page() {
               {(_id) => (
                 <MessageTimeline
                   actions={actions}
+                  onSteer={focusInput}
                   scroll={ui.scroll}
                   onResumeScroll={resumeScroll}
                   setScrollRef={setScrollRef}
