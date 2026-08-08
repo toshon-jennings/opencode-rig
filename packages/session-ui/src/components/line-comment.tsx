@@ -411,8 +411,8 @@ export const LineCommentEditor = (props: LineCommentEditorProps) => {
                   type="button"
                   data-slot="line-comment-action"
                   data-variant="ghost"
-                  on:mousedown={hold as any}
-                  on:click={click(split.onCancel) as any}
+                  onMouseDown={hold}
+                  onClick={click(split.onCancel)}
                 >
                   {split.cancelLabel ?? i18n.t("ui.common.cancel")}
                 </button>
@@ -421,8 +421,11 @@ export const LineCommentEditor = (props: LineCommentEditorProps) => {
                     type="button"
                     data-slot="line-comment-action"
                     data-variant="ghost"
-                    on:mousedown={hold as any}
-                    on:click={click(split.onAsk!) as any}
+                    onMouseDown={hold}
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      split.onAsk?.()
+                    }}
                   >
                     {split.askLabel ?? i18n.t("ui.lineComment.ask")}
                   </button>
@@ -432,8 +435,8 @@ export const LineCommentEditor = (props: LineCommentEditorProps) => {
                   data-slot="line-comment-action"
                   data-variant="primary"
                   disabled={split.value.trim().length === 0}
-                  on:mousedown={hold as any}
-                  on:click={click(submit) as any}
+                  onMouseDown={hold}
+                  onClick={click(submit)}
                 >
                   {split.submitLabel ?? i18n.t("ui.lineComment.submit")}
                 </button>
