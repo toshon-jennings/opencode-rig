@@ -113,6 +113,11 @@ jobs:
           APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
 
   cli:
+    # build.ts uploads to an existing release (`gh release upload`) rather than
+    # creating one; the desktop job is what actually creates it via electron-builder's
+    # `--publish always`, ~7 minutes into its run. Without this, cli's ~2 minute build
+    # finishes first and every leg fails with "release not found".
+    needs: desktop
     strategy:
       matrix:
         include:
