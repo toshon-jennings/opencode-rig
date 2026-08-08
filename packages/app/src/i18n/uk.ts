@@ -1251,9 +1251,9 @@ export const dict = {
   "workspace.reset.archived.one": "1 сесію буде заархівовано.",
   "workspace.reset.archived.many": "{{count}} сесій буде заархівовано.",
   "workspace.reset.note": "Це скине робочу область, щоб вона відповідала гілці за замовчуванням.",
-  "model.tag.reasoning": "Міркування",
+  "model.tag.reasoning": "Мислення",
   "model.tag.vision": "Зір",
   "model.tag.tools": "Інструменти",
   "model.tooltip.tools": "Інструменти",
-  "model.tooltip.tools.supported": "Підтримка виклику інструментів",
+  "model.tooltip.tools.supported": "Підтримує виклик інструментів",
 }

@@ -1152,7 +1152,7 @@ export const dict = {
   "workspace.reset.archived.one": "1 sessiya arxivlənəcək.",
   "workspace.reset.archived.many": "{{count}} sessiya arxivlənəcək.",
   "workspace.reset.note": "Bu iş sahəsini standart branch ilə uyğunlaşdırmaq üçün sıfırlayacaq.",
-  "model.tag.reasoning": "Mühakimə",
+  "model.tag.reasoning": "Düşünmə",
   "model.tag.vision": "Görmə",
   "model.tag.tools": "Alətlər",
   "model.tooltip.tools": "Alətlər",

@@ -1242,8 +1242,8 @@ export const dict = {
   "error.childStore.storeCreateFailed": "Nije uspjelo kreiranje skladišta",
   "terminal.connectionLost.abnormalClose": "WebSocket zatvoren nenormalno: {{code}}",
   "model.tag.reasoning": "Rasuđivanje",
-  "model.tag.vision": "Vizija",
+  "model.tag.vision": "Vid",
   "model.tag.tools": "Alati",
   "model.tooltip.tools": "Alati",
-  "model.tooltip.tools.supported": "Podržano pozivanje alata",
+  "model.tooltip.tools.supported": "Podržava pozivanje alata",
 }

@@ -1169,7 +1169,7 @@ export const dict = {
   "help.tabs.persistence": "Wenn Sie die App erneut öffnen, sind Ihre Tabs weiterhin geöffnet.",
   "help.tabs.worktrees":
     "Das neue Design unterstützt Git-Worktrees noch nicht. Diese Funktion folgt in Kürze. Wenn Sie das bisherige Layout vorerst weiterverwenden möchten, können Sie in den Einstellungen zwischen den Layouts wechseln. Beachten Sie jedoch, dass das neue Layout in einigen Wochen dauerhaft verwendet wird.",
-  "model.tag.reasoning": "Schlussfolgerung",
+  "model.tag.reasoning": "Reasoning",
   "model.tag.vision": "Vision",
   "model.tag.tools": "Werkzeuge",
   "model.tooltip.tools": "Werkzeuge",

@@ -1172,5 +1172,5 @@ export const dict = {
   "model.tag.vision": "Wizja",
   "model.tag.tools": "Narzędzia",
   "model.tooltip.tools": "Narzędzia",
-  "model.tooltip.tools.supported": "Obsługa wywoływania narzędzi",
+  "model.tooltip.tools.supported": "Obsługuje wywoływanie narzędzi",
 }

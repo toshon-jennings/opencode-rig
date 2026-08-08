@@ -1156,5 +1156,5 @@ export const dict = {
   "model.tag.vision": "Näkö",
   "model.tag.tools": "Työkalut",
   "model.tooltip.tools": "Työkalut",
-  "model.tooltip.tools.supported": "Työkalukutsut tuettu",
+  "model.tooltip.tools.supported": "Tukee työkalukutsuja",
 }

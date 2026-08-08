@@ -1255,5 +1255,5 @@ export const dict = {
   "model.tag.vision": "Syn",
   "model.tag.tools": "Verktøy",
   "model.tooltip.tools": "Verktøy",
-  "model.tooltip.tools.supported": "Verktøykall støttes",
+  "model.tooltip.tools.supported": "Støtter verktøykall",
 } satisfies Partial<Record<Keys, string>>

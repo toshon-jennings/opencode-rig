@@ -1187,5 +1187,5 @@ export const dict = {
   "model.tag.vision": "Vision",
   "model.tag.tools": "Outils",
   "model.tooltip.tools": "Outils",
-  "model.tooltip.tools.supported": "Appel d'outils pris en charge",
+  "model.tooltip.tools.supported": "Appels d'outils pris en charge",
 }

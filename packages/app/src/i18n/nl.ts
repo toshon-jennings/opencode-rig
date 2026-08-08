@@ -1157,7 +1157,7 @@ export const dict = {
     "Hierdoor wordt de werkruimte opnieuw ingesteld zodat deze overeenkomt met de standaardbranch.",
   "model.tag.reasoning": "Redenering",
   "model.tag.vision": "Visie",
-  "model.tag.tools": "Gereedschappen",
-  "model.tooltip.tools": "Gereedschappen",
-  "model.tooltip.tools.supported": "Tool-calling ondersteund",
+  "model.tag.tools": "Tools",
+  "model.tooltip.tools": "Tools",
+  "model.tooltip.tools.supported": "Ondersteunt tool-aanroepen",
 }

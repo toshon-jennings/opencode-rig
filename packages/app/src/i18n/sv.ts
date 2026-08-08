@@ -1148,5 +1148,5 @@ export const dict = {
   "model.tag.vision": "Syn",
   "model.tag.tools": "Verktyg",
   "model.tooltip.tools": "Verktyg",
-  "model.tooltip.tools.supported": "Verktygsanrop stöds",
+  "model.tooltip.tools.supported": "Stöder verktygsanrop",
 }

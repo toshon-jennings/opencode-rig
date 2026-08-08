@@ -1149,7 +1149,7 @@ export const dict = {
   "workspace.reset.note": "यह डिफ़ॉल्ट शाखा से मिलान करने के लिए वर्कस्पेस को रीसेट कर देगा।",
   "model.tag.reasoning": "तर्क",
   "model.tag.vision": "दृष्टि",
-  "model.tag.tools": "उपकरण",
-  "model.tooltip.tools": "उपकरण",
+  "model.tag.tools": "टूल",
+  "model.tooltip.tools": "टूल",
   "model.tooltip.tools.supported": "टूल कॉलिंग समर्थित",
 }

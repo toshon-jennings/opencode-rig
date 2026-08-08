@@ -1150,7 +1150,7 @@ export const dict = {
   "workspace.reset.note": "یہ ڈیفالٹ برانچ سے ملنے کے لیے ورک اسپیس کو دوبارہ ترتیب دے گا۔",
   "model.tag.reasoning": "استدلال",
   "model.tag.vision": "بصارت",
-  "model.tag.tools": "اوزار",
-  "model.tooltip.tools": "اوزار",
-  "model.tooltip.tools.supported": "ٹول کالنگ کی تعاون حاصل ہے",
+  "model.tag.tools": "ٹولز",
+  "model.tooltip.tools": "ٹولز",
+  "model.tooltip.tools.supported": "ٹول کالنگ سپورٹڈ",
 }
