@@ -42,8 +42,12 @@ for (const remote of remotes) {
   await $`git fetch ${remote} refs/tags/${CURSOR_TAG}:refs/tags/${CURSOR_TAG} --quiet`.nothrow().quiet()
 }
 // The upstream SHA is the tag's message, not its target — see the header comment.
+// The format string is passed as an interpolated value, not written literally in the
+// template: Bun Shell parses the template itself before exec, and unescaped parens in
+// `%(contents)` are invalid syntax to ITS parser, not just the OS shell's.
+const CONTENTS_FORMAT = "%(contents)"
 const cursor =
-  (await $`git for-each-ref refs/tags/${CURSOR_TAG} --format=%(contents)`.nothrow().text()).trim() || undefined
+  (await $`git for-each-ref refs/tags/${CURSOR_TAG} --format=${CONTENTS_FORMAT}`.nothrow().text()).trim() || undefined
 
 const commits = (await $`git log --oneline HEAD..${UPSTREAM}`.text()).trim().split("\n").filter(Boolean)
 const watchedTotal = commits.length
