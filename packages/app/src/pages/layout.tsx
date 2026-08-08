@@ -932,6 +932,39 @@ export default function LegacyLayout(props: ParentProps) {
         onSelect: () => connectProvider(),
       },
       {
+        id: "provider.health",
+        title: language.t("command.provider.health"),
+        description: language.t("command.provider.health.description"),
+        category: language.t("command.category.provider"),
+        onSelect: () => {
+          void import("@/components/settings-v2/dialog-settings-v2").then((module) => {
+            void dialog.show(() => <module.DialogSettings defaultValue="providers" />)
+          })
+        },
+      },
+      {
+        id: "followup.mode.toggle",
+        title: language.t("command.followup.mode.toggle", {
+          mode: language.t(
+            settings.general.followup() === "steer"
+              ? "settings.general.row.followup.option.steer"
+              : "settings.general.row.followup.option.queue",
+          ),
+        }),
+        description: language.t("command.followup.mode.toggle.description"),
+        category: language.t("command.category.settings"),
+        onSelect: () => {
+          const current = settings.general.followup()
+          const next = current === "steer" ? "queue" : "steer"
+          settings.general.setFollowup(next)
+          showToast({
+            title: language.t("toast.followup.mode.title"),
+            description:
+              next === "steer" ? language.t("toast.followup.mode.steer") : language.t("toast.followup.mode.queue"),
+          })
+        },
+      },
+      {
         id: "server.switch",
         title: language.t("command.server.switch"),
         category: language.t("command.category.server"),
