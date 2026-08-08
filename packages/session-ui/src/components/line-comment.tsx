@@ -186,6 +186,8 @@ export type LineCommentEditorProps = Omit<LineCommentAnchorProps, "children" | "
   autofocus?: boolean
   cancelLabel?: string
   submitLabel?: string
+  onAsk?: VoidFunction
+  askLabel?: string
   mention?: {
     items: (query: string) => string[] | Promise<string[]>
   }
@@ -204,6 +206,8 @@ export const LineCommentEditor = (props: LineCommentEditorProps) => {
     "autofocus",
     "cancelLabel",
     "submitLabel",
+    "onAsk",
+    "askLabel",
     "mention",
   ])
 
@@ -412,6 +416,17 @@ export const LineCommentEditor = (props: LineCommentEditorProps) => {
                 >
                   {split.cancelLabel ?? i18n.t("ui.common.cancel")}
                 </button>
+                <Show when={split.onAsk}>
+                  <button
+                    type="button"
+                    data-slot="line-comment-action"
+                    data-variant="ghost"
+                    on:mousedown={hold as any}
+                    on:click={click(split.onAsk!) as any}
+                  >
+                    {split.askLabel ?? i18n.t("ui.lineComment.ask")}
+                  </button>
+                </Show>
                 <button
                   type="button"
                   data-slot="line-comment-action"

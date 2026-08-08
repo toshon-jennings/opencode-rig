@@ -1,5 +1,12 @@
 import { describe, expect, test } from "bun:test"
-import { filterReviewFiles, reviewDiffDirectory, reviewDiffKinds, reviewDiffNeedsLoad } from "./review-diff-kinds"
+import {
+  filterReviewDiffs,
+  filterReviewFiles,
+  reviewDiffDirectory,
+  reviewDiffKinds,
+  reviewDiffNeedsLoad,
+  type RenderDiff,
+} from "./review-diff-kinds"
 
 describe("reviewDiffKinds", () => {
   test("maps file and directory kinds", () => {
@@ -26,6 +33,27 @@ describe("filterReviewFiles", () => {
     const files = ["src/a.ts", "src/b.ts", "lib/c.ts"]
     expect(filterReviewFiles(files, "b.ts")).toEqual(["src/b.ts"])
     expect(filterReviewFiles(files, "")).toEqual(files)
+  })
+})
+
+describe("filterReviewDiffs", () => {
+  const diffs = [
+    { file: "src/index.ts", additions: 2, deletions: 1, status: "modified" },
+    { file: "src/index.test.ts", additions: 4, deletions: 3, status: "modified" },
+    { file: "fixtures/response.txt", additions: 300, deletions: 250, status: "modified" },
+  ] satisfies RenderDiff[]
+
+  test("filters code, test, and large diffs independently", () => {
+    expect(filterReviewDiffs(diffs, ["language"]).map((diff) => diff.file)).toEqual([
+      "src/index.ts",
+      "src/index.test.ts",
+    ])
+    expect(filterReviewDiffs(diffs, ["tests"]).map((diff) => diff.file)).toEqual(["src/index.test.ts"])
+    expect(filterReviewDiffs(diffs, ["large"]).map((diff) => diff.file)).toEqual(["fixtures/response.txt"])
+  })
+
+  test("intersects selected filters", () => {
+    expect(filterReviewDiffs(diffs, ["language", "tests"]).map((diff) => diff.file)).toEqual(["src/index.test.ts"])
   })
 })
 

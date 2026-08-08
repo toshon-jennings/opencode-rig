@@ -2,6 +2,7 @@ import type { SnapshotFileDiff, VcsFileDiff } from "@opencode-ai/sdk/v2"
 import type { FileDiffInfo } from "@opencode-ai/client/promise"
 import type { Kind } from "@/components/file-tree-v2"
 import { normalizeFileTreeV2Path } from "@/components/file-tree-v2-model"
+import type { SessionReviewFileFilter } from "@opencode-ai/session-ui/v2/session-review-v2"
 
 export type RenderDiff = FileDiffInfo | (SnapshotFileDiff & { file: string }) | VcsFileDiff
 
@@ -59,4 +60,51 @@ export function filterReviewFiles(files: string[], query: string) {
   const value = query.trim().toLowerCase()
   if (!value) return files
   return files.filter((file) => file.toLowerCase().includes(value))
+}
+
+export function filterReviewDiffs(diffs: RenderDiff[], filters: readonly SessionReviewFileFilter[]) {
+  if (filters.length === 0) return diffs
+  return diffs.filter((diff) => filters.every((filter) => matchesReviewFilter(diff, filter)))
+}
+
+function matchesReviewFilter(diff: RenderDiff, filter: SessionReviewFileFilter) {
+  if (filter === "tests")
+    return /(^|[/_.-])(?:test|tests|spec|specs|__tests__)(?:[/_.-]|$)|\.(?:test|spec)\.[^.]+$/i.test(diff.file)
+  if (filter === "large") return diff.additions + diff.deletions >= 500
+  const extension = diff.file.split(".").pop()?.toLowerCase()
+  return [
+    "astro",
+    "c",
+    "cc",
+    "cpp",
+    "cs",
+    "css",
+    "go",
+    "h",
+    "hpp",
+    "html",
+    "java",
+    "js",
+    "jsx",
+    "json",
+    "kt",
+    "lua",
+    "md",
+    "mjs",
+    "php",
+    "py",
+    "rb",
+    "rs",
+    "sh",
+    "sql",
+    "svelte",
+    "swift",
+    "toml",
+    "ts",
+    "tsx",
+    "vue",
+    "xml",
+    "yaml",
+    "yml",
+  ].includes(extension ?? "")
 }

@@ -72,6 +72,8 @@ export interface LineCommentEditorV2Props extends Omit<ComponentProps<"div">, "c
   rows?: number
   cancelLabel?: string
   submitLabel?: string
+  onAsk?: () => void
+  askLabel?: string
   autofocus?: boolean
   mention?: LineCommentEditorV2Mention
 }
@@ -102,6 +104,8 @@ export function LineCommentEditorV2(props: LineCommentEditorV2Props) {
     "rows",
     "cancelLabel",
     "submitLabel",
+    "onAsk",
+    "askLabel",
     "autofocus",
     "mention",
     "class",
@@ -295,6 +299,11 @@ export function LineCommentEditorV2(props: LineCommentEditorV2Props) {
             <ButtonV2 type="button" size="normal" variant="neutral" onClick={() => local.onCancel()}>
               {local.cancelLabel ?? i18n.t("ui.lineComment.cancel")}
             </ButtonV2>
+            <Show when={local.onAsk}>
+              <ButtonV2 type="button" size="normal" variant="neutral" onClick={() => local.onAsk?.()}>
+                {local.askLabel ?? i18n.t("ui.lineComment.ask")}
+              </ButtonV2>
+            </Show>
             <ButtonV2 type="button" size="normal" variant="contrast" disabled={!canSubmit()} onClick={submit}>
               {local.submitLabel ?? i18n.t("ui.lineComment.submit")}
             </ButtonV2>

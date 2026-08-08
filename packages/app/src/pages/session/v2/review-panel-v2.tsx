@@ -23,12 +23,14 @@ import { useLanguage } from "@/context/language"
 import { useSDK } from "@/context/sdk"
 import {
   filterRenderableDiff,
+  filterReviewDiffs,
   filterReviewFiles,
   reviewDiffKinds,
   reviewDiffNeedsLoad,
   type RenderDiff,
 } from "@/pages/session/v2/review-diff-kinds"
 import type { ReviewPanelV2State } from "@/pages/session/v2/review-panel-v2-state"
+import type { SelectedLineRange } from "@/context/file"
 import { applyFileListKeyDown, SessionFileListV2 } from "@/pages/session/v2/session-file-list-v2"
 
 type ReviewDiff = FileDiffInfo | SnapshotFileDiff | VcsFileDiff
@@ -46,6 +48,7 @@ export type ReviewPanelV2Props = {
   onDiffStyleChange?: (style: SessionReviewDiffStyle) => void
   state: ReviewPanelV2State
   onLineComment?: (comment: SessionReviewLineComment) => void
+  onAskAboutLine?: (input: { file: string; selection: SelectedLineRange }) => void
   onLineCommentUpdate?: (comment: SessionReviewCommentUpdate) => void
   onLineCommentDelete?: (comment: SessionReviewCommentDelete) => void
   lineCommentActions?: SessionReviewCommentActions
@@ -57,7 +60,9 @@ export type ReviewPanelV2Props = {
 export function ReviewPanelV2(props: ReviewPanelV2Props) {
   const sdk = useSDK()
 
-  const diffs = createMemo(() => props.diffs().filter(filterRenderableDiff))
+  const diffs = createMemo(() =>
+    filterReviewDiffs(props.diffs().filter(filterRenderableDiff), props.state.fileFilters()),
+  )
   const filteredFiles = createMemo(() =>
     filterReviewFiles(
       diffs().map((diff) => diff.file),
@@ -152,6 +157,7 @@ export function ReviewPanelV2(props: ReviewPanelV2Props) {
                   expandMode={props.state.expandMode()}
                   readFile={readFile}
                   onLineComment={props.onLineComment}
+                  onAskAboutLine={(selection) => props.onAskAboutLine?.({ file, selection })}
                   onLineCommentUpdate={props.onLineCommentUpdate}
                   onLineCommentDelete={props.onLineCommentDelete}
                   lineCommentActions={props.lineCommentActions}
@@ -206,6 +212,8 @@ function ReviewPanelV2Sidebar(props: {
       stats={<DiffChanges changes={props.diffs()} />}
       filter={props.state.filter()}
       onFilterChange={props.state.setFilter}
+      fileFilters={props.state.fileFilters()}
+      onFileFiltersChange={props.state.setFileFilters}
       onFilterKeyDown={onFilterKeyDown}
       width={props.state.sidebarWidth()}
       onWidthChange={props.state.resizeSidebar}

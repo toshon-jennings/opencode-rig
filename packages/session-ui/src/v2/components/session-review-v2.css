@@ -98,6 +98,30 @@
   box-sizing: border-box;
 }
 
+[data-component="session-review-v2-sidebar-root"] [data-slot="session-review-v2-sidebar-filter-chips"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+[data-component="session-review-v2-sidebar-root"] [data-slot="session-review-v2-sidebar-filter-chip"] {
+  border: 1px solid var(--v2-border-border-muted);
+  border-radius: 999px;
+  background: var(--v2-background-bg-layer-01);
+  color: var(--v2-text-text-muted);
+  cursor: pointer;
+  font-size: 11px;
+  line-height: 16px;
+  padding: 2px 8px;
+}
+
+[data-component="session-review-v2-sidebar-root"] [data-slot="session-review-v2-sidebar-filter-chip"][data-selected] {
+  border-color: var(--v2-border-border-focus);
+  background: var(--v2-overlay-simple-overlay-hover);
+  color: var(--v2-text-text-base);
+}
+
 [data-component="session-review-v2-sidebar-root"]
   [data-slot="session-review-v2-sidebar-filter"]
   [data-component="text-input-v2"] {

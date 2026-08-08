@@ -1009,6 +1009,17 @@ export default function Page() {
     })
   }
 
+  const addSelectionToContext = (input: { file: string; selection: SelectedLineRange }) => {
+    const selection = selectionFromLines(input.selection)
+    prompt.context.add({
+      type: "file",
+      path: input.file,
+      selection,
+      preview: selectionPreview(input.file, selection),
+    })
+    focusInput()
+  }
+
   const updateCommentInContext = (input: {
     id: string
     file: string
@@ -1325,6 +1336,7 @@ export default function Page() {
     onDiffStyleChange: layout.review.setDiffStyle,
     state: reviewV2State,
     onLineComment: (comment: SessionReviewLineComment) => addCommentToContext({ ...comment, origin: "review" }),
+    onAskAboutLine: addSelectionToContext,
     onLineCommentUpdate: updateCommentInContext,
     onLineCommentDelete: removeCommentFromContext,
     get lineCommentActions() {

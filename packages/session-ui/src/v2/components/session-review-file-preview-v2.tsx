@@ -37,6 +37,7 @@ export type SessionReviewFilePreviewV2Props = {
   expandMode?: SessionReviewExpandMode
   readFile?: (path: string) => Promise<FileContent | undefined>
   onLineComment?: (comment: SessionReviewLineComment) => void
+  onAskAboutLine?: (selection: SelectedLineRange) => void
   onLineCommentUpdate?: (comment: SessionReviewCommentUpdate) => void
   onLineCommentDelete?: (comment: SessionReviewCommentDelete) => void
   lineCommentActions?: SessionReviewCommentActions
@@ -138,6 +139,7 @@ export function SessionReviewFilePreviewV2(props: SessionReviewFilePreviewV2Prop
         preview: selectionPreview(view(), selection),
       })
     },
+    onAsk: (selection) => props.onAskAboutLine?.(selection),
     onUpdate: ({ id, comment, selection }) => {
       props.onLineCommentUpdate?.({
         id,

@@ -20,6 +20,7 @@ type LineCommentControllerV2Props<T extends LineCommentShape> = {
   state: LineCommentStateProps<string>
   getSide: (range: SelectedLineRange) => "additions" | "deletions"
   onSubmit: (input: { comment: string; selection: SelectedLineRange }) => void
+  onAsk?: (selection: SelectedLineRange) => void
   onUpdate?: (input: { id: string; comment: string; selection: SelectedLineRange }) => void
   onDelete?: (comment: T) => void
   renderCommentActions?: (comment: T, controls: { edit: VoidFunction; remove: VoidFunction }) => JSX.Element
@@ -43,6 +44,7 @@ type DraftProps = {
   onInput: (value: string) => void
   onCancel: VoidFunction
   onSubmit: (value: string) => void
+  onAsk?: VoidFunction
   cancelLabel?: string
   submitLabel?: string
   mention?: LineCommentEditorV2Mention
@@ -71,6 +73,7 @@ function lineCommentElementV2(view: Accessor<CommentProps>) {
           onInput={view().editor!.onInput}
           onCancel={view().editor!.onCancel}
           onSubmit={view().editor!.onSubmit}
+          onAsk={view().editor!.onAsk}
           cancelLabel={view().editor!.cancelLabel}
           submitLabel={view().editor!.submitLabel}
           mention={view().editor!.mention}
@@ -89,6 +92,7 @@ function lineCommentDraftElementV2(view: Accessor<DraftProps>) {
         onInput={view().onInput}
         onCancel={view().onCancel}
         onSubmit={view().onSubmit}
+        onAsk={view().onAsk}
         cancelLabel={view().cancelLabel}
         submitLabel={view().submitLabel}
         mention={view().mention}
@@ -145,6 +149,12 @@ export function createLineCommentControllerV2<T extends LineCommentShape>(props:
                   })
                   note.cancelDraft()
                 },
+                onAsk: props.onAsk
+                  ? () => {
+                      props.onAsk?.(cloneSelectedLineRange(comment.selection))
+                      note.cancelDraft()
+                    }
+                  : undefined,
                 cancelLabel: i18n.t("ui.lineComment.cancel"),
                 submitLabel: props.editSubmitLabel,
                 mention: props.mention,
@@ -176,6 +186,13 @@ export function createLineCommentControllerV2<T extends LineCommentShape>(props:
         note.cancelDraft()
         note.select(null)
       },
+      onAsk: props.onAsk
+        ? () => {
+            props.onAsk?.(cloneSelectedLineRange(range))
+            note.cancelDraft()
+            note.select(null)
+          }
+        : undefined,
       cancelLabel: i18n.t("ui.lineComment.cancel"),
       submitLabel: i18n.t("ui.lineComment.submit"),
       mention: props.mention,

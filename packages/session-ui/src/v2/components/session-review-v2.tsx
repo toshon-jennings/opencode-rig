@@ -11,7 +11,7 @@ import { ResizeHandle } from "@opencode-ai/ui/resize-handle"
 import { ScrollView } from "@opencode-ai/ui/scroll-view"
 import { useLocale } from "@kobalte/core/i18n"
 import { makeEventListener } from "@solid-primitives/event-listener"
-import { Show, createEffect, createMemo, createSignal, type JSX } from "solid-js"
+import { For, Show, createEffect, createMemo, createSignal, type JSX } from "solid-js"
 import { getWorkerPool } from "../../pierre/worker"
 import { SessionFilePanelV2, SessionFilePanelV2Empty } from "./session-file-panel-v2"
 
@@ -20,6 +20,7 @@ export const SESSION_REVIEW_V2_SIDEBAR_WIDTH_MIN = 200
 export const SESSION_REVIEW_V2_SIDEBAR_WIDTH_MAX = 480
 
 export type SessionReviewExpandMode = "expand" | "collapse"
+export type SessionReviewFileFilter = "language" | "tests" | "large"
 
 export type SessionReviewV2Props = {
   title?: JSX.Element
@@ -51,6 +52,8 @@ export type SessionReviewV2SidebarProps = {
   filterControls?: string
   filterActiveDescendant?: string
   filterExpanded?: boolean
+  fileFilters?: readonly SessionReviewFileFilter[]
+  onFileFiltersChange?: (filters: SessionReviewFileFilter[]) => void
   width?: number
   onWidthChange?: (width: number) => void
   minWidth?: number
@@ -65,6 +68,15 @@ export function SessionReviewV2Sidebar(props: SessionReviewV2SidebarProps) {
   const width = () => props.width ?? SESSION_REVIEW_V2_SIDEBAR_WIDTH_DEFAULT
   const minWidth = () => props.minWidth ?? SESSION_REVIEW_V2_SIDEBAR_WIDTH_MIN
   const maxWidth = () => props.maxWidth ?? SESSION_REVIEW_V2_SIDEBAR_WIDTH_MAX
+  const filterOptions: SessionReviewFileFilter[] = ["language", "tests", "large"]
+  const filterLabel = (filter: SessionReviewFileFilter) => i18n.t(`ui.sessionReviewV2.filter.${filter}`)
+  const toggleFilter = (filter: SessionReviewFileFilter) => {
+    if (!props.onFileFiltersChange) return
+    const filters = props.fileFilters ?? []
+    props.onFileFiltersChange(
+      filters.includes(filter) ? filters.filter((item) => item !== filter) : [...filters, filter],
+    )
+  }
 
   createEffect(() => {
     if (!resizing()) return
@@ -121,6 +133,23 @@ export function SessionReviewV2Sidebar(props: SessionReviewV2SidebarProps) {
                 </svg>
               }
             />
+            <Show when={props.onFileFiltersChange}>
+              <div data-slot="session-review-v2-sidebar-filter-chips" aria-label={i18n.t("ui.sessionReviewV2.filters")}>
+                <For each={filterOptions}>
+                  {(filter) => (
+                    <button
+                      type="button"
+                      data-slot="session-review-v2-sidebar-filter-chip"
+                      data-selected={props.fileFilters?.includes(filter) ? "" : undefined}
+                      aria-pressed={props.fileFilters?.includes(filter) ?? false}
+                      onClick={() => toggleFilter(filter)}
+                    >
+                      {filterLabel(filter)}
+                    </button>
+                  )}
+                </For>
+              </div>
+            </Show>
           </div>
           <ScrollView
             data-slot="session-review-v2-sidebar-tree"
