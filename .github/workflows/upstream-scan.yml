@@ -8,22 +8,29 @@ name: upstream-scan
 
 on:
   schedule:
-    # 14:00 UTC on the 1st of each month.
-    - cron: "0 14 1 * *"
+    # 14:00 UTC every Monday. Watched paths change on ~87% of upstream's active days
+    # (measured over a 90-day window), so monthly left too much room for a provider or
+    # auth change to sit unreported; weekly caps the exposure at a week.
+    - cron: "0 14 * * 1"
   workflow_dispatch:
 
 jobs:
   scan:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      # write, not read: the scan advances a cursor tag after each run so it only ever
+      # reports what's new since the last check, instead of the fork's entire (and
+      # permanently growing, since this fork never merges upstream) unmerged backlog.
+      contents: write
       issues: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
-          # The scan diffs against upstream, so a shallow clone has nothing to compare.
+          # The scan diffs against upstream and reads/moves a cursor tag, so a shallow,
+          # tag-less clone has nothing to compare against or advance.
           fetch-depth: 0
+          fetch-tags: true
 
       - name: Setup Bun
         uses: ./.github/actions/setup-bun
