@@ -1172,4 +1172,9 @@ export const dict = {
   "error.childStore.persistedProjectIconCreateFailed": "Nie udało się utworzyć trwałej ikony projektu",
   "error.childStore.storeCreateFailed": "Nie udało się utworzyć magazynu",
   "terminal.connectionLost.abnormalClose": "WebSocket zamknięty nieprawidłowo: {{code}}",
+  "model.tag.reasoning": "Wnioskowanie",
+  "model.tag.vision": "Wizja",
+  "model.tag.tools": "Narzędzia",
+  "model.tooltip.tools": "Narzędzia",
+  "model.tooltip.tools.supported": "Obsługuje wywoływanie narzędzi",
 }

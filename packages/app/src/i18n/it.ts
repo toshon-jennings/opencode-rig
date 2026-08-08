@@ -1164,4 +1164,9 @@ export const dict = {
   "desktop.wsl.error.failedPort": "Impossibile ottenere la porta",
   "desktop.picker.error.notSelected": "Il file non è stato selezionato nella finestra di selezione",
   "desktop.picker.error.sizeLimit": "Gli allegati selezionati superano il limite di {{limit}} MB",
+  "model.tag.reasoning": "Ragionamento",
+  "model.tag.vision": "Visione",
+  "model.tag.tools": "Strumenti",
+  "model.tooltip.tools": "Strumenti",
+  "model.tooltip.tools.supported": "Chiamate agli strumenti supportate",
 }

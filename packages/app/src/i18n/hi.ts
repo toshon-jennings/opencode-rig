@@ -1151,4 +1151,9 @@ export const dict = {
   "workspace.reset.archived.one": "1 सेशन संग्रहित किया जाएगा।",
   "workspace.reset.archived.many": "{{count}} सेशन संग्रहित किए जाएँगे।",
   "workspace.reset.note": "यह डिफ़ॉल्ट शाखा से मिलान करने के लिए वर्कस्पेस को रीसेट कर देगा।",
+  "model.tag.reasoning": "तर्क",
+  "model.tag.vision": "दृष्टि",
+  "model.tag.tools": "टूल",
+  "model.tooltip.tools": "टूल",
+  "model.tooltip.tools.supported": "टूल कॉलिंग समर्थित",
 }

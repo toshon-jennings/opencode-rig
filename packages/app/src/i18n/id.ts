@@ -1238,4 +1238,9 @@ export const dict = {
   "workspace.reset.archived.one": "1 sesi akan diarsipkan.",
   "workspace.reset.archived.many": "{{count}} sesi akan diarsipkan.",
   "workspace.reset.note": "Ini akan mengatur ulang ruang kerja agar cocok dengan cabang bawaan.",
+  "model.tag.reasoning": "Penalaran",
+  "model.tag.vision": "Visi",
+  "model.tag.tools": "Alat",
+  "model.tooltip.tools": "Alat",
+  "model.tooltip.tools.supported": "Mendukung pemanggilan alat",
 }

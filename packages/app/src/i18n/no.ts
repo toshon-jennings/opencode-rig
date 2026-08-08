@@ -1255,4 +1255,9 @@ export const dict = {
   "settings.general.row.pinchZoom.description": "Tillat knipebevegelser på styreflaten og Ctrl-rulling for å zoome",
   "settings.updates.action.downloading": "Laster ned...",
   "settings.updates.action.installing": "Installerer...",
+  "model.tag.reasoning": "Resonnering",
+  "model.tag.vision": "Syn",
+  "model.tag.tools": "Verktøy",
+  "model.tooltip.tools": "Verktøy",
+  "model.tooltip.tools.supported": "Støtter verktøykall",
 } satisfies Partial<Record<Keys, string>>

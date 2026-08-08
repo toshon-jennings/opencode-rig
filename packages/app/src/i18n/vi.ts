@@ -1157,4 +1157,9 @@ export const dict = {
   "workspace.reset.archived.one": "1 phiên sẽ được lưu trữ.",
   "workspace.reset.archived.many": "{{count}} phiên sẽ được lưu trữ.",
   "workspace.reset.note": "Điều này sẽ thiết lập lại không gian làm việc để phù hợp với nhánh mặc định.",
+  "model.tag.reasoning": "Lý luận",
+  "model.tag.vision": "Thị giác",
+  "model.tag.tools": "Công cụ",
+  "model.tooltip.tools": "Công cụ",
+  "model.tooltip.tools.supported": "Hỗ trợ gọi công cụ",
 }

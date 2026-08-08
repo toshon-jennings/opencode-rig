@@ -1157,4 +1157,9 @@ export const dict = {
 
   "titlebar.update": "アップデート",
   "titlebar.updateVersion": "アップデート {{version}}",
+  "model.tag.reasoning": "推論",
+  "model.tag.vision": "ビジョン",
+  "model.tag.tools": "ツール",
+  "model.tooltip.tools": "ツール",
+  "model.tooltip.tools.supported": "ツール呼び出しに対応",
 }

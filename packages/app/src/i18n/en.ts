@@ -213,6 +213,9 @@ export const dict = {
 
   "model.tag.free": "Free",
   "model.tag.latest": "Latest",
+  "model.tag.reasoning": "Reasoning",
+  "model.tag.vision": "Vision",
+  "model.tag.tools": "Tools",
   "model.provider.anthropic": "Anthropic",
   "model.provider.openai": "OpenAI",
   "model.provider.google": "Google",
@@ -228,6 +231,8 @@ export const dict = {
   "model.tooltip.inputs": "Inputs",
   "model.tooltip.model": "Model",
   "model.tooltip.provider": "Provider",
+  "model.tooltip.tools": "Tools",
+  "model.tooltip.tools.supported": "Tool calling supported",
   "model.tooltip.reasoning": "Reasoning",
   "model.tooltip.reasoning.allowed": "Allows reasoning",
   "model.tooltip.reasoning.none": "No reasoning",

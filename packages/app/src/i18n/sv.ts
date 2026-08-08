@@ -1148,4 +1148,9 @@ export const dict = {
   "workspace.reset.archived.one": "1 session kommer att arkiveras.",
   "workspace.reset.archived.many": "{{count}} sessioner kommer att arkiveras.",
   "workspace.reset.note": "Detta kommer att återställa arbetsytan så att den matchar standardgrenen.",
+  "model.tag.reasoning": "Resonemang",
+  "model.tag.vision": "Syn",
+  "model.tag.tools": "Verktyg",
+  "model.tooltip.tools": "Verktyg",
+  "model.tooltip.tools.supported": "Stöder verktygsanrop",
 }

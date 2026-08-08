@@ -1159,4 +1159,9 @@ export const dict = {
   "error.childStore.persistedProjectIconCreateFailed": "فشل إنشاء أيقونة المشروع الدائمة",
   "error.childStore.storeCreateFailed": "فشل إنشاء المخزن",
   "terminal.connectionLost.abnormalClose": "تم إغلاق WebSocket بشكل غير طبيعي: {{code}}",
+  "model.tag.reasoning": "الاستدلال",
+  "model.tag.vision": "الرؤية",
+  "model.tag.tools": "الأدوات",
+  "model.tooltip.tools": "الأدوات",
+  "model.tooltip.tools.supported": "يدعم استدعاء الأدوات",
 }

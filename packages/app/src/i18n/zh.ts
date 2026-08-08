@@ -1215,4 +1215,9 @@ export const dict = {
   "error.childStore.persistedProjectIconCreateFailed": "创建持久化项目图标失败",
   "error.childStore.storeCreateFailed": "创建存储失败",
   "terminal.connectionLost.abnormalClose": "WebSocket 异常关闭：{{code}}",
+  "model.tag.reasoning": "推理",
+  "model.tag.vision": "视觉",
+  "model.tag.tools": "工具",
+  "model.tooltip.tools": "工具",
+  "model.tooltip.tools.supported": "支持工具调用",
 } satisfies Partial<Record<Keys, string>>

@@ -1250,4 +1250,9 @@ export const dict = {
   "error.childStore.persistedProjectIconCreateFailed": "Не удалось создать постоянный значок проекта",
   "error.childStore.storeCreateFailed": "Не удалось создать хранилище",
   "terminal.connectionLost.abnormalClose": "WebSocket закрыт аварийно: {{code}}",
+  "model.tag.reasoning": "Рассуждение",
+  "model.tag.vision": "Зрение",
+  "model.tag.tools": "Инструменты",
+  "model.tooltip.tools": "Инструменты",
+  "model.tooltip.tools.supported": "Поддерживает вызов инструментов",
 }
