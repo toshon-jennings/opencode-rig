@@ -1237,4 +1237,18 @@ export const dict = {
   "help.tabs.persistence": "Dine faner er stadig åbne, når du åbner appen igen.",
   "help.tabs.worktrees":
     "Det nye design understøtter endnu ikke Git Worktrees, men understøttelsen kommer snart. Hvis du foretrækker at fortsætte med det tidligere layout, kan du skifte mellem layoutene under Indstillinger. Bemærk, at det nye layout bliver permanent om nogle få uger.",
-}
+  "command.provider.health": "View provider health",
+  "command.provider.health.description": "Check provider status, connection health, and latency",
+  "command.followup.mode.toggle": "Toggle follow-up mode",
+  "command.followup.mode.toggle.description": "Switch follow-up mode between steer and queue",
+  "toast.followup.mode.title": "Follow-up mode",
+  "toast.followup.mode.steer": "Follow-up mode set to Steer",
+  "toast.followup.mode.queue": "Follow-up mode set to Queue",
+  "dialog.mcp.inspector.tools": "Connected Tools",
+  "dialog.mcp.inspector.noTools": "No tools registered for this server",
+  "dialog.mcp.inspector.notConnected": "Server is not connected",
+  "dialog.mcp.inspector.schema": "Input Schema",
+  "dialog.mcp.inspector.expand": "Expand server details",
+  "dialog.mcp.inspector.collapse": "Collapse server details",
+  "dialog.mcp.inspector.required": "Required",
+};

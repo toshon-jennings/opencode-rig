@@ -932,6 +932,46 @@ export default function LegacyLayout(props: ParentProps) {
         onSelect: () => connectProvider(),
       },
       {
+        id: "provider.health",
+        title: language.t("command.provider.health"),
+        description: language.t("command.provider.health.description"),
+        category: language.t("command.category.provider"),
+        onSelect: () => {
+          void import("@/components/settings-v2/dialog-settings-v2").then((module) => {
+            dialog.show(() => <module.DialogSettings defaultValue="providers" />)
+          })
+        },
+      },
+      {
+        id: "model.choose",
+        title: language.t("command.model.choose"),
+        description: language.t("command.model.choose.description"),
+        category: language.t("command.category.model"),
+        keybind: "mod+'",
+        slash: "model",
+        onSelect: () => {
+          void import("@/components/dialog-select-model").then((module) => {
+            dialog.show(() => <module.DialogSelectModel />)
+          })
+        },
+      },
+      {
+        id: "followup.mode.toggle",
+        title: language.t("command.followup.mode.toggle"),
+        description: language.t("command.followup.mode.toggle.description"),
+        category: language.t("command.category.settings"),
+        onSelect: () => {
+          const current = settings.general.followup()
+          const next = current === "steer" ? "queue" : "steer"
+          settings.general.setFollowup(next)
+          showToast({
+            title: language.t("toast.followup.mode.title"),
+            description:
+              next === "steer" ? language.t("toast.followup.mode.steer") : language.t("toast.followup.mode.queue"),
+          })
+        },
+      },
+      {
         id: "server.switch",
         title: language.t("command.server.switch"),
         category: language.t("command.category.server"),
