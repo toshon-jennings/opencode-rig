@@ -43,6 +43,12 @@ describe("hasNonBlockingServiceIssue", () => {
     expect(hasNonBlockingServiceIssue({ mcp: [], lsp: ["error"] })).toBe(true)
     expect(hasNonBlockingServiceIssue({ mcp: [], lsp: ["connected"] })).toBe(false)
   })
+
+  test("detects degraded and unreachable providers", () => {
+    expect(hasNonBlockingServiceIssue({ mcp: [], lsp: [], provider: ["degraded"] })).toBe(true)
+    expect(hasNonBlockingServiceIssue({ mcp: [], lsp: [], provider: ["unreachable"] })).toBe(true)
+    expect(hasNonBlockingServiceIssue({ mcp: [], lsp: [], provider: ["operational", undefined] })).toBe(false)
+  })
 })
 
 describe("hasServiceNeedingAttention", () => {
