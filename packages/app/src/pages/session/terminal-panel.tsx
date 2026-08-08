@@ -295,27 +295,27 @@ export function TerminalPanel() {
                 </Tabs.List>
               </Tabs>
               <div class="flex-1 min-h-0 relative">
-                <Show when={opened() && terminal.active()} keyed>
-                  {(id) => {
+                <For each={all()}>
+                  {(pty) => {
                     const ops = terminal.bind()
                     return (
-                      <Show when={all().find((pty) => pty.id === id)}>
-                        {(pty) => (
-                          <div id={`terminal-wrapper-${id}`} class="absolute inset-0">
-                            <Terminal
-                              pty={pty()}
-                              autoFocus={opened()}
-                              onAutoFocus={() => terminal.consumeFocus(id)}
-                              onConnect={() => markTerminalConnected(terminalRecoveryKey(pty()), id, ops.trim)}
-                              onCleanup={ops.update}
-                              onConnectError={() => recoverTerminal(terminalRecoveryKey(pty()), id, ops.clone)}
-                            />
-                          </div>
-                        )}
-                      </Show>
+                      <div
+                        id={`terminal-wrapper-${pty.id}`}
+                        class="absolute inset-0"
+                        classList={{ hidden: pty.id !== terminal.active() }}
+                      >
+                        <Terminal
+                          pty={pty}
+                          autoFocus={opened()}
+                          onAutoFocus={() => terminal.consumeFocus(pty.id)}
+                          onConnect={() => markTerminalConnected(terminalRecoveryKey(pty), pty.id, ops.trim)}
+                          onCleanup={ops.update}
+                          onConnectError={() => recoverTerminal(terminalRecoveryKey(pty), pty.id, ops.clone)}
+                        />
+                      </div>
                     )
                   }}
-                </Show>
+                </For>
               </div>
             </div>
             <DragOverlay>
