@@ -66,7 +66,13 @@ const CapabilityTag: Component<{ v2?: boolean; class?: string; children: JSX.Ele
   )
 }
 
-const ModelCapabilityChips: Component<{ model: ModelItem; v2?: boolean }> = (props) => {
+export const ModelCapabilityChips: Component<{
+  model: {
+    limit?: { context?: number }
+    capabilities?: { reasoning?: boolean; input?: { image?: boolean }; toolcall?: boolean }
+  }
+  v2?: boolean
+}> = (props) => {
   const language = useLanguage()
 
   return (
