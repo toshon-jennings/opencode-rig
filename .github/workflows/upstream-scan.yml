@@ -1,0 +1,53 @@
+# This fork deliberately does not track upstream. This job never rebases or opens PRs —
+# it only reports whether upstream changed anything under the watched paths, and files an
+# issue when it did, so nobody has to remember to check.
+#
+# The report is passed by file, never interpolated into a shell command, because it
+# embeds upstream-authored commit messages.
+name: upstream-scan
+
+on:
+  schedule:
+    # 14:00 UTC on the 1st of each month.
+    - cron: "0 14 1 * *"
+  workflow_dispatch:
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          # The scan diffs against upstream, so a shallow clone has nothing to compare.
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: ./.github/actions/setup-bun
+
+      - name: Scan upstream
+        id: scan
+        run: bun run upstream:scan
+
+      - name: Report watched-path changes
+        if: steps.scan.outputs.watched != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPORT: ${{ steps.scan.outputs.report }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          printf '\n— [upstream-scan](%s) · run `bun run upstream:scan` locally.\n' "$RUN_URL" >> "$REPORT"
+          gh label create upstream-scan --color ededed \
+            --description "Upstream changed a watched path" --force
+          # One rolling issue: comment on the open one if it exists, otherwise open it.
+          existing=$(gh issue list --state open --label upstream-scan --limit 1 --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body-file "$REPORT"
+          else
+            gh issue create --title "Upstream touched watched paths" \
+              --label upstream-scan --body-file "$REPORT"
+          fi

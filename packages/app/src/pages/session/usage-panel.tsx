@@ -19,15 +19,22 @@ type UsageData = {
   total?: UsageRow
 }
 
+/**
+ * Columns are tinted by family — prompt-side, generated, cost — so neighbouring groups
+ * differ and a row can be scanned without reading the headers. Tones are theme tokens,
+ * so they follow whichever theme is active rather than being fixed colors. The `-active`
+ * ramp step is deliberate: `-base` is tuned for icons and drops to ~1.5:1 on light
+ * backgrounds, which is unreadable at this text size.
+ */
 const COLUMNS = [
-  { key: "model", label: "Model" },
-  { key: "msgs", label: "Msgs" },
-  { key: "input", label: "Input" },
-  { key: "output", label: "Output" },
-  { key: "reasoning", label: "Reasoning" },
-  { key: "cacheRead", label: "Cache Read" },
-  { key: "cacheWrite", label: "Cache Write" },
-  { key: "cost", label: "Cost" },
+  { key: "model", label: "Model", tone: "text-text-strong" },
+  { key: "msgs", label: "Msgs", tone: "text-text-weak" },
+  { key: "input", label: "Input", tone: "text-icon-info-active" },
+  { key: "output", label: "Output", tone: "text-icon-success-active" },
+  { key: "reasoning", label: "Reasoning", tone: "text-icon-success-active" },
+  { key: "cacheRead", label: "Cache Read", tone: "text-icon-info-active" },
+  { key: "cacheWrite", label: "Cache Write", tone: "text-icon-info-active" },
+  { key: "cost", label: "Cost", tone: "text-icon-warning-active" },
 ] as const
 
 /**
@@ -81,6 +88,12 @@ function cell(row: UsageRow, key: (typeof COLUMNS)[number]["key"]) {
   if (key === "model") return row.model
   if (key === "cost") return formatCost(row.cost)
   return formatCount(row[key])
+}
+
+/** A column full of zeroes is noise, so empty metrics drop out of their family tint. */
+function tone(row: UsageRow, col: (typeof COLUMNS)[number]) {
+  const value = cell(row, col.key)
+  return value === "0" || value === "$0" ? "text-text-weak" : col.tone
 }
 
 export function UsagePanel() {
@@ -164,7 +177,7 @@ export function UsagePanel() {
                       <For each={COLUMNS}>
                         {(col, index) => (
                           <td
-                            class="px-3 py-1.5 text-text-base whitespace-nowrap"
+                            class={`px-3 py-1.5 whitespace-nowrap ${tone(row, col)}`}
                             classList={{ "text-right font-mono": index() > 0 }}
                           >
                             {cell(row, col.key)}
@@ -178,11 +191,11 @@ export function UsagePanel() {
               <Show when={usage().total}>
                 {(total) => (
                   <tfoot class="sticky bottom-0 z-10 bg-v2-background-bg-base">
-                    <tr class="border-t border-border-weaker-base">
+                    <tr class="border-t border-border-base">
                       <For each={COLUMNS}>
                         {(col, index) => (
                           <td
-                            class="px-3 py-1.5 font-medium text-text-strong whitespace-nowrap"
+                            class={`px-3 py-1.5 font-medium whitespace-nowrap ${tone(total(), col)}`}
                             classList={{ "text-right font-mono": index() > 0 }}
                           >
                             {cell(total(), col.key)}

@@ -1,8 +1,8 @@
-import { withAlpha } from "@opencode-ai/ui/theme/color"
+import { generateScale, withAlpha } from "@opencode-ai/ui/theme/color"
 import { useTheme } from "@opencode-ai/ui/theme/context"
 import { resolveThemeVariant } from "@opencode-ai/ui/theme/resolve"
 import { resolveThemeVariantV2 } from "@opencode-ai/ui/theme/v2/resolve"
-import type { HexColor, ResolvedV2Theme } from "@opencode-ai/ui/theme/types"
+import type { HexColor, ResolvedV2Theme, ThemeVariant } from "@opencode-ai/ui/theme/types"
 import { showToast } from "@/utils/toast"
 import type { FitAddon, Ghostty, Terminal as Term } from "ghostty-web"
 import { type ComponentProps, createEffect, createMemo, onCleanup, onMount, splitProps } from "solid-js"
@@ -43,11 +43,50 @@ const loadGhostty = () => {
   return shared
 }
 
+type AnsiColors = Record<string, string>
+
 type TerminalColors = {
   background: string
   foreground: string
   cursor: string
   selectionBackground: string
+} & AnsiColors
+
+/**
+ * ghostty-web ships its own fixed ANSI palette, so colored CLI output (git, ls, test
+ * runners) ignores the active theme. Each ANSI hue is seeded from the theme colour that
+ * already means the same thing, with the `accent`/`interactive` fallbacks mirroring the
+ * ones the resolver applies.
+ *
+ * Steps 8/9 carry the most chroma in both directions, so both modes use them and only
+ * swap which is the brighter one. The outer steps are unusable: 11 collapses to white on
+ * dark backgrounds and to near-black on light ones, losing the hue in both cases. Like
+ * every terminal palette these sit nearer 3:1 than 4.5:1 — ANSI colours trade contrast
+ * for hue identity, and washing them toward the foreground defeats having them at all.
+ */
+const ANSI_RAMP_STEPS = { dark: [8, 9], light: [9, 8] } as const
+const ANSI_FAMILIES = [
+  ["red", "error"],
+  ["green", "success"],
+  ["yellow", "warning"],
+  ["blue", "interactive"],
+  ["magenta", "accent"],
+  ["cyan", "info"],
+] as const
+
+function ansiColors(variant: ThemeVariant, isDark: boolean): AnsiColors {
+  const palette = variant.palette
+  if (!palette) return {}
+
+  const [normal, bright] = ANSI_RAMP_STEPS[isDark ? "dark" : "light"]
+  const colors: AnsiColors = {}
+  for (const [ansi, key] of ANSI_FAMILIES) {
+    const seed = palette[key] ?? (key === "interactive" ? palette.primary : palette.info)
+    const scale = generateScale(seed, isDark)
+    colors[ansi] = scale[normal]
+    colors[`bright${ansi[0].toUpperCase()}${ansi.slice(1)}`] = scale[bright]
+  }
+  return colors
 }
 
 const DEFAULT_TERMINAL_COLORS: Record<"light" | "dark", TerminalColors> = {
@@ -283,6 +322,13 @@ export const Terminal = (props: TerminalProps) => {
       foreground: text,
       cursor: text,
       selectionBackground,
+      // Neutrals come from the text ramp so ANSI greys sit against this theme's
+      // background rather than ghostty's; the hues come from the theme seeds.
+      black: mode === "dark" ? (resolved["surface-base"] ?? fallback.background) : text,
+      brightBlack: resolved["text-weak"] ?? fallback.foreground,
+      white: resolved["text-base"] ?? fallback.foreground,
+      brightWhite: text,
+      ...ansiColors(variant, mode === "dark"),
     }
   }
 
