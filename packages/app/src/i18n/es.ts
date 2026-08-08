@@ -1256,7 +1256,7 @@ export const dict = {
   "terminal.connectionLost.abnormalClose": "WebSocket cerrado anormalmente: {{code}}",
   "command.provider.health": "Ver estado del proveedor",
   "command.provider.health.description": "Comprobar estado del proveedor, salud de conexión y latencia",
-  "command.followup.mode.toggle": "Cambiar modo de seguimiento",
+  "command.followup.mode.toggle": "Cambiar modo de seguimiento: {{mode}}",
   "command.followup.mode.toggle.description": "Cambiar modo de seguimiento entre Steer y Queue",
   "toast.followup.mode.title": "Modo de seguimiento",
   "toast.followup.mode.steer": "Modo de seguimiento establecido en Steer",

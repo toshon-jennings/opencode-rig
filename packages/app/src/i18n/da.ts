@@ -1239,7 +1239,7 @@ export const dict = {
     "Det nye design understøtter endnu ikke Git Worktrees, men understøttelsen kommer snart. Hvis du foretrækker at fortsætte med det tidligere layout, kan du skifte mellem layoutene under Indstillinger. Bemærk, at det nye layout bliver permanent om nogle få uger.",
   "command.provider.health": "Vis udbyderstatus",
   "command.provider.health.description": "Tjek udbyderstatus, forbindelsestilstand og latenstid",
-  "command.followup.mode.toggle": "Skift opfølgningstilstand",
+  "command.followup.mode.toggle": "Skift opfølgningstilstand: {{mode}}",
   "command.followup.mode.toggle.description": "Skift opfølgningstilstand mellem Steer og Queue",
   "toast.followup.mode.title": "Opfølgningstilstand",
   "toast.followup.mode.steer": "Opfølgningstilstand indstillet til Steer",

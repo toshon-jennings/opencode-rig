@@ -1174,4 +1174,18 @@ export const dict = {
   "help.tabs.persistence": "Wenn Sie die App erneut öffnen, sind Ihre Tabs weiterhin geöffnet.",
   "help.tabs.worktrees":
     "Das neue Design unterstützt Git-Worktrees noch nicht. Diese Funktion folgt in Kürze. Wenn Sie das bisherige Layout vorerst weiterverwenden möchten, können Sie in den Einstellungen zwischen den Layouts wechseln. Beachten Sie jedoch, dass das neue Layout in einigen Wochen dauerhaft verwendet wird.",
+  "command.provider.health": "Anbieterstatus anzeigen",
+  "command.provider.health.description": "Anbieterstatus, Verbindungszustand und Latenz prüfen",
+  "command.followup.mode.toggle": "Follow-up-Modus: {{mode}}",
+  "command.followup.mode.toggle.description": "Follow-up-Modus zwischen Steer und Queue wechseln",
+  "toast.followup.mode.title": "Follow-up-Modus",
+  "toast.followup.mode.steer": "Follow-up-Modus auf Steer gesetzt",
+  "toast.followup.mode.queue": "Follow-up-Modus auf Queue gesetzt",
+  "dialog.mcp.inspector.tools": "Verbundene Tools",
+  "dialog.mcp.inspector.noTools": "Für diesen Server sind keine Tools registriert",
+  "dialog.mcp.inspector.notConnected": "Server ist nicht verbunden",
+  "dialog.mcp.inspector.schema": "Eingabeschema",
+  "dialog.mcp.inspector.expand": "Serverdetails erweitern",
+  "dialog.mcp.inspector.collapse": "Serverdetails einklappen",
+  "dialog.mcp.inspector.required": "Erforderlich",
 } satisfies Partial<Record<Keys, string>>

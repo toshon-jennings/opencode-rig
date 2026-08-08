@@ -1151,7 +1151,7 @@ export const dict = {
   "workspace.reset.note": "Detta kommer att återställa arbetsytan så att den matchar standardgrenen.",
   "command.provider.health": "Visa leverantörsstatus",
   "command.provider.health.description": "Kontrollera leverantörsstatus, anslutningshälsa och latens",
-  "command.followup.mode.toggle": "Växla uppföljningsläge",
+  "command.followup.mode.toggle": "Växla uppföljningsläge: {{mode}}",
   "command.followup.mode.toggle.description": "Växla uppföljningsläge mellan Steer och Queue",
   "toast.followup.mode.title": "Uppföljningsläge",
   "toast.followup.mode.steer": "Uppföljningsläge inställt på Steer",

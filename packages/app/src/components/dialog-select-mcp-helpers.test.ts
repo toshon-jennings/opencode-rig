@@ -4,17 +4,18 @@ import { matchMcpTools, parseParameters } from "./dialog-select-mcp-helpers"
 describe("dialog-select-mcp helpers", () => {
   it("matchMcpTools filters tools by server name prefix", () => {
     const tools = [
-      { id: "cassandra_world_brief", description: "World brief" },
-      { id: "mcp_cassandra_get_events", description: "Get events" },
-      { id: "github_create_issue", description: "Create issue" },
-      { id: "code_review_graph_query", description: "Query graph" },
+      { id: "cassandra_world_brief", description: "World brief", parameters: {} },
+      { id: "mcp_cassandra_get_events", description: "Get events", parameters: {} },
+      { id: "github_create_issue", description: "Create issue", parameters: {} },
+      { id: "code-review-graph_query", description: "Query graph", parameters: {} },
     ]
 
     const cassandraTools = matchMcpTools(tools, "cassandra")
-    expect(cassandraTools.map((t) => t.id)).toEqual(["cassandra_world_brief", "mcp_cassandra_get_events"])
+    expect(cassandraTools.map((tool) => tool.id)).toEqual(["cassandra_world_brief"])
 
     const graphTools = matchMcpTools(tools, "code-review-graph")
-    expect(graphTools.map((t) => t.id)).toEqual(["code_review_graph_query"])
+    expect(graphTools.map((tool) => tool.id)).toEqual(["code-review-graph_query"])
+    expect(matchMcpTools(tools, "git")).toEqual([])
   })
 
   it("parseParameters extracts schema properties and required fields", () => {
@@ -22,7 +23,7 @@ describe("dialog-select-mcp helpers", () => {
       type: "object",
       properties: {
         query: { type: "string", description: "Search query string" },
-        limit: { type: "number", description: "Maximum results" },
+        limit: { type: ["number", "null"], description: "Maximum results" },
       },
       required: ["query"],
     }
@@ -30,7 +31,7 @@ describe("dialog-select-mcp helpers", () => {
     const parsed = parseParameters(parameters)
     expect(parsed).toEqual([
       { name: "query", type: "string", description: "Search query string", required: true },
-      { name: "limit", type: "number", description: "Maximum results", required: false },
+      { name: "limit", type: "number | null", description: "Maximum results", required: false },
     ])
   })
 

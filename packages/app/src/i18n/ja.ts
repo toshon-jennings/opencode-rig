@@ -1160,7 +1160,7 @@ export const dict = {
   "titlebar.updateVersion": "アップデート {{version}}",
   "command.provider.health": "プロバイダーのステータスを表示",
   "command.provider.health.description": "プロバイダーのステータス、接続状態、レイテンシーを確認",
-  "command.followup.mode.toggle": "フォローアップモードを切り替え",
+  "command.followup.mode.toggle": "フォローアップモードを切り替え: {{mode}}",
   "command.followup.mode.toggle.description": "フォローアップモードをSteerとQueueの間で切り替え",
   "toast.followup.mode.title": "フォローアップモード",
   "toast.followup.mode.steer": "フォローアップモードをSteerに設定しました",

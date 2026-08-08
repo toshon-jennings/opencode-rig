@@ -1167,7 +1167,7 @@ export const dict = {
   "desktop.picker.error.sizeLimit": "Gli allegati selezionati superano il limite di {{limit}} MB",
   "command.provider.health": "Visualizza stato del provider",
   "command.provider.health.description": "Verifica lo stato del provider, la salute della connessione e la latenza",
-  "command.followup.mode.toggle": "Alterna modalità di follow-up",
+  "command.followup.mode.toggle": "Alterna modalità di follow-up: {{mode}}",
   "command.followup.mode.toggle.description": "Passa la modalità di follow-up tra Steer e Queue",
   "toast.followup.mode.title": "Modalità di follow-up",
   "toast.followup.mode.steer": "Modalità di follow-up impostata su Steer",

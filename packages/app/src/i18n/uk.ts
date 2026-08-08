@@ -1258,7 +1258,7 @@ export const dict = {
   "workspace.reset.note": "Це скине робочу область, щоб вона відповідала гілці за замовчуванням.",
   "command.provider.health": "Переглянути стан провайдера",
   "command.provider.health.description": "Перевірити статус провайдера, стан з'єднання та затримку",
-  "command.followup.mode.toggle": "Переключити режим уточнення",
+  "command.followup.mode.toggle": "Переключити режим уточнення: {{mode}}",
   "command.followup.mode.toggle.description": "Переключити режим уточнення між Steer та Queue",
   "toast.followup.mode.title": "Режим уточнення",
   "toast.followup.mode.steer": "Режим уточнення встановлено на Steer",

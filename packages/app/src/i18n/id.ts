@@ -1241,7 +1241,7 @@ export const dict = {
   "workspace.reset.note": "Ini akan mengatur ulang ruang kerja agar cocok dengan cabang bawaan.",
   "command.provider.health": "Lihat kesehatan penyedia",
   "command.provider.health.description": "Periksa status penyedia, kesehatan koneksi, dan latensi",
-  "command.followup.mode.toggle": "Beralih mode tindak lanjut",
+  "command.followup.mode.toggle": "Beralih mode tindak lanjut: {{mode}}",
   "command.followup.mode.toggle.description": "Beralih mode tindak lanjut antara Steer dan Queue",
   "toast.followup.mode.title": "Mode tindak lanjut",
   "toast.followup.mode.steer": "Mode tindak lanjut diatur ke Steer",

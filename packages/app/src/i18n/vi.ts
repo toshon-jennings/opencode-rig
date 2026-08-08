@@ -1160,7 +1160,7 @@ export const dict = {
   "workspace.reset.note": "Điều này sẽ thiết lập lại không gian làm việc để phù hợp với nhánh mặc định.",
   "command.provider.health": "Xem trạng thái nhà cung cấp",
   "command.provider.health.description": "Kiểm tra trạng thái nhà cung cấp, độ ổn định kết nối và độ trễ",
-  "command.followup.mode.toggle": "Chuyển đổi chế độ theo dõi",
+  "command.followup.mode.toggle": "Chuyển đổi chế độ theo dõi: {{mode}}",
   "command.followup.mode.toggle.description": "Chuyển đổi chế độ theo dõi giữa Steer và Queue",
   "toast.followup.mode.title": "Chế độ theo dõi",
   "toast.followup.mode.steer": "Chế độ theo dõi được đặt thành Steer",

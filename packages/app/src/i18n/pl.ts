@@ -1175,7 +1175,7 @@ export const dict = {
   "terminal.connectionLost.abnormalClose": "WebSocket zamknięty nieprawidłowo: {{code}}",
   "command.provider.health": "Zobacz stan dostawcy",
   "command.provider.health.description": "Sprawdź status dostawcy, stan połączenia i opóźnienie",
-  "command.followup.mode.toggle": "Przełącz tryb kontynuacji",
+  "command.followup.mode.toggle": "Przełącz tryb kontynuacji: {{mode}}",
   "command.followup.mode.toggle.description": "Przełącz tryb kontynuacji między Steer a Queue",
   "toast.followup.mode.title": "Tryb kontynuacji",
   "toast.followup.mode.steer": "Tryb kontynuacji ustawiony na Steer",

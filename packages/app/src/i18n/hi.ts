@@ -1154,7 +1154,7 @@ export const dict = {
   "workspace.reset.note": "यह डिफ़ॉल्ट शाखा से मिलान करने के लिए वर्कस्पेस को रीसेट कर देगा।",
   "command.provider.health": "प्रदाता की स्थिति देखें",
   "command.provider.health.description": "प्रदाता स्थिति, कनेक्शन स्वास्थ्य और विलंबता की जांच करें",
-  "command.followup.mode.toggle": "फ़ॉलो-अप मोड बदलें",
+  "command.followup.mode.toggle": "फ़ॉलो-अप मोड बदलें: {{mode}}",
   "command.followup.mode.toggle.description": "Steer और Queue के बीच फ़ॉलो-अप मोड स्विच करें",
   "toast.followup.mode.title": "फ़ॉलो-अप मोड",
   "toast.followup.mode.steer": "फ़ॉलो-अप मोड Steer पर सेट किया गया",

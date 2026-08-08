@@ -938,26 +938,19 @@ export default function LegacyLayout(props: ParentProps) {
         category: language.t("command.category.provider"),
         onSelect: () => {
           void import("@/components/settings-v2/dialog-settings-v2").then((module) => {
-            dialog.show(() => <module.DialogSettings defaultValue="providers" />)
-          })
-        },
-      },
-      {
-        id: "model.choose",
-        title: language.t("command.model.choose"),
-        description: language.t("command.model.choose.description"),
-        category: language.t("command.category.model"),
-        keybind: "mod+'",
-        slash: "model",
-        onSelect: () => {
-          void import("@/components/dialog-select-model").then((module) => {
-            dialog.show(() => <module.DialogSelectModel />)
+            void dialog.show(() => <module.DialogSettings defaultValue="providers" />)
           })
         },
       },
       {
         id: "followup.mode.toggle",
-        title: language.t("command.followup.mode.toggle"),
+        title: language.t("command.followup.mode.toggle", {
+          mode: language.t(
+            settings.general.followup() === "steer"
+              ? "settings.general.row.followup.option.steer"
+              : "settings.general.row.followup.option.queue",
+          ),
+        }),
         description: language.t("command.followup.mode.toggle.description"),
         category: language.t("command.category.settings"),
         onSelect: () => {

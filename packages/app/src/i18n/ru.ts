@@ -1253,7 +1253,7 @@ export const dict = {
   "terminal.connectionLost.abnormalClose": "WebSocket закрыт аварийно: {{code}}",
   "command.provider.health": "Посмотреть состояние провайдера",
   "command.provider.health.description": "Проверить статус провайдера, состояние подключения и задержку",
-  "command.followup.mode.toggle": "Переключить режим уточнения",
+  "command.followup.mode.toggle": "Переключить режим уточнения: {{mode}}",
   "command.followup.mode.toggle.description": "Переключить режим уточнения между Steer и Queue",
   "toast.followup.mode.title": "Режим уточнения",
   "toast.followup.mode.steer": "Установлен режим уточнения Steer",

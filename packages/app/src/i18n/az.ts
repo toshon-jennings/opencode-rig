@@ -1159,7 +1159,7 @@ export const dict = {
   "workspace.reset.note": "Bu iş sahəsini standart branch ilə uyğunlaşdırmaq üçün sıfırlayacaq.",
   "command.provider.health": "Təminatçının vəziyyətinə baxın",
   "command.provider.health.description": "Təminatçı statusunu, bağlantı sağlamlığını və gecikməni yoxlayın",
-  "command.followup.mode.toggle": "Davam rejimini dəyişin",
+  "command.followup.mode.toggle": "Davam rejimini dəyişin: {{mode}}",
   "command.followup.mode.toggle.description": "Davam rejimini Steer və Queue arasında dəyişin",
   "toast.followup.mode.title": "Davam rejimi",
   "toast.followup.mode.steer": "Davam rejimi Steer olaraq təyin edildi",

@@ -1190,7 +1190,7 @@ export const dict = {
   "titlebar.updateVersion": "Mettre à jour {{version}}",
   "command.provider.health": "Afficher la santé des fournisseurs",
   "command.provider.health.description": "Vérifier le statut du fournisseur, la santé de la connexion et la latence",
-  "command.followup.mode.toggle": "Basculer le mode de suivi",
+  "command.followup.mode.toggle": "Basculer le mode de suivi: {{mode}}",
   "command.followup.mode.toggle.description": "Basculer le mode de suivi entre Steer et Queue",
   "toast.followup.mode.title": "Mode de suivi",
   "toast.followup.mode.steer": "Mode de suivi défini sur Steer",

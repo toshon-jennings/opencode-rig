@@ -1152,7 +1152,7 @@ export const dict = {
   "workspace.reset.note": "ایہ ورک اسپیس نو ڈیفالٹ برانچ نال ملاون لئی ری سیٹ کرے گا۔",
   "command.provider.health": "ਪ੍ਰਦਾਤਾ ਸਥਿਤੀ ਦੇਖੋ",
   "command.provider.health.description": "ਪ੍ਰਦਾਤਾ ਸਥਿਤੀ, ਕਨੈਕਸ਼ਨ ਸਿਹਤ ਅਤੇ ਲੈਟੈਂਸੀ ਦੀ ਜਾਂਚ ਕਰੋ",
-  "command.followup.mode.toggle": "ਫ਼ਾਲੋ-ਅੱਪ ਮੋਡ ਬਦਲੋ",
+  "command.followup.mode.toggle": "ਫ਼ਾਲੋ-ਅੱਪ ਮੋਡ ਬਦਲੋ: {{mode}}",
   "command.followup.mode.toggle.description": "Steer ਅਤੇ Queue ਵਿਚਕਾਰ ਫ਼ਾਲੋ-ਅੱਪ ਮੋਡ ਸਵਿਚ ਕਰੋ",
   "toast.followup.mode.title": "ਫ਼ਾਲੋ-ਅੱਪ ਮੋਡ",
   "toast.followup.mode.steer": "ਫ਼ਾਲੋ-ਅੱਪ ਮੋਡ Steer ਤੇ ਸੈੱਟ ਕੀਤਾ ਗਿਆ",

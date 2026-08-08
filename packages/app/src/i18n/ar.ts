@@ -1162,7 +1162,7 @@ export const dict = {
   "terminal.connectionLost.abnormalClose": "تم إغلاق WebSocket بشكل غير طبيعي: {{code}}",
   "command.provider.health": "عرض حالة المزود",
   "command.provider.health.description": "التحقق من حالة المزود وسَلامة الاتصال والتأخير",
-  "command.followup.mode.toggle": "تبديل وضع المتابعة",
+  "command.followup.mode.toggle": "تبديل وضع المتابعة: {{mode}}",
   "command.followup.mode.toggle.description": "التبديل بين وضعي المتابعة Steer و Queue",
   "toast.followup.mode.title": "وضع المتابعة",
   "toast.followup.mode.steer": "تم ضبط وضع المتابعة على Steer",

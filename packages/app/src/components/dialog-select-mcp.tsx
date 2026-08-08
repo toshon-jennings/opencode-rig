@@ -1,4 +1,4 @@
-import { Component, createMemo, createResource, createSignal, For, Match, Show, Switch as SolidSwitch } from "solid-js"
+import { createMemo, createResource, createSignal, For, Show, type Component } from "solid-js"
 import { useSync } from "@/context/sync"
 import { Dialog } from "@opencode-ai/ui/dialog"
 import { List } from "@opencode-ai/ui/list"
@@ -9,7 +9,8 @@ import { useLanguage } from "@/context/language"
 import { useMcpToggle } from "@/context/mcp"
 import { useServerSDK } from "@/context/server-sdk"
 import { useLocal } from "@/context/local"
-import { matchMcpTools, parseParameters, type McpToolItem } from "./dialog-select-mcp-helpers"
+import type { ToolListItem } from "@opencode-ai/sdk/v2/client"
+import { matchMcpTools, parseParameters } from "./dialog-select-mcp-helpers"
 
 const statusLabels = {
   connected: "mcp.status.connected",
@@ -19,7 +20,7 @@ const statusLabels = {
   disabled: "mcp.status.disabled",
 } as const
 
-export function McpServerInspector(props: { serverName: string; status: string; tools: McpToolItem[] }) {
+export function McpServerInspector(props: { serverName: string; status: string; tools: ToolListItem[] }) {
   const language = useLanguage()
   const matchingTools = createMemo(() => matchMcpTools(props.tools, props.serverName))
 
@@ -35,16 +36,22 @@ export function McpServerInspector(props: { serverName: string; status: string; 
         </Show>
       </div>
 
-      <SolidSwitch>
-        <Match when={props.status !== "connected"}>
+      <Show
+        when={props.status === "connected"}
+        fallback={
           <div class="text-11-regular text-text-weaker italic py-0.5">
             {language.t("dialog.mcp.inspector.notConnected")}
           </div>
-        </Match>
-        <Match when={matchingTools().length === 0}>
-          <div class="text-11-regular text-text-weaker italic py-0.5">{language.t("dialog.mcp.inspector.noTools")}</div>
-        </Match>
-        <Match when={matchingTools().length > 0}>
+        }
+      >
+        <Show
+          when={matchingTools().length > 0}
+          fallback={
+            <div class="text-11-regular text-text-weaker italic py-0.5">
+              {language.t("dialog.mcp.inspector.noTools")}
+            </div>
+          }
+        >
           <div class="flex flex-col gap-2 max-h-56 overflow-y-auto pr-1">
             <For each={matchingTools()}>
               {(tool) => {
@@ -89,8 +96,8 @@ export function McpServerInspector(props: { serverName: string; status: string; 
               }}
             </For>
           </div>
-        </Match>
-      </SolidSwitch>
+        </Show>
+      </Show>
     </div>
   )
 }
@@ -125,9 +132,9 @@ export const DialogSelectMcp: Component = () => {
       const res = await serverSDK()
         .client.tool.list(params)
         .catch(() => undefined)
-      return (res?.data ?? []) as McpToolItem[]
+      return res?.data ?? []
     },
-    { initialValue: [] as McpToolItem[] },
+    { initialValue: [] },
   )
 
   const enabledCount = createMemo(() => items().filter((i) => i.status === "connected").length)
@@ -160,7 +167,7 @@ export const DialogSelectMcp: Component = () => {
           const mcpStatus = () => sync().data.mcp[i.name]
           const status = () => mcpStatus()?.status
           const statusLabel = () => {
-            const key = status() ? statusLabels[status() as keyof typeof statusLabels] : undefined
+            const key = mcpStatusLabel(status())
             if (!key) return
             return language.t(key)
           }
@@ -219,4 +226,12 @@ export const DialogSelectMcp: Component = () => {
       </List>
     </Dialog>
   )
+}
+
+function mcpStatusLabel(status: string | undefined) {
+  if (status === "connected") return statusLabels.connected
+  if (status === "failed") return statusLabels.failed
+  if (status === "needs_auth") return statusLabels.needs_auth
+  if (status === "needs_client_registration") return statusLabels.needs_client_registration
+  if (status === "disabled") return statusLabels.disabled
 }

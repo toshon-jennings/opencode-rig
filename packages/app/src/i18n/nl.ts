@@ -1162,7 +1162,7 @@ export const dict = {
     "Hierdoor wordt de werkruimte opnieuw ingesteld zodat deze overeenkomt met de standaardbranch.",
   "command.provider.health": "Providerstatus bekijken",
   "command.provider.health.description": "Controleer providerstatus, verbindingskwaliteit en latentie",
-  "command.followup.mode.toggle": "Vervolgmodus omschakelen",
+  "command.followup.mode.toggle": "Vervolgmodus omschakelen: {{mode}}",
   "command.followup.mode.toggle.description": "Wissel vervolgmodus tussen Steer en Queue",
   "toast.followup.mode.title": "Vervolgmodus",
   "toast.followup.mode.steer": "Vervolgmodus ingesteld op Steer",

@@ -1155,7 +1155,7 @@ export const dict = {
   "workspace.reset.note": "یہ ڈیفالٹ برانچ سے ملنے کے لیے ورک اسپیس کو دوبارہ ترتیب دے گا۔",
   "command.provider.health": "فراہم کنندہ کی حالت دیکھیں",
   "command.provider.health.description": "فراہم کنندہ کی صورتحال، کنکشن کی حالت اور تاخیر چیک کریں",
-  "command.followup.mode.toggle": "فالو اپ موڈ تبدیل کریں",
+  "command.followup.mode.toggle": "فالو اپ موڈ تبدیل کریں: {{mode}}",
   "command.followup.mode.toggle.description": "Steer اور Queue کے درمیان فالو اپ موڈ تبدیل کریں",
   "toast.followup.mode.title": "فالو اپ موڈ",
   "toast.followup.mode.steer": "فالو اپ موڈ Steer پر سیٹ کر دیا گیا",

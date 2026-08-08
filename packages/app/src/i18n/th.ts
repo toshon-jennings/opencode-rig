@@ -1229,7 +1229,7 @@ export const dict = {
   "terminal.connectionLost.abnormalClose": "WebSocket ปิดอย่างผิดปกติ: {{code}}",
   "command.provider.health": "ดูสถานะผู้ให้บริการ",
   "command.provider.health.description": "ตรวจสอบสถานะผู้ให้บริการ สถานะการเชื่อมต่อ และความล่าช้า",
-  "command.followup.mode.toggle": "สลับโหมดการติดตาม",
+  "command.followup.mode.toggle": "สลับโหมดการติดตาม: {{mode}}",
   "command.followup.mode.toggle.description": "สลับโหมดการติดตามระหว่าง Steer และ Queue",
   "toast.followup.mode.title": "โหมดการติดตาม",
   "toast.followup.mode.steer": "ตั้งค่าโหมดการติดตามเป็น Steer",

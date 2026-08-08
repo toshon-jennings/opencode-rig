@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Button } from "@opencode-ai/ui/button"
 import { useDialog } from "@opencode-ai/ui/context/dialog"
 import { onMount } from "solid-js"

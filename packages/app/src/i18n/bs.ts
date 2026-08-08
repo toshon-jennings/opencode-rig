@@ -1248,7 +1248,7 @@ export const dict = {
   "terminal.connectionLost.abnormalClose": "WebSocket zatvoren nenormalno: {{code}}",
   "command.provider.health": "Prikaži status pružaoca usluge",
   "command.provider.health.description": "Provjerite status pružaoca, zdravlje konekcije i kašnjenje",
-  "command.followup.mode.toggle": "Promijeni način praćenja",
+  "command.followup.mode.toggle": "Promijeni način praćenja: {{mode}}",
   "command.followup.mode.toggle.description": "Prebacite način praćenja između Steer i Queue",
   "toast.followup.mode.title": "Način praćenja",
   "toast.followup.mode.steer": "Način praćenja postavljen na Steer",

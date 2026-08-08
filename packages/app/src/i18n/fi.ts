@@ -1159,7 +1159,7 @@ export const dict = {
     "Uusi ulkoasu ei vielä tue Git-työpuita, mutta tuki on tulossa pian. Jos haluat jatkaa aiemman ulkoasun käyttöä, voit vaihtaa ulkoasua asetuksissa. Huomaa kuitenkin, että uudesta ulkoasusta tulee pysyvä muutaman viikon kuluttua.",
   "command.provider.health": "Näytä tarjoajan tila",
   "command.provider.health.description": "Tarkista tarjoajan tila, yhteyden laatu ja viive",
-  "command.followup.mode.toggle": "Vaihda seuranta-tilaa",
+  "command.followup.mode.toggle": "Vaihda seuranta-tilaa: {{mode}}",
   "command.followup.mode.toggle.description": "Vaihda seuranta-tilaa Steerin ja Queuen välillä",
   "toast.followup.mode.title": "Seuranta-tila",
   "toast.followup.mode.steer": "Seuranta-tilaksi asetettu Steer",

@@ -358,6 +358,7 @@ export const { use: useSettings, provider: SettingsProvider } = createSimpleCont
       if (typeof document === "undefined") return
       const root = document.documentElement
       root.style.setProperty("--font-family-mono", monoFontFamily(store.appearance?.mono))
+      root.style.setProperty("--font-family-sans", sansFontFamily(store.appearance?.sans))
     })
 
     return {

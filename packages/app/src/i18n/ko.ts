@@ -1158,7 +1158,7 @@ export const dict = {
   "desktop.picker.error.sizeLimit": "선택한 첨부 파일이 {{limit}} MB 제한을 초과합니다",
   "command.provider.health": "제공자 상태 보기",
   "command.provider.health.description": "제공자 상태, 연결 건전성 및 지연 시간 확인",
-  "command.followup.mode.toggle": "후속 조치 모드 전환",
+  "command.followup.mode.toggle": "후속 조치 모드 전환: {{mode}}",
   "command.followup.mode.toggle.description": "Steer와 Queue 모드 간 후속 조치 모드 전환",
   "toast.followup.mode.title": "후속 조치 모드",
   "toast.followup.mode.steer": "후속 조치 모드가 Steer로 설정됨",
