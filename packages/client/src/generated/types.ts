@@ -2094,10 +2094,12 @@ export type IntegrationsListOutput = {
         }
       | { readonly type: "key"; readonly label?: string }
       | { readonly type: "env"; readonly names: ReadonlyArray<string> }
+      | { readonly id: string; readonly type: "external"; readonly label: string }
     >
     readonly connections: ReadonlyArray<
       | { readonly type: "credential"; readonly id: string; readonly label: string }
       | { readonly type: "env"; readonly name: string }
+      | { readonly type: "external"; readonly id: string; readonly label: string }
     >
   }>
 }
@@ -2146,10 +2148,12 @@ export type IntegrationsGetOutput = {
         }
       | { readonly type: "key"; readonly label?: string }
       | { readonly type: "env"; readonly names: ReadonlyArray<string> }
+      | { readonly id: string; readonly type: "external"; readonly label: string }
     >
     readonly connections: ReadonlyArray<
       | { readonly type: "credential"; readonly id: string; readonly label: string }
       | { readonly type: "env"; readonly name: string }
+      | { readonly type: "external"; readonly id: string; readonly label: string }
     >
   } | null
 }

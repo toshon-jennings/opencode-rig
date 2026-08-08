@@ -2,10 +2,25 @@ import { Effect } from "effect"
 import { ModelV2 } from "../../model"
 import { ProviderV2 } from "../../provider"
 import type { PluginContext } from "@opencode-ai/plugin/v2/effect"
+import { CliAuth } from "../../cli-auth"
+import { Credential } from "../../credential"
 
 export const GithubCopilotPlugin = {
   id: "github-copilot",
   effect: Effect.fn(function* (ctx: PluginContext) {
+    const token = yield* Effect.promise(CliAuth.copilotToken)
+    if (token) {
+      yield* ctx.integration.transform((draft) => {
+        draft.method.update({
+          integrationID: "github-copilot",
+          method: { id: "github-copilot-cli", type: "external", label: "GitHub CLI or Copilot CLI login" },
+          resolve: () =>
+            Effect.promise(CliAuth.copilotToken).pipe(
+              Effect.map((value) => (value ? Credential.Key.make({ type: "key", key: value }) : undefined)),
+            ),
+        })
+      })
+    }
     yield* ctx.catalog.transform(
       Effect.fn(function* (evt) {
         const item = evt.provider.get(ProviderV2.ID.githubCopilot)
@@ -21,7 +36,7 @@ export const GithubCopilotPlugin = {
       Effect.fn(function* (evt) {
         if (evt.package !== "@ai-sdk/github-copilot") return
         const mod = yield* Effect.promise(() => import("../../github-copilot/copilot-provider"))
-        evt.sdk = mod.createOpenaiCompatible(evt.options)
+        evt.sdk = mod.createOpenaiCompatible({ ...evt.options, ...(token ? { apiKey: token } : {}) })
       }),
     )
     yield* ctx.aisdk.language(

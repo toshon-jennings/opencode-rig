@@ -2,6 +2,7 @@ import { AISDK } from "@opencode-ai/core/aisdk"
 import { describe, expect, mock } from "bun:test"
 import { Effect } from "effect"
 import { ModelV2 } from "@opencode-ai/core/model"
+import { Integration } from "@opencode-ai/core/integration"
 import { PluginV2 } from "@opencode-ai/core/plugin"
 import { PluginHost } from "@opencode-ai/core/plugin/host"
 import { DeepInfraPlugin } from "@opencode-ai/core/plugin/provider/deepinfra"
@@ -39,6 +40,17 @@ function resetDeepInfraMock() {
 }
 
 describe("DeepInfraPlugin", () => {
+  it.effect("labels the key method for API keys and scoped JWTs", () =>
+    Effect.gen(function* () {
+      const integrations = yield* Integration.Service
+      yield* addPlugin()
+      expect((yield* integrations.get(Integration.ID.make("deepinfra")))?.methods).toContainEqual({
+        type: "key",
+        label: "DeepInfra API key or scoped JWT",
+      })
+    }),
+  )
+
   it.effect("creates a DeepInfra SDK for @ai-sdk/deepinfra", () =>
     Effect.gen(function* () {
       resetDeepInfraMock()

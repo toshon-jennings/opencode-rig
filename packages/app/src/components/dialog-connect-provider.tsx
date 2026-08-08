@@ -499,7 +499,7 @@ function ProviderConnection(props: {
 
   const methodLabel = (value?: { type?: string; label?: string }) => {
     if (!value) return ""
-    if (value.type === "key") return language.t("provider.connect.method.apiKey")
+    if (value.type === "key") return value.label ?? language.t("provider.connect.method.apiKey")
     return value.label ?? ""
   }
 
@@ -802,6 +802,7 @@ function ProviderConnection(props: {
       value: "",
       error: undefined as string | undefined,
     })
+    const label = () => method()?.label ?? language.t("provider.connect.apiKey.label", { provider: provider().name })
 
     onMount(() => {
       if (!newLayout()) return
@@ -853,7 +854,7 @@ function ProviderConnection(props: {
           </Show>
           <form onSubmit={handleSubmit} class="flex flex-col items-start gap-5 self-stretch">
             <label class="flex w-full flex-col gap-1 font-[530] leading-4 text-v2-text-text-base">
-              {language.t("provider.connect.apiKey.label", { provider: provider().name })}
+              {label()}
               <TextInputV2
                 ref={apiKey}
                 class="!w-full"
@@ -909,7 +910,7 @@ function ProviderConnection(props: {
             autofocus={!newLayout()}
             ref={apiKey}
             type="text"
-            label={language.t("provider.connect.apiKey.label", { provider: provider().name })}
+            label={label()}
             placeholder={language.t("provider.connect.apiKey.placeholder")}
             name="apiKey"
             value={formStore.value}

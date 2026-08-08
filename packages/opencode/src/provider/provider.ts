@@ -30,6 +30,7 @@ import { ProviderV2 } from "@opencode-ai/core/provider"
 import { ModelV2 } from "@opencode-ai/core/model"
 import { ModelStatus } from "./model-status"
 import { RuntimeFlags } from "@/effect/runtime-flags"
+import { CliAuth } from "@opencode-ai/core/cli-auth"
 import { ProviderError } from "./error"
 
 const OPENAI_HEADER_TIMEOUT_DEFAULT = 300_000
@@ -130,6 +131,8 @@ const BUNDLED_PROVIDERS: Record<string, () => Promise<(opts: any) => BundledSDK>
   "gitlab-ai-provider": () => import("gitlab-ai-provider").then((m) => m.createGitLab),
   "@ai-sdk/github-copilot": () =>
     import("@opencode-ai/core/github-copilot/copilot-provider").then((m) => m.createOpenaiCompatible),
+  "@opencode-ai/cli-agent": () =>
+    import("@opencode-ai/core/cli-agent-language-model").then((m) => m.createCliAgentProvider),
   "venice-ai-sdk-provider": () => import("venice-ai-sdk-provider").then((m) => m.createVenice),
 }
 
@@ -236,6 +239,26 @@ function custom(dep: CustomDep): Record<string, CustomLoader> {
           return sdk.chat(modelID)
         },
         options: {},
+      }),
+    "command-code": () =>
+      Effect.promise(async () => {
+        const key = await CliAuth.commandCodeKey()
+        return {
+          autoload: Boolean(key),
+          options: key
+            ? {
+                apiKey: "source-owned",
+                async fetch(input: RequestInfo | URL, init?: RequestInit) {
+                  const current = await CliAuth.commandCodeKey()
+                  if (!current) return fetch(input, init)
+                  const headers = new Headers(init?.headers)
+                  headers.set("Authorization", `Bearer ${current}`)
+                  headers.set("x-api-key", current)
+                  return fetch(input, { ...init, headers })
+                },
+              }
+            : {},
+        }
       }),
     azure: Effect.fnUntraced(function* (provider: Info) {
       const env = yield* dep.env()
@@ -1552,7 +1575,7 @@ const layer = Layer.effect(
           if (disabled.has(providerID)) continue
 
           const stored = yield* auth.get(providerID).pipe(Effect.orDie)
-          if (!stored) continue
+          if (!stored && !plugin.auth.external) continue
           if (!plugin.auth.loader) continue
 
           const options = yield* Effect.promise(() =>
@@ -1562,6 +1585,7 @@ const layer = Layer.effect(
             ),
           )
           const opts = options ?? {}
+          if (!stored && Object.keys(opts).length === 0) continue
           const patch: Partial<Info> = providers[providerID] ? { options: opts } : { source: "custom", options: opts }
           mergeProvider(providerID, patch)
         }

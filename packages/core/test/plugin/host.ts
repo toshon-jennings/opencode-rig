@@ -5,7 +5,12 @@ import { Credential } from "@opencode-ai/core/credential"
 import { Integration } from "@opencode-ai/core/integration"
 import { ModelV2 } from "@opencode-ai/core/model"
 import { ProviderV2 } from "@opencode-ai/core/provider"
-import type { IntegrationEnvMethod, IntegrationKeyMethod, IntegrationOAuthMethod } from "@opencode-ai/sdk/v2/types"
+import type {
+  IntegrationEnvMethod,
+  IntegrationExternalMethod,
+  IntegrationKeyMethod,
+  IntegrationOAuthMethod,
+} from "@opencode-ai/sdk/v2/types"
 import { Effect } from "effect"
 
 type Overrides = Partial<Omit<PluginContext, "options">>
@@ -223,6 +228,14 @@ export function integrationHost(integration: Integration.Interface): PluginConte
                 })
                 return
               }
+              if (input.method.type === "external") {
+                draft.method.update({
+                  integrationID: Integration.ID.make(input.integrationID),
+                  method: { ...input.method, id: Integration.MethodID.make(input.method.id) },
+                  ...("resolve" in input && input.resolve ? { resolve: input.resolve } : {}),
+                })
+                return
+              }
               draft.method.update({
                 integrationID: Integration.ID.make(input.integrationID),
                 method: input.method,
@@ -238,6 +251,7 @@ export function integrationHost(integration: Integration.Interface): PluginConte
 function method(value: Integration.Method) {
   if (value.type === "env") return { type: value.type, names: [...value.names] }
   if (value.type === "key") return { type: value.type, label: value.label }
+  if (value.type === "external") return { type: value.type, id: value.id, label: value.label }
   return {
     type: value.type,
     id: value.id,
@@ -250,7 +264,7 @@ function method(value: Integration.Method) {
 }
 
 function internalMethod(
-  value: IntegrationOAuthMethod | IntegrationKeyMethod | IntegrationEnvMethod,
+  value: IntegrationOAuthMethod | IntegrationKeyMethod | IntegrationEnvMethod | IntegrationExternalMethod,
 ): Integration.Method {
   if (value.type === "env") return value
   if (value.type === "key") return value

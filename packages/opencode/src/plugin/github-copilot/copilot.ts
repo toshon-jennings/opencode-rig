@@ -5,6 +5,7 @@ import { iife } from "@/util/iife"
 import { setTimeout as sleep } from "node:timers/promises"
 import { CopilotModels } from "./models"
 import { MessageV2 } from "@/session/message-v2"
+import { CliAuth } from "@opencode-ai/core/cli-auth"
 
 const CLIENT_ID = "Ov23li8tweQw6odWQebz"
 const API_VERSION = "2026-06-01"
@@ -93,15 +94,18 @@ export async function CopilotAuthPlugin(input: PluginInput): Promise<Hooks> {
     },
     auth: {
       provider: "github-copilot",
+      external: true,
       async loader(getAuth) {
         const info = await getAuth()
-        if (!info || info.type !== "oauth") return {}
+        const external = info?.type === "oauth" ? undefined : await CliAuth.copilotToken()
+        if ((!info || info.type !== "oauth") && !external) return {}
 
         return {
           apiKey: "",
           async fetch(request: RequestInfo | URL, init?: RequestInit) {
             const info = await getAuth()
-            if (info.type !== "oauth") return fetch(request, init)
+            const token = info?.type === "oauth" ? info.refresh : await CliAuth.copilotToken()
+            if (!token) return fetch(request, init)
 
             const url = request instanceof URL ? request.href : typeof request === "string" ? request : request.url
             const { isVision, isAgent } = iife(() => {
@@ -161,7 +165,7 @@ export async function CopilotAuthPlugin(input: PluginInput): Promise<Hooks> {
               "x-initiator": isAgent ? "agent" : "user",
               ...(init?.headers as Record<string, string>),
               "User-Agent": `opencode/${InstallationVersion}`,
-              Authorization: `Bearer ${info.refresh}`,
+              Authorization: `Bearer ${token}`,
               "Openai-Intent": "conversation-edits",
             }
 

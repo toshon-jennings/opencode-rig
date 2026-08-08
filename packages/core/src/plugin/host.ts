@@ -179,6 +179,18 @@ export const make = Effect.fn("PluginHost.make")(function* (plugin: PluginV2.Int
                   })
                   return
                 }
+                if (input.method.type === "external") {
+                  draft.method.update({
+                    integrationID: Integration.ID.make(input.integrationID),
+                    method: {
+                      id: Integration.MethodID.make(input.method.id),
+                      type: "external",
+                      label: input.method.label,
+                    },
+                    ...("resolve" in input && input.resolve ? { resolve: input.resolve } : {}),
+                  })
+                  return
+                }
                 draft.method.update({
                   integrationID: Integration.ID.make(input.integrationID),
                   method: { type: "key", label: input.method.label },

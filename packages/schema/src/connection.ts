@@ -16,7 +16,14 @@ export const EnvInfo = Schema.Struct({
   name: Schema.String,
 }).annotate({ identifier: "Connection.EnvInfo" })
 
-export const Info = Schema.Union([CredentialInfo, EnvInfo])
+export interface ExternalInfo extends Schema.Schema.Type<typeof ExternalInfo> {}
+export const ExternalInfo = Schema.Struct({
+  type: Schema.Literal("external"),
+  id: Schema.String,
+  label: Schema.String,
+}).annotate({ identifier: "Connection.ExternalInfo" })
+
+export const Info = Schema.Union([CredentialInfo, EnvInfo, ExternalInfo])
   .pipe(Schema.toTaggedUnion("type"))
   .annotate({ identifier: "Connection.Info" })
 export type Info = typeof Info.Type

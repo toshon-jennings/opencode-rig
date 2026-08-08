@@ -368,6 +368,13 @@ the following subscriptions in OpenCode with zero setup:
 - Gitlab Duo
   :::
 
+#### Claude CLI external agent
+
+OpenCode Rig can also detect an authenticated official `claude` CLI and expose it as the separate
+**Claude CLI** provider. This runs the installed CLI in non-persistent, no-tools plan mode; Rig does
+not read or copy Claude's OAuth credential. Because this is an external agent rather than a normal
+model API, OpenCode tools are not passed into it.
+
 ---
 
 ### Atomic Chat
@@ -732,7 +739,7 @@ Cloudflare Workers AI lets you run AI models on Cloudflare's global network dire
 
 ### Deep Infra
 
-1. Head over to the [Deep Infra dashboard](https://deepinfra.com/dash), create an account, and generate an API key.
+1. Head over to the [Deep Infra dashboard](https://deepinfra.com/dash), create an account, and generate an API key or scoped JWT.
 
 2. Run the `/connect` command and search for **Deep Infra**.
 
@@ -740,7 +747,8 @@ Cloudflare Workers AI lets you run AI models on Cloudflare's global network dire
    /connect
    ```
 
-3. Enter your Deep Infra API key.
+3. Enter your Deep Infra API key or scoped JWT. Scoped JWTs are sent as bearer tokens in the same
+   field and can restrict access by model, endpoint, or other DeepInfra policy claims.
 
    ```txt
    ┌ API key
@@ -1074,6 +1082,10 @@ This plugin provides comprehensive GitLab repository management capabilities inc
 ### GitHub Copilot
 
 To use your GitHub Copilot subscription with opencode:
+
+If `COPILOT_GITHUB_TOKEN`, `GH_TOKEN`, or `GITHUB_TOKEN` is set, or the Copilot CLI/`gh` CLI already
+has a usable login, OpenCode Rig detects it automatically and leaves the token in its owning source.
+The device login below remains available when no external login is found.
 
 :::note
 Some models might need a [Pro+
@@ -1721,6 +1733,24 @@ We recommend signing up for [ChatGPT Plus or Pro](https://chatgpt.com/pricing).
 ##### Using API keys
 
 If you already have an API key, you can select **Manually enter API Key** and paste it in your terminal.
+
+#### Codex CLI external agent
+
+OpenCode Rig detects `codex login` and exposes a separate **Codex CLI** provider. It starts the
+official local app-server over stdio, using read-only sandboxing, no approvals, and ephemeral
+threads. Rig never reads or copies `~/.codex/auth.json`. This external-agent provider returns text
+and does not receive OpenCode's tool registry.
+
+---
+
+### Command Code Provider API
+
+OpenCode Rig reuses `COMMAND_CODE_API_KEY` or the API key owned by an authenticated `commandcode`
+CLI. Models are discovered from Command Code's provider endpoint, and the credential is resolved at
+request time rather than copied into Rig's credential database.
+
+Command Code's Provider plan (or higher) is required for inference through this API. A CLI login on
+a Go plan can list models but the provider endpoint rejects inference until the account is upgraded.
 
 ---
 

@@ -8,5 +8,8 @@ export type CredentialInfo = Connection.CredentialInfo
 export const EnvInfo = Connection.EnvInfo
 export type EnvInfo = Connection.EnvInfo
 
+export const ExternalInfo = Connection.ExternalInfo
+export type ExternalInfo = Connection.ExternalInfo
+
 export const Info = Connection.Info
 export type Info = Connection.Info

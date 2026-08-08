@@ -1,8 +1,10 @@
 import type {
   ConnectionInfo,
+  CredentialKey,
   CredentialOAuth,
   CredentialValue,
   IntegrationEnvMethod,
+  IntegrationExternalMethod,
   IntegrationInputs,
   IntegrationKeyMethod,
   IntegrationMethod,
@@ -41,6 +43,11 @@ export type IntegrationMethodRegistration =
   | {
       readonly integrationID: string
       readonly method: IntegrationEnvMethod
+    }
+  | {
+      readonly integrationID: string
+      readonly method: IntegrationExternalMethod
+      readonly resolve?: () => Effect.Effect<CredentialKey | undefined, unknown>
     }
 
 export interface IntegrationDraft {

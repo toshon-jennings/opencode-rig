@@ -132,6 +132,29 @@ describe("Integration", () => {
     }),
   )
 
+  it.effect("resolves source-owned external credentials without storing them", () =>
+    Effect.gen(function* () {
+      const integrations = yield* Integration.Service
+      const credentials = yield* Credential.Service
+      const integrationID = Integration.ID.make("github-copilot")
+      const methodID = Integration.MethodID.make("github-copilot-cli")
+      yield* integrations.transform((editor) =>
+        editor.method.update({
+          integrationID,
+          method: { id: methodID, type: "external", label: "GitHub CLI login" },
+          resolve: () => Effect.succeed(Credential.Key.make({ type: "key", key: "source-owned" })),
+        }),
+      )
+
+      const connection = yield* integrations.connection.active(integrationID)
+      expect(connection).toEqual({ type: "external", id: methodID, label: "GitHub CLI login" })
+      expect(connection && (yield* integrations.connection.resolve(connection))).toEqual(
+        Credential.Key.make({ type: "key", key: "source-owned" }),
+      )
+      expect(yield* credentials.list(integrationID)).toEqual([])
+    }),
+  )
+
   it.effect("completes code OAuth once and stores the credential", () =>
     Effect.gen(function* () {
       const integrations = yield* Integration.Service

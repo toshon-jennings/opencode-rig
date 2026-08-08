@@ -3022,7 +3022,11 @@ export type IntegrationInputs = {
   [key: string]: string
 }
 
-export type IntegrationMethod = IntegrationOAuthMethod | IntegrationKeyMethod | IntegrationEnvMethod
+export type IntegrationMethod =
+  | IntegrationOAuthMethod
+  | IntegrationKeyMethod
+  | IntegrationEnvMethod
+  | IntegrationExternalMethod
 
 export type IntegrationRef = {
   id: string
@@ -4918,6 +4922,12 @@ export type IntegrationEnvMethod = {
   names: Array<string>
 }
 
+export type IntegrationExternalMethod = {
+  id: string
+  type: "external"
+  label: string
+}
+
 export type ConnectionCredentialInfo = {
   type: "credential"
   id: string
@@ -4929,7 +4939,13 @@ export type ConnectionEnvInfo = {
   name: string
 }
 
-export type ConnectionInfo = ConnectionCredentialInfo | ConnectionEnvInfo
+export type ConnectionExternalInfo = {
+  type: "external"
+  id: string
+  label: string
+}
+
+export type ConnectionInfo = ConnectionCredentialInfo | ConnectionEnvInfo | ConnectionExternalInfo
 
 export type IntegrationInfo = {
   id: string

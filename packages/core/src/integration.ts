@@ -51,6 +51,9 @@ export type KeyMethod = Integration.KeyMethod
 export const EnvMethod = Integration.EnvMethod
 export type EnvMethod = Integration.EnvMethod
 
+export const ExternalMethod = Integration.ExternalMethod
+export type ExternalMethod = Integration.ExternalMethod
+
 export const Method = Integration.Method
 export type Method = Integration.Method
 
@@ -92,7 +95,13 @@ export interface EnvImplementation {
   readonly method: EnvMethod
 }
 
-export type Implementation = OAuthImplementation | KeyImplementation | EnvImplementation
+export interface ExternalImplementation {
+  readonly integrationID: ID
+  readonly method: ExternalMethod
+  readonly resolve?: () => Effect.Effect<Credential.Key | undefined, unknown>
+}
+
+export type Implementation = OAuthImplementation | KeyImplementation | EnvImplementation | ExternalImplementation
 
 export const Attempt = Integration.Attempt
 export type Attempt = Integration.Attempt
@@ -119,6 +128,7 @@ type Entry = {
   ref: Types.DeepMutable<Ref>
   methods: Types.DeepMutable<Method>[]
   implementations: Map<MethodID, Types.DeepMutable<OAuthImplementation>>
+  external: Map<MethodID, Types.DeepMutable<ExternalImplementation>>
 }
 
 type Data = {
@@ -235,6 +245,7 @@ export const locationLayer = Layer.effect(
             ref: { id, name: id },
             methods: [],
             implementations: new Map(),
+            external: new Map(),
           }
           if (!draft.integrations.has(id)) draft.integrations.set(id, current)
           update(current.ref)
@@ -251,13 +262,15 @@ export const locationLayer = Layer.effect(
               },
               methods: [],
               implementations: new Map<MethodID, Types.DeepMutable<OAuthImplementation>>(),
+              external: new Map<MethodID, Types.DeepMutable<ExternalImplementation>>(),
             }
             if (!draft.integrations.has(implementation.integrationID)) {
               draft.integrations.set(implementation.integrationID, current)
             }
             const index = current.methods.findIndex((method) => {
               if (method.type !== implementation.method.type) return false
-              if (method.type !== "oauth" || implementation.method.type !== "oauth") return true
+              if (method.type === "key" || method.type === "env") return true
+              if (implementation.method.type === "key" || implementation.method.type === "env") return false
               return method.id === implementation.method.id
             })
             if (index === -1) current.methods.push(implementation.method as Types.DeepMutable<Method>)
@@ -268,17 +281,25 @@ export const locationLayer = Layer.effect(
                 implementation as Types.DeepMutable<OAuthImplementation>,
               )
             }
+            if (implementation.method.type === "external") {
+              current.external.set(
+                implementation.method.id,
+                implementation as Types.DeepMutable<ExternalImplementation>,
+              )
+            }
           },
           remove: (integrationID, method) => {
             const current = draft.integrations.get(integrationID)
             if (!current) return
             const index = current.methods.findIndex((candidate) => {
               if (candidate.type !== method.type) return false
-              if (candidate.type !== "oauth" || method.type !== "oauth") return true
+              if (candidate.type === "key" || candidate.type === "env") return true
+              if (method.type === "key" || method.type === "env") return false
               return candidate.id === method.id
             })
             if (index !== -1) current.methods.splice(index, 1)
             if (method.type === "oauth") current.implementations.delete(method.id)
+            if (method.type === "external") current.external.delete(method.id)
           },
         },
       }),
@@ -297,7 +318,10 @@ export const locationLayer = Layer.effect(
         .filter((method) => method.type === "env")
         .flatMap((method) => method.names.filter((name) => process.env[name]))
         .map((name) => ({ type: "env" as const, name }))
-      return [...credentials, ...env]
+      const external = (entry?.methods ?? [])
+        .filter((method) => method.type === "external")
+        .map((method) => ({ type: "external" as const, id: method.id, label: method.label }))
+      return [...credentials, ...env, ...external]
     }
 
     const project = (entry: Entry, connections: IntegrationConnection.Info[]) =>
@@ -386,6 +410,13 @@ export const locationLayer = Layer.effect(
           if (connection.type === "env") {
             const key = process.env[connection.name]
             return key ? Credential.Key.make({ type: "key", key }) : undefined
+          }
+          if (connection.type === "external") {
+            const implementation = Array.from(state.get().integrations.values())
+              .flatMap((entry) => Array.from(entry.external.values()))
+              .find((item) => item.method.id === connection.id)
+            if (!implementation?.resolve) return undefined
+            return yield* authorize(implementation.resolve())
           }
           const credential = yield* credentials.get(connection.id)
           if (!credential) return undefined

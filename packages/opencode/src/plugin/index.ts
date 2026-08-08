@@ -21,6 +21,8 @@ import { AzureAuthPlugin } from "./azure"
 import { DigitalOceanAuthPlugin } from "./digitalocean"
 import { XaiAuthPlugin } from "./xai"
 import { SnowflakeCortexAuthPlugin } from "./snowflake-cortex"
+import { CliProvidersPlugin, CommandCodeAuthPlugin } from "./cli-providers"
+import { DeepInfraAuthPlugin } from "./deepinfra"
 import { Effect, Layer, Context } from "effect"
 import { EffectBridge } from "@/effect/bridge"
 import { InstanceState } from "@/effect/instance-state"
@@ -71,6 +73,9 @@ function internalPlugins(flags: RuntimeFlags.Info): PluginInstance[] {
         experimentalWebSockets: experimentalWebSocketsEnabled({ enabled: flags.experimentalWebSockets }),
       }),
     CopilotAuthPlugin,
+    CliProvidersPlugin,
+    CommandCodeAuthPlugin,
+    DeepInfraAuthPlugin,
     ModalPlugin,
     GitlabAuthPlugin,
     PoeAuthPlugin,
