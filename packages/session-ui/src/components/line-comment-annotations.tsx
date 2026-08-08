@@ -58,6 +58,7 @@ type LineCommentControllerProps<T extends LineCommentShape> = {
   mention?: LineCommentEditorProps["mention"]
   state: LineCommentStateProps<string>
   onSubmit: (input: { comment: string; selection: SelectedLineRange }) => void
+  onAsk?: (selection: SelectedLineRange) => void
   onUpdate?: (input: { id: string; comment: string; selection: SelectedLineRange }) => void
   onDelete?: (comment: T) => void
   renderCommentActions?: (comment: T, controls: { edit: VoidFunction; remove: VoidFunction }) => JSX.Element
@@ -90,6 +91,7 @@ type DraftProps = {
   onInput: (value: string) => void
   onCancel: VoidFunction
   onSubmit: (value: string) => void
+  onAsk?: VoidFunction
   onPopoverFocusOut?: JSX.EventHandlerUnion<HTMLDivElement, FocusEvent>
   cancelLabel?: string
   submitLabel?: string
@@ -194,6 +196,7 @@ function lineCommentElement(view: Accessor<CommentProps>) {
         onInput={view().editor!.onInput}
         onCancel={view().editor!.onCancel}
         onSubmit={view().editor!.onSubmit}
+        onAsk={view().editor!.onAsk}
         onPopoverFocusOut={view().editor!.onPopoverFocusOut}
         cancelLabel={view().editor!.cancelLabel}
         submitLabel={view().editor!.submitLabel}
@@ -212,6 +215,7 @@ function lineCommentDraftElement(view: Accessor<DraftProps>) {
       onInput={view().onInput}
       onCancel={view().onCancel}
       onSubmit={view().onSubmit}
+      onAsk={view().onAsk}
       onPopoverFocusOut={view().onPopoverFocusOut}
       mention={view().mention}
     />
@@ -409,6 +413,12 @@ export function createLineCommentController<T extends LineCommentShape>(
                   })
                   note.cancelDraft()
                 },
+                onAsk: props.onAsk
+                  ? () => {
+                      props.onAsk?.(cloneSelectedLineRange(comment.selection))
+                      note.cancelDraft()
+                    }
+                  : undefined,
                 submitLabel: props.editSubmitLabel,
               }
             : undefined
@@ -435,6 +445,12 @@ export function createLineCommentController<T extends LineCommentShape>(
         props.onSubmit({ comment, selection: cloneSelectedLineRange(range) })
         note.cancelDraft()
       },
+      onAsk: props.onAsk
+        ? () => {
+            props.onAsk?.(cloneSelectedLineRange(range))
+            note.cancelDraft()
+          }
+        : undefined,
       onPopoverFocusOut: props.onDraftPopoverFocusOut,
     }),
   })

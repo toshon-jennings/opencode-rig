@@ -103,6 +103,8 @@ export interface Interface {
       repository: Repository
       path: AbsolutePath
       changes: ChangeSet
+      check?: boolean
+      reverse?: boolean
     }) => Effect.Effect<void, PatchError>
     readonly discard: (input: {
       repository: Repository
@@ -790,27 +792,40 @@ const layer = Layer.effect(
       repository: Repository
       path: AbsolutePath
       changes: ChangeSet
+      check?: boolean
+      reverse?: boolean
     }) {
-      const result = yield* proc
-        .run(
-          ChildProcess.make("git", ["apply", "-"], {
-            cwd: input.path,
-            extendEnv: true,
-            stdin: Stream.make(new TextEncoder().encode(input.changes)),
-          }),
-        )
-        .pipe(
-          Effect.mapError(
-            (cause) => new PatchError({ operation: "apply", directory: input.path, message: cause.message, cause }),
-          ),
-        )
-      if (result.exitCode === 0) return
-      return yield* new PatchError({
-        operation: "apply",
-        directory: input.path,
-        message:
-          result.stderr.toString("utf8").trim() || result.stdout.toString("utf8").trim() || "Failed to apply changes",
-      })
+      return yield* locked(
+        input.repository,
+        Effect.gen(function* () {
+          const result = yield* proc
+            .run(
+              ChildProcess.make(
+                "git",
+                ["apply", ...(input.check ? ["--check"] : []), ...(input.reverse ? ["--reverse"] : []), "-"],
+                {
+                  cwd: input.path,
+                  extendEnv: true,
+                  stdin: Stream.make(new TextEncoder().encode(input.changes)),
+                },
+              ),
+            )
+            .pipe(
+              Effect.mapError(
+                (cause) => new PatchError({ operation: "apply", directory: input.path, message: cause.message, cause }),
+              ),
+            )
+          if (result.exitCode === 0) return
+          return yield* new PatchError({
+            operation: "apply",
+            directory: input.path,
+            message:
+              result.stderr.toString("utf8").trim() ||
+              result.stdout.toString("utf8").trim() ||
+              "Failed to apply changes",
+          })
+        }),
+      )
     })
 
     const discard = Effect.fn("Git.change.discard")(function* (input: {

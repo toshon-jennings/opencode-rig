@@ -681,6 +681,27 @@ const adaptGroup17 = (raw: RawClient["server.projectCopy"]) => ({
   refresh: Endpoint17_2(raw),
 })
 
+type Endpoint18_0Request = Parameters<RawClient["server.review"]["review.capture"]>[0]
+type Endpoint18_0Input = { readonly location?: Endpoint18_0Request["query"]["location"] }
+const Endpoint18_0 = (raw: RawClient["server.review"]) => (input?: Endpoint18_0Input) =>
+  raw["review.capture"]({ query: { location: input?.["location"] } }).pipe(Effect.mapError(mapClientError))
+
+type Endpoint18_1Request = Parameters<RawClient["server.review"]["review.mutate"]>[0]
+type Endpoint18_1Input = {
+  readonly revisionID: Endpoint18_1Request["params"]["revisionID"]
+  readonly location?: Endpoint18_1Request["query"]["location"]
+  readonly operation: Endpoint18_1Request["payload"]["operation"]
+  readonly hunkIDs: Endpoint18_1Request["payload"]["hunkIDs"]
+}
+const Endpoint18_1 = (raw: RawClient["server.review"]) => (input: Endpoint18_1Input) =>
+  raw["review.mutate"]({
+    params: { revisionID: input["revisionID"] },
+    query: { location: input["location"] },
+    payload: { operation: input["operation"], hunkIDs: input["hunkIDs"] },
+  }).pipe(Effect.mapError(mapClientError))
+
+const adaptGroup18 = (raw: RawClient["server.review"]) => ({ capture: Endpoint18_0(raw), mutate: Endpoint18_1(raw) })
+
 const adaptClient = (raw: RawClient) => ({
   health: adaptGroup0(raw["server.health"]),
   location: adaptGroup1(raw["server.location"]),
@@ -700,6 +721,7 @@ const adaptClient = (raw: RawClient) => ({
   questions: adaptGroup15(raw["server.question"]),
   references: adaptGroup16(raw["server.reference"]),
   projectCopies: adaptGroup17(raw["server.projectCopy"]),
+  "server.review": adaptGroup18(raw["server.review"]),
 })
 
 export const make = (options?: { readonly baseUrl?: URL | string }) =>

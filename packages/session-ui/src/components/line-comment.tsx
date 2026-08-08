@@ -186,6 +186,8 @@ export type LineCommentEditorProps = Omit<LineCommentAnchorProps, "children" | "
   autofocus?: boolean
   cancelLabel?: string
   submitLabel?: string
+  onAsk?: VoidFunction
+  askLabel?: string
   mention?: {
     items: (query: string) => string[] | Promise<string[]>
   }
@@ -204,6 +206,8 @@ export const LineCommentEditor = (props: LineCommentEditorProps) => {
     "autofocus",
     "cancelLabel",
     "submitLabel",
+    "onAsk",
+    "askLabel",
     "mention",
   ])
 
@@ -407,18 +411,32 @@ export const LineCommentEditor = (props: LineCommentEditorProps) => {
                   type="button"
                   data-slot="line-comment-action"
                   data-variant="ghost"
-                  on:mousedown={hold as any}
-                  on:click={click(split.onCancel) as any}
+                  onMouseDown={hold}
+                  onClick={click(split.onCancel)}
                 >
                   {split.cancelLabel ?? i18n.t("ui.common.cancel")}
                 </button>
+                <Show when={split.onAsk}>
+                  <button
+                    type="button"
+                    data-slot="line-comment-action"
+                    data-variant="ghost"
+                    onMouseDown={hold}
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      split.onAsk?.()
+                    }}
+                  >
+                    {split.askLabel ?? i18n.t("ui.lineComment.ask")}
+                  </button>
+                </Show>
                 <button
                   type="button"
                   data-slot="line-comment-action"
                   data-variant="primary"
                   disabled={split.value.trim().length === 0}
-                  on:mousedown={hold as any}
-                  on:click={click(submit) as any}
+                  onMouseDown={hold}
+                  onClick={click(submit)}
                 >
                   {split.submitLabel ?? i18n.t("ui.lineComment.submit")}
                 </button>

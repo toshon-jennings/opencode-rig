@@ -8,7 +8,7 @@ import { mediaKindFromPath } from "../../pierre/media"
 import { cloneSelectedLineRange, previewSelectedLines } from "../../pierre/selection-bridge"
 import type { FileContent, SnapshotFileDiff, VcsFileDiff } from "@opencode-ai/sdk/v2"
 import type { FileDiffInfo } from "@opencode-ai/client/promise"
-import { createEffect, createMemo, onCleanup, Show, untrack } from "solid-js"
+import { createEffect, createMemo, For, onCleanup, Show, untrack } from "solid-js"
 import { createStore } from "solid-js/store"
 import { Dynamic } from "solid-js/web"
 import { normalize, text, type ViewDiff } from "../../components/session-diff"
@@ -29,6 +29,9 @@ import { MenuV2 } from "@opencode-ai/ui/v2/menu-v2"
 import "./session-review-v2.css"
 
 type ReviewDiff = (SnapshotFileDiff & { file: string }) | FileDiffInfo | VcsFileDiff
+type ReviewHunk = { readonly id: string }
+type ReviewFile = { readonly id: string; readonly path: string; readonly hunks: readonly ReviewHunk[] }
+type ReviewMutation = { readonly operation: "accept" | "reject"; readonly hunkIDs: readonly [string, ...string[]] }
 
 export type SessionReviewFilePreviewV2Props = {
   file: string
@@ -37,12 +40,15 @@ export type SessionReviewFilePreviewV2Props = {
   expandMode?: SessionReviewExpandMode
   readFile?: (path: string) => Promise<FileContent | undefined>
   onLineComment?: (comment: SessionReviewLineComment) => void
+  onAskAboutLine?: (selection: SelectedLineRange) => void
   onLineCommentUpdate?: (comment: SessionReviewCommentUpdate) => void
   onLineCommentDelete?: (comment: SessionReviewCommentDelete) => void
   lineCommentActions?: SessionReviewCommentActions
   comments?: SessionReviewComment[]
   focusedComment?: SessionReviewFocus | null
   onFocusedCommentChange?: (focus: SessionReviewFocus | null) => void
+  review?: ReviewFile
+  onReviewMutation?: (input: ReviewMutation) => void
 }
 
 function statusLabel(status: ViewDiff["status"]) {
@@ -116,6 +122,25 @@ export function SessionReviewFilePreviewV2(props: SessionReviewFilePreviewV2Prop
   const comments = createMemo(() => (props.comments ?? []).filter((comment) => comment.file === props.file))
   const commentedLines = createMemo(() => comments().map((comment) => comment.selection))
   const lineCommentsEnabled = () => props.onLineComment != null
+  const reviewHunks = createMemo(() => props.review?.hunks ?? [])
+  const [selectedHunks, setSelectedHunks] = createStore<{ ids: string[] }>({ ids: [] })
+
+  createEffect(() => {
+    setSelectedHunks(
+      "ids",
+      reviewHunks().map((hunk) => hunk.id),
+    )
+  })
+
+  const toggleHunk = (id: string) => {
+    setSelectedHunks("ids", (ids) => (ids.includes(id) ? ids.filter((value) => value !== id) : [...ids, id]))
+  }
+
+  const mutateReview = (operation: "accept" | "reject") => {
+    const [first, ...rest] = selectedHunks.ids
+    if (!first) return
+    props.onReviewMutation?.({ operation, hunkIDs: [first, ...rest] })
+  }
 
   const commentsUi = createLineCommentControllerV2<SessionReviewComment>({
     comments,
@@ -138,6 +163,7 @@ export function SessionReviewFilePreviewV2(props: SessionReviewFilePreviewV2Prop
         preview: selectionPreview(view(), selection),
       })
     },
+    onAsk: (selection) => props.onAskAboutLine?.(selection),
     onUpdate: ({ id, comment, selection }) => {
       props.onLineCommentUpdate?.({
         id,
@@ -267,6 +293,38 @@ export function SessionReviewFilePreviewV2(props: SessionReviewFilePreviewV2Prop
         <div data-slot="session-review-v2-file-diff">
           <DiffChanges changes={view()} />
         </div>
+        <Show when={reviewHunks().length > 0}>
+          <div data-slot="session-review-v2-hunk-controls">
+            <For each={reviewHunks()}>
+              {(hunk, index) => (
+                <label data-slot="session-review-v2-hunk-option">
+                  <input
+                    type="checkbox"
+                    checked={selectedHunks.ids.includes(hunk.id)}
+                    onChange={() => toggleHunk(hunk.id)}
+                  />
+                  <span>{i18n.t("ui.sessionReviewV2.hunk", { number: index() + 1 })}</span>
+                </label>
+              )}
+            </For>
+            <button
+              type="button"
+              data-slot="session-review-v2-hunk-action"
+              disabled={selectedHunks.ids.length === 0}
+              onClick={() => mutateReview("accept")}
+            >
+              {i18n.t("ui.sessionReviewV2.acceptSelected")}
+            </button>
+            <button
+              type="button"
+              data-slot="session-review-v2-hunk-action"
+              disabled={selectedHunks.ids.length === 0}
+              onClick={() => mutateReview("reject")}
+            >
+              {i18n.t("ui.sessionReviewV2.rejectSelected")}
+            </button>
+          </div>
+        </Show>
       </div>
       <div
         ref={(el) => {
