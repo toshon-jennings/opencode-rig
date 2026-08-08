@@ -5,7 +5,12 @@ import { createStore } from "solid-js/store"
 import type { ServerSDK } from "./server-sdk"
 import { ServerConnection } from "./server"
 import { useGlobal } from "./global"
-import { deriveProviderStatus, type ProviderHealthState, type ProviderHealthSample } from "./provider-health"
+import {
+  deriveProviderStatus,
+  nextProviderBaseline,
+  type ProviderHealthState,
+  type ProviderHealthSample,
+} from "./provider-health"
 
 const MAX_SAMPLES = 5
 const MAX_TRACKED_MESSAGES = 500
@@ -13,6 +18,7 @@ const MAX_TRACKED_MESSAGES = 500
 function createServerProviderHealthState(input: { sdk: ServerSDK }) {
   const [store, setStore] = createStore<Record<string, ProviderHealthState>>({})
   const samples = new Map<string, ProviderHealthSample[]>()
+  const baselines = new Map<string, number>()
   const seenMessages = new Set<string>()
   const seenOrder: string[] = []
 
@@ -29,8 +35,10 @@ function createServerProviderHealthState(input: { sdk: ServerSDK }) {
     list.push(sample)
     if (list.length > MAX_SAMPLES) list.shift()
     samples.set(providerID, list)
-    const status = deriveProviderStatus(list)
+    const status = deriveProviderStatus(list, baselines.get(providerID))
     if (!status) return
+    if (sample.ok && sample.latencyMs !== undefined && status !== "degraded")
+      baselines.set(providerID, nextProviderBaseline(baselines.get(providerID), sample.latencyMs))
     setStore(providerID, {
       status,
       latencyMs: sample.latencyMs ?? store[providerID]?.latencyMs,

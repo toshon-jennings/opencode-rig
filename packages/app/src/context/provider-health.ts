@@ -15,26 +15,36 @@ export type ProviderHealthSample = {
 }
 
 const DEGRADED_LATENCY_MULTIPLIER = 2.5
+const BASELINE_SMOOTHING = 0.2
+
+// The baseline deliberately lives outside the rolling sample window it judges. Deriving it
+// from that window self-erases a sustained slowdown: the first slow sample raises the mean
+// until every later equally-slow sample falls back under the threshold, so the worse the
+// outage the faster the status returns to "operational". This EWMA instead absorbs only
+// samples that were not themselves flagged degraded.
+export function nextProviderBaseline(current: number | undefined, latencyMs: number) {
+  if (current === undefined) return latencyMs
+  return current * (1 - BASELINE_SMOOTHING) + latencyMs * BASELINE_SMOOTHING
+}
 
 // Probe failures share one metadata endpoint, so they can only establish degraded
 // health. Unreachable requires failure evidence from real provider traffic.
-export function deriveProviderStatus(samples: ProviderHealthSample[]): ProviderHealthStatus | undefined {
+export function deriveProviderStatus(
+  samples: ProviderHealthSample[],
+  baselineMs?: number,
+): ProviderHealthStatus | undefined {
   if (samples.length === 0) return undefined
   const last = samples[samples.length - 1]
   if (!last.ok) {
     const prev = samples[samples.length - 2]
     return prev && !prev.ok && (last.source === "telemetry" || prev.source === "telemetry") ? "unreachable" : "degraded"
   }
-  const priorLatencies = samples
-    .slice(0, -1)
-    .filter(
-      (sample): sample is ProviderHealthSample & { latencyMs: number } => sample.ok && sample.latencyMs !== undefined,
-    )
-    .map((sample) => sample.latencyMs)
-  if (priorLatencies.length >= 2 && last.latencyMs !== undefined) {
-    const baseline = priorLatencies.reduce((sum, value) => sum + value, 0) / priorLatencies.length
-    if (last.latencyMs > baseline * DEGRADED_LATENCY_MULTIPLIER) return "degraded"
-  }
+  if (
+    baselineMs !== undefined &&
+    last.latencyMs !== undefined &&
+    last.latencyMs > baselineMs * DEGRADED_LATENCY_MULTIPLIER
+  )
+    return "degraded"
   return "operational"
 }
 
@@ -46,6 +56,7 @@ export function providerHealthDotClass(status: ProviderHealthStatus | undefined)
 }
 
 export function formatProviderLatency(ms: number) {
-  if (ms < 1000) return `${Math.round(ms)}ms`
-  return `${(ms / 1000).toFixed(1)}s`
+  const rounded = Math.round(ms)
+  if (rounded < 1000) return `${rounded}ms`
+  return `${(rounded / 1000).toFixed(1)}s`
 }
