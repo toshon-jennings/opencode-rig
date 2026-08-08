@@ -255,6 +255,7 @@ export function MessageTimeline(props: {
   setRevealMessage?: (fn: (id: string) => void) => void
   setScrollToEnd?: (fn: () => void) => void
   setHistoryAnchor?: (handlers: { capture: () => void; restore: (done: boolean) => void }) => void
+  onSteer?: () => void
 }) {
   let touchGesture: number | undefined
 
@@ -1211,9 +1212,33 @@ export function MessageTimeline(props: {
       }
       case "AssistantPart": {
         const assistantPartRow = row as Accessor<TimelineRowByTag<"AssistantPart">>
+        const followupMode = createMemo(() => settings.general.followup())
+        const steerLabel = createMemo(() =>
+          followupMode() === "queue"
+            ? language.t("session.timeline.queue")
+            : language.t("session.timeline.steer"),
+        )
+        const steerHint = createMemo(() =>
+          followupMode() === "queue"
+            ? language.t("session.timeline.queueHint")
+            : language.t("session.timeline.steerHint"),
+        )
         return (
           <TimelineRowFrame row={assistantPartRow}>
             <div data-slot="session-turn-message-container" class="w-full px-4 md:px-5">
+              <Show when={workingTurn(assistantPartRow().userMessageID)}>
+                <div class="pb-2">
+                  <button
+                    type="button"
+                    class="inline-flex items-center gap-1 rounded-md border border-border-weak-base bg-background-stronger px-2 py-0.5 text-12-medium text-text-weak hover:text-text-base hover:border-border-base transition-colors cursor-pointer"
+                    aria-label={steerHint()}
+                    onClick={() => props.onSteer?.()}
+                  >
+                    <Icon name="edit" size="small" />
+                    {steerLabel()}
+                  </button>
+                </div>
+              </Show>
               <div
                 data-slot="session-turn-assistant-content"
                 aria-hidden={workingTurn(assistantPartRow().userMessageID)}
