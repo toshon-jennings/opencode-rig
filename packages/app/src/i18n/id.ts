@@ -808,7 +808,7 @@ export const dict = {
   "session.timeline.steer": "Arahkan",
   "session.timeline.queue": "Antrean",
   "session.timeline.steerHint": "Ketik untuk mengarahkan ulang respons ini",
-  "session.timeline.queueHint": "Ketik tindak lanjut untuk dikirim setelah respons ini",
+  "session.timeline.queueHint": "Ketik pesan lanjutan untuk dikirim setelah respons ini",
   "session.revertDock.summary.one": "{{count}} pesan diurungkan",
   "session.revertDock.summary.other": "{{count}} pesan diurungkan",
   "session.revertDock.collapse": "Ciutkan pesan yang diurungkan",

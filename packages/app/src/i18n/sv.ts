@@ -745,7 +745,7 @@ export const dict = {
   "session.timeline.steer": "Styr",
   "session.timeline.queue": "Kö",
   "session.timeline.steerHint": "Skriv för att styra om det här svaret",
-  "session.timeline.queueHint": "Skriv en uppföljning som skickas efter det här svaret",
+  "session.timeline.queueHint": "Skriv ett meddelande som skickas efter det här svaret",
   "session.revertDock.summary.one": "{{count}} återställt meddelande",
   "session.revertDock.summary.other": "{{count}} återställda meddelanden",
   "session.revertDock.collapse": "Fäll ihop återställda meddelanden",

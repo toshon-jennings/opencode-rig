@@ -786,7 +786,7 @@ export const dict = {
   "session.timeline.steer": "Usmjeri",
   "session.timeline.queue": "Red čekanja",
   "session.timeline.steerHint": "Pišite da preusmjerite ovaj odgovor",
-  "session.timeline.queueHint": "Napišite nastavak koji će se poslati nakon ovog odgovora",
+  "session.timeline.queueHint": "Napišite poruku koja će biti poslana nakon ovog odgovora",
   "session.revertDock.summary.one": "{{count}} vraćena poruka",
   "session.revertDock.summary.few": "{{count}} vraćene poruke",
   "session.revertDock.summary.other": "{{count}} vraćenih poruka",

@@ -621,7 +621,7 @@ export const dict = {
   "session.timeline.steer": "Steuern",
   "session.timeline.queue": "Warteschlange",
   "session.timeline.steerHint": "Tippen, um diese Antwort umzulenken",
-  "session.timeline.queueHint": "Schreiben Sie eine Folgeanfrage, die nach dieser Antwort gesendet wird",
+  "session.timeline.queueHint": "Folgenachricht eingeben, die nach dieser Antwort gesendet wird",
   "session.revertDock.summary.one": "{{count}} zurückgesetzte Nachricht",
   "session.revertDock.summary.other": "{{count}} zurückgesetzte Nachrichten",
   "session.revertDock.collapse": "Zurückgesetzte Nachrichten einklappen",

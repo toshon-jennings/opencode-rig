@@ -657,7 +657,7 @@ export const dict = {
   "session.followupDock.expand": "Utvid meldinger i kø",
   "session.timeline.steer": "Styr",
   "session.timeline.queue": "Kø",
-  "session.timeline.steerHint": "Skriv for å styre dette svaret på nytt",
+  "session.timeline.steerHint": "Skriv for å omdirigere dette svaret",
   "session.timeline.queueHint": "Skriv en oppfølging som sendes etter dette svaret",
   "session.revertDock.summary.one": "{{count}} tilbakestilt melding",
   "session.revertDock.summary.other": "{{count}} tilbakestilte meldinger",

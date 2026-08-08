@@ -789,7 +789,7 @@ export const dict = {
   "session.timeline.steer": "Dirigir",
   "session.timeline.queue": "Cola",
   "session.timeline.steerHint": "Escribe para redirigir esta respuesta",
-  "session.timeline.queueHint": "Escribe un seguimiento para enviarlo después de esta respuesta",
+  "session.timeline.queueHint": "Escribe un mensaje para enviarlo después de esta respuesta",
   "session.revertDock.summary.one": "{{count}} mensaje revertido",
   "session.revertDock.summary.many": "{{count}} de mensajes revertidos",
   "session.revertDock.summary.other": "{{count}} mensajes revertidos",
