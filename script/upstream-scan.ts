@@ -10,6 +10,14 @@
  * only surfaces what's actually new. Local runs never move it — only a run inside GitHub
  * Actions does, so an idle local check-in can't silently suppress the automated backstop.
  *
+ * The cursor tag points at the fork's own HEAD, never at the upstream commit it's
+ * tracking — the upstream SHA lives in the tag's *message* instead. Tagging the upstream
+ * commit directly would, on push, transfer that commit's full ancestry (this fork has
+ * only ever fetched it, never pushed it), which includes upstream's own edits to their
+ * own workflow files — and GitHub's default token refuses any push that introduces
+ * workflow-file content without an explicit `workflows` grant. Pointing at HEAD avoids
+ * shipping a slice of upstream's real history into this repo just to remember a SHA.
+ *
  *   bun run script/upstream-scan.ts
  */
 import { $ } from "bun"
@@ -33,7 +41,9 @@ const remotes = (await $`git remote`.text()).trim().split("\n").filter((r) => r 
 for (const remote of remotes) {
   await $`git fetch ${remote} refs/tags/${CURSOR_TAG}:refs/tags/${CURSOR_TAG} --quiet`.nothrow().quiet()
 }
-const cursor = (await $`git rev-parse -q --verify refs/tags/${CURSOR_TAG}`.nothrow().text()).trim() || undefined
+// The upstream SHA is the tag's message, not its target — see the header comment.
+const cursor =
+  (await $`git for-each-ref refs/tags/${CURSOR_TAG} --format=%(contents)`.nothrow().text()).trim() || undefined
 
 const commits = (await $`git log --oneline HEAD..${UPSTREAM}`.text()).trim().split("\n").filter(Boolean)
 const watchedTotal = commits.length
@@ -102,7 +112,7 @@ if (process.env.GITHUB_OUTPUT) {
 // `bun run upstream:scan` stays read-only so an idle peek can't silently mark
 // tomorrow's real check as "already seen."
 if (process.env.GITHUB_ACTIONS === "true") {
-  const head = (await $`git rev-parse ${UPSTREAM}`.text()).trim()
-  await $`git tag -f ${CURSOR_TAG} ${head}`.quiet()
+  const upstreamHead = (await $`git rev-parse ${UPSTREAM}`.text()).trim()
+  await $`git tag -f -a ${CURSOR_TAG} -m ${upstreamHead} HEAD`.quiet()
   await $`git push origin refs/tags/${CURSOR_TAG} --force`.quiet()
 }
