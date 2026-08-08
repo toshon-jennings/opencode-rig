@@ -116,6 +116,12 @@ if (process.env.GITHUB_OUTPUT) {
 // `bun run upstream:scan` stays read-only so an idle peek can't silently mark
 // tomorrow's real check as "already seen."
 if (process.env.GITHUB_ACTIONS === "true") {
+  // An annotated tag is a git object with its own author, same as a commit — a bare
+  // Actions runner has no identity configured, only actions/checkout's auth for origin.
+  // Scoped to this checkout only (no --global), so it can't affect anything else.
+  await $`git config user.name "github-actions[bot]"`.quiet()
+  await $`git config user.email "github-actions[bot]@users.noreply.github.com"`.quiet()
+
   const upstreamHead = (await $`git rev-parse ${UPSTREAM}`.text()).trim()
   await $`git tag -f -a ${CURSOR_TAG} -m ${upstreamHead} HEAD`.quiet()
   await $`git push origin refs/tags/${CURSOR_TAG} --force`.quiet()
