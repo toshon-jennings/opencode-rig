@@ -17,6 +17,8 @@ import { useGlobal } from "@/context/global"
 import { useSettings } from "@/context/settings"
 import { useMcpToggle } from "@/context/mcp"
 import { useServerProtocol } from "@/context/server-sdk"
+import { formatProviderLatency, providerHealthDotClass } from "@/context/provider-health"
+import { useProviderHealth } from "@/context/provider-health-sync"
 
 const pluginEmptyMessage = (value: string, file: string): JSXElement => {
   const parts = value.split(file)
@@ -291,6 +293,11 @@ export function StatusPopoverBody(props: { shown: Accessor<boolean> }) {
   const mcpConnected = createMemo(() => mcpNames().filter((name) => mcpStatus(name) === "connected").length)
   const lspItems = createMemo(() => sync().data.lsp ?? [])
   const lspCount = createMemo(() => lspItems().length)
+  const providerHealth = useProviderHealth()
+  const providerIDs = createMemo(() => sync().data.provider?.connected ?? [])
+  const providerCount = createMemo(() => providerIDs().length)
+  const providerName = (providerID: string) => sync().data.provider?.all.get(providerID)?.name ?? providerID
+  const providerStatus = (providerID: string) => providerHealth.status(server.key, providerID)
   const plugins = createMemo(() =>
     (sync().data.config.plugin ?? []).map((item) => (typeof item === "string" ? item : item[0])),
   )
@@ -317,6 +324,10 @@ export function StatusPopoverBody(props: { shown: Accessor<boolean> }) {
           <Tabs.Trigger value="mcp" data-slot="tab" class="text-12-regular">
             {mcpConnected() > 0 ? `${mcpConnected()} ` : ""}
             {language.t("status.popover.tab.mcp")}
+          </Tabs.Trigger>
+          <Tabs.Trigger value="providers" data-slot="tab" class="text-12-regular">
+            {providerCount() > 0 ? `${providerCount()} ` : ""}
+            {language.t("status.popover.tab.providers")}
           </Tabs.Trigger>
           <Tabs.Trigger value="lsp" data-slot="tab" class="text-12-regular">
             {lspCount() > 0 ? `${lspCount()} ` : ""}
@@ -451,6 +462,38 @@ export function StatusPopoverBody(props: { shown: Accessor<boolean> }) {
                           />
                         </div>
                       </button>
+                    )
+                  }}
+                </For>
+              </Show>
+            </div>
+          </div>
+        </Tabs.Content>
+
+        <Tabs.Content value="providers">
+          <div class="flex flex-col px-2 pb-2">
+            <div class="flex flex-col p-3 bg-background-base rounded-sm min-h-14">
+              <Show
+                when={providerIDs().length > 0}
+                fallback={
+                  <div class="text-14-regular text-text-base text-center my-auto">
+                    {language.t("settings.providers.connected.empty")}
+                  </div>
+                }
+              >
+                <For each={providerIDs()}>
+                  {(providerID) => {
+                    const status = () => providerStatus(providerID)
+                    return (
+                      <div class="flex items-center gap-2 w-full px-2 py-1">
+                        <div class={`size-1.5 rounded-full shrink-0 ${providerHealthDotClass(status()?.status)}`} />
+                        <span class="text-14-regular text-text-base truncate flex-1">{providerName(providerID)}</span>
+                        <Show when={status()?.latencyMs !== undefined}>
+                          <span class="text-11-regular text-text-weaker shrink-0">
+                            {formatProviderLatency(status()!.latencyMs!)}
+                          </span>
+                        </Show>
+                      </div>
                     )
                   }}
                 </For>

@@ -1,5 +1,6 @@
 import type { LspStatus } from "@opencode-ai/sdk/v2/client"
 import type { McpServer } from "@opencode-ai/client/promise"
+import type { ProviderHealthStatus } from "@/context/provider-health"
 
 export function hasServiceNeedingAttention(input: { mcp: Array<McpServer["status"]["status"]> }) {
   return input.mcp.some((status) => status === "needs_auth" || status === "needs_client_registration")
@@ -8,10 +9,12 @@ export function hasServiceNeedingAttention(input: { mcp: Array<McpServer["status
 export function hasNonBlockingServiceIssue(input: {
   mcp: Array<McpServer["status"]["status"]>
   lsp: Array<LspStatus["status"]>
+  provider?: Array<ProviderHealthStatus | undefined>
 }) {
   return (
     input.mcp.some((status) => status !== "connected" && status !== "pending" && status !== "disabled") ||
-    input.lsp.some((status) => status === "error")
+    input.lsp.some((status) => status === "error") ||
+    (input.provider ?? []).some((status) => status === "degraded" || status === "unreachable")
   )
 }
 

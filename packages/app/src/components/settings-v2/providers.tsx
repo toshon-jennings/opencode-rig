@@ -4,14 +4,19 @@ import { useDialog } from "@opencode-ai/ui/context/dialog"
 import { ProviderIcon } from "@opencode-ai/ui/provider-icon"
 import { showToast } from "@/utils/toast"
 import { popularProviders, useProviders } from "@/hooks/use-providers"
-import { createMemo, type Accessor, type Component, For, Show } from "solid-js"
+import { createEffect, createMemo, createSignal, onCleanup, type Accessor, type Component, For, Show } from "solid-js"
 import { useLanguage } from "@/context/language"
 import { useServerProtocol, useServerSDK } from "@/context/server-sdk"
 import { useServerSync } from "@/context/server-sync"
+import { ServerConnection } from "@/context/server"
+import { formatProviderLatency, providerHealthDotClass } from "@/context/provider-health"
+import { useProviderHealth } from "@/context/provider-health-sync"
 import { DialogConnectProvider, useProviderConnectController } from "../dialog-connect-provider"
 import { DialogCustomProvider } from "../dialog-custom-provider"
 import { SettingsListV2 } from "./parts/list"
 import "./settings-v2.css"
+
+const AUTO_DISCOVERY_BANNER_MS = 6_000
 
 type ProviderSource = "env" | "api" | "config" | "custom"
 type ProviderItem = ReturnType<ReturnType<typeof useProviders>["connected"]>[number]
@@ -50,6 +55,28 @@ export const SettingsProvidersV2: Component<{
     return providers
       .connected()
       .filter((p) => p.id !== "opencode" || Object.values(p.models).find((m) => m.cost?.input))
+  })
+
+  const providerHealth = useProviderHealth()
+  const serverKey = createMemo(() => ServerConnection.key(serverSdk().server))
+  const health = (providerID: string) => providerHealth.status(serverKey(), providerID)
+
+  const [discoveryBanner, setDiscoveryBanner] = createSignal<{ id: string; name: string }>()
+  let knownProviderIDs: Set<string> | undefined
+  let bannerTimer: ReturnType<typeof setTimeout> | undefined
+  onCleanup(() => clearTimeout(bannerTimer))
+
+  createEffect(() => {
+    const current = connected()
+    const currentIDs = new Set(current.map((p) => p.id))
+    const previousIDs = knownProviderIDs
+    const justConnected = previousIDs && current.find((p) => !previousIDs.has(p.id))
+    if (justConnected) {
+      setDiscoveryBanner({ id: justConnected.id, name: justConnected.name })
+      clearTimeout(bannerTimer)
+      bannerTimer = setTimeout(() => setDiscoveryBanner(undefined), AUTO_DISCOVERY_BANNER_MS)
+    }
+    knownProviderIDs = currentIDs
   })
 
   const popular = createMemo(() => {
@@ -151,6 +178,21 @@ export const SettingsProvidersV2: Component<{
       <div class="settings-v2-tab-body settings-v2-providers">
         <div class="settings-v2-section" data-component="connected-providers-section">
           <h3 class="settings-v2-section-title">{language.t("settings.providers.section.connected")}</h3>
+          <Show when={discoveryBanner()}>
+            {(item) => (
+              <div class="settings-v2-provider-discovery-banner" role="status" data-component="auto-discovery-banner">
+                <span>{language.t("settings.providers.autoDiscovery.banner", { provider: item().name })}</span>
+                <button
+                  type="button"
+                  class="settings-v2-provider-discovery-banner-dismiss"
+                  aria-label={language.t("common.dismiss")}
+                  onClick={() => setDiscoveryBanner(undefined)}
+                >
+                  {language.t("common.dismiss")}
+                </button>
+              </div>
+            )}
+          </Show>
           <SettingsListV2>
             <Show
               when={connected().length > 0}
@@ -171,6 +213,25 @@ export const SettingsProvidersV2: Component<{
                       <div class="settings-v2-provider-main">
                         <span class="settings-v2-provider-name truncate">{item.name}</span>
                         <Tag>{type(item)}</Tag>
+                        <Show when={health(item.id)}>
+                          {(status) => (
+                            <span
+                              class="settings-v2-provider-health"
+                              title={language.t(`settings.providers.health.${status().status}`)}
+                            >
+                              <span
+                                class={`settings-v2-provider-health-dot ${providerHealthDotClass(status().status)}`}
+                              />
+                              <Show when={status().latencyMs !== undefined}>
+                                {(_) => (
+                                  <span class="settings-v2-provider-health-latency">
+                                    {formatProviderLatency(status().latencyMs!)}
+                                  </span>
+                                )}
+                              </Show>
+                            </span>
+                          )}
+                        </Show>
                       </div>
                     </div>
                     <Show

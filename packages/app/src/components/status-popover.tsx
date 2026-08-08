@@ -9,6 +9,7 @@ import { ServerConnection, useServer } from "@/context/server"
 import { useServerSDK } from "@/context/server-sdk"
 import { useSync } from "@/context/sync"
 import { useGlobal } from "@/context/global"
+import { useProviderHealth } from "@/context/provider-health-sync"
 import {
   hasNonBlockingServiceIssue,
   hasServiceNeedingAttention,
@@ -23,6 +24,7 @@ export function StatusPopover() {
   const server = useServer()
   const global = useGlobal()
   const sync = useSync()
+  const providerHealth = useProviderHealth()
   const [shown, setShown] = createSignal(false)
   const serverHealth = () => global.servers.health[server.key]?.healthy
   const ready = createMemo(() => serverHealth() === false || (sync().data.mcp_ready && sync().data.lsp_ready))
@@ -35,6 +37,9 @@ export function StatusPopover() {
     hasNonBlockingServiceIssue({
       mcp: Object.values(sync().data.mcp ?? {}).map((item) => item.status),
       lsp: (sync().data.lsp ?? []).map((item) => item.status),
+      provider: (sync().data.provider?.connected ?? []).map(
+        (providerID) => providerHealth.status(server.key, providerID)?.status,
+      ),
     }),
   )
 
@@ -92,8 +97,10 @@ function DirectoryStatusPopover() {
   const server = useServerSDK()
   const global = useGlobal()
   const sync = useSync()
+  const providerHealth = useProviderHealth()
   const [shown, setShown] = createSignal(false)
-  const serverHealth = () => global.servers.health[ServerConnection.key(server().server)]?.healthy
+  const serverKey = createMemo(() => ServerConnection.key(server().server))
+  const serverHealth = () => global.servers.health[serverKey()]?.healthy
   const ready = createMemo(() => serverHealth() === false || (sync().data.mcp_ready && sync().data.lsp_ready))
   const attention = createMemo(() =>
     hasServiceNeedingAttention({
@@ -104,6 +111,9 @@ function DirectoryStatusPopover() {
     hasNonBlockingServiceIssue({
       mcp: Object.values(sync().data.mcp ?? {}).map((item) => item.status),
       lsp: (sync().data.lsp ?? []).map((item) => item.status),
+      provider: (sync().data.provider?.connected ?? []).map(
+        (providerID) => providerHealth.status(serverKey(), providerID)?.status,
+      ),
     }),
   )
   const state = createMemo<StatusPopoverState>(() => ({

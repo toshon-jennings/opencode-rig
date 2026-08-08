@@ -800,6 +800,7 @@ export const dict = {
   "status.popover.ariaLabel": "服务器配置",
   "status.popover.tab.servers": "服务器",
   "status.popover.tab.mcp": "MCP",
+  "status.popover.tab.providers": "Providers",
   "status.popover.tab.lsp": "LSP",
   "status.popover.tab.plugins": "插件",
   "status.popover.action.manageServers": "管理服务器",
@@ -1034,6 +1035,10 @@ export const dict = {
   "settings.providers.tag.config": "配置",
   "settings.providers.tag.custom": "自定义",
   "settings.providers.tag.other": "其他",
+  "settings.providers.health.operational": "Operational",
+  "settings.providers.health.degraded": "Degraded",
+  "settings.providers.health.unreachable": "Unreachable",
+  "settings.providers.autoDiscovery.banner": "New models discovered for {{provider}}",
 
   "settings.models.title": "模型",
   "settings.models.description": "可在此处配置模型设置。",
