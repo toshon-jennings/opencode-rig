@@ -1,5 +1,4 @@
 import { useFilteredList } from "@opencode-ai/ui/hooks"
-import { ProviderIcon } from "@opencode-ai/ui/provider-icon"
 import { Switch } from "@opencode-ai/ui/v2/switch-v2"
 import { Icon as IconV2 } from "@opencode-ai/ui/v2/icon"
 import { IconButtonV2 } from "@opencode-ai/ui/v2/icon-button-v2"
@@ -13,11 +12,10 @@ import { popularProviders } from "@/hooks/use-providers"
 import { Persist, persisted } from "@/utils/persist"
 import { SettingsListV2 } from "./parts/list"
 import { SettingsRowV2 } from "./parts/row"
+import { ModelsGroupTrigger } from "./parts/models-group-trigger"
 import "./settings-v2.css"
 
 type ModelItem = ReturnType<ReturnType<typeof useModels>["list"]>[number]
-
-const PROVIDER_ICON_SIZE = 16
 
 export const SettingsModelsV2: Component = () => {
   const language = useLanguage()
@@ -113,43 +111,13 @@ export const SettingsModelsV2: Component = () => {
                     data-expanded={expanded() ? "" : undefined}
                   >
                     <h3 class="settings-v2-models-group-header">
-                      <button
-                        type="button"
-                        class="settings-v2-models-group-trigger"
-                        aria-expanded={expanded()}
+                      <ModelsGroupTrigger
+                        providerID={group.category}
+                        providerName={group.items[0].provider.name}
+                        expanded={expanded()}
                         disabled={searching()}
-                        onClick={() => setStore("collapsed", group.category, expanded())}
-                      >
-                        <span class="settings-v2-models-group-chevron">
-                          <Show
-                            when={expanded()}
-                            fallback={
-                              <svg width="5" height="6" viewBox="0 0 5 6" fill="none" aria-hidden="true">
-                                <path
-                                  d="M0.75194 5.31663C0.41861 5.51103 0 5.27063 0 4.88473V0.500754C0 0.114854 0.41861 -0.125577 0.75194 0.0688635L4.5096 2.26084C4.8404 2.45378 4.8404 2.93168 4.5096 3.12462L0.75194 5.31663Z"
-                                  fill="currentColor"
-                                />
-                              </svg>
-                            }
-                          >
-                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                              <path
-                                d="M5.37624 6.75194C5.18184 6.41861 5.42224 6 5.80814 6H10.1921C10.578 6 10.8184 6.41861 10.624 6.75194L8.43203 10.5096C8.23909 10.8404 7.76119 10.8404 7.56825 10.5096L5.37624 6.75194Z"
-                                fill="currentColor"
-                              />
-                            </svg>
-                          </Show>
-                        </span>
-                        <span class="settings-v2-models-group-label">
-                          <ProviderIcon
-                            id={group.category}
-                            width={PROVIDER_ICON_SIZE}
-                            height={PROVIDER_ICON_SIZE}
-                            class="settings-v2-models-provider-icon shrink-0"
-                          />
-                          <span class="settings-v2-section-title">{group.items[0].provider.name}</span>
-                        </span>
-                      </button>
+                        onToggle={() => setStore("collapsed", group.category, expanded())}
+                      />
                     </h3>
                     <Show when={expanded()}>
                       <SettingsListV2>

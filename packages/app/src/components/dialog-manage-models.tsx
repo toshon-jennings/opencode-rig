@@ -12,6 +12,7 @@ import { Switch as SwitchV2 } from "@opencode-ai/ui/v2/switch-v2"
 import { ProviderIcon } from "@opencode-ai/ui/provider-icon"
 import { useFilteredList } from "@opencode-ai/ui/hooks"
 import { For, Show, type Component } from "solid-js"
+import { createStore } from "solid-js/store"
 import { useLocal } from "@/context/local"
 import { popularProviders } from "@/hooks/use-providers"
 import { useLanguage } from "@/context/language"
@@ -20,6 +21,7 @@ import { DialogConnectProvider } from "./dialog-connect-provider"
 import { decode64 } from "@/utils/base64"
 import { SettingsListV2 } from "./settings-v2/parts/list"
 import { SettingsRowV2 } from "./settings-v2/parts/row"
+import { ModelsGroupTrigger } from "./settings-v2/parts/models-group-trigger"
 import "./settings-v2/settings-v2.css"
 
 type ModelItem = ReturnType<ReturnType<typeof useLocal>["model"]["list"]>[number]
@@ -153,6 +155,14 @@ export const DialogManageModelsV2: Component = () => {
     },
   })
 
+  // Providers start COLLAPSED here — unlike the Settings → Models tab, this dialog opened
+  // onto hundreds of rows. `open` is empty by default, so every group is shut until asked
+  // for. Searching force-expands (and disables the triggers) so results are never hidden
+  // behind a collapsed header; manual state returns when the search is cleared.
+  const [store, setStore] = createStore({ open: {} as Record<string, boolean> })
+  const searching = () => list.filter().trim().length > 0
+  const expanded = (providerID: string) => searching() || !!store.open[providerID]
+
   return (
     <DialogV2 size="large" variant="settings" class="settings-v2-manage-models-dialog">
       <DialogHeader hideClose={true} closeLabel={language.t("common.close")}>
@@ -218,40 +228,49 @@ export const DialogManageModelsV2: Component = () => {
               >
                 <For each={list.grouped.latest}>
                   {(group) => (
-                    <div class="settings-v2-section" data-component="settings-models-provider">
-                      <div class="settings-v2-models-group-header justify-between">
-                        <div class="flex min-w-0 items-center gap-2">
-                          <ProviderIcon id={group.category} width={16} height={16} class="ml-4 shrink-0" />
-                          <h3 class="settings-v2-section-title">{group.items[0].provider.name}</h3>
-                        </div>
-                        <div>
-                          <SwitchV2
-                            class="mr-6"
-                            checked={providerVisible(group.category)}
-                            onChange={(checked) => setProviderVisibility(group.category, checked)}
-                            hideLabel
-                          >
-                            {group.items[0].provider.name}
-                          </SwitchV2>
-                        </div>
-                      </div>
-                      <SettingsListV2>
-                        <For each={group.items}>
-                          {(item) => (
-                            <SettingsRowV2 title={item.name} description="">
-                              <div>
-                                <SwitchV2
-                                  checked={local.model.visible({ modelID: item.id, providerID: item.provider.id })}
-                                  onChange={(checked) => setModelVisibility(item, checked)}
-                                  hideLabel
-                                >
-                                  {item.name}
-                                </SwitchV2>
-                              </div>
-                            </SettingsRowV2>
-                          )}
-                        </For>
-                      </SettingsListV2>
+                    <div
+                      class="settings-v2-section"
+                      data-component="settings-models-provider"
+                      data-expanded={expanded(group.category) ? "" : undefined}
+                    >
+                      <h3 class="settings-v2-models-group-header justify-between">
+                        {/* The provider Switch is a SIBLING of the trigger button, never a
+                            child: nesting it would be invalid markup and swallow its clicks. */}
+                        <ModelsGroupTrigger
+                          providerID={group.category}
+                          providerName={group.items[0].provider.name}
+                          expanded={expanded(group.category)}
+                          disabled={searching()}
+                          onToggle={() => setStore("open", group.category, !store.open[group.category])}
+                        />
+                        <SwitchV2
+                          class="mr-6"
+                          checked={providerVisible(group.category)}
+                          onChange={(checked) => setProviderVisibility(group.category, checked)}
+                          hideLabel
+                        >
+                          {group.items[0].provider.name}
+                        </SwitchV2>
+                      </h3>
+                      <Show when={expanded(group.category)}>
+                        <SettingsListV2>
+                          <For each={group.items}>
+                            {(item) => (
+                              <SettingsRowV2 title={item.name} description="">
+                                <div>
+                                  <SwitchV2
+                                    checked={local.model.visible({ modelID: item.id, providerID: item.provider.id })}
+                                    onChange={(checked) => setModelVisibility(item, checked)}
+                                    hideLabel
+                                  >
+                                    {item.name}
+                                  </SwitchV2>
+                                </div>
+                              </SettingsRowV2>
+                            )}
+                          </For>
+                        </SettingsListV2>
+                      </Show>
                     </div>
                   )}
                 </For>
