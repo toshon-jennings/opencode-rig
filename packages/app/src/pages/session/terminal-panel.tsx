@@ -1,5 +1,6 @@
 import { For, Show, createEffect, createMemo, on, onCleanup, onMount } from "solid-js"
 import { createStore } from "solid-js/store"
+import { createTerminalMountTracker } from "./terminal-mount"
 import { makeEventListener } from "@solid-primitives/event-listener"
 import { Tabs } from "@opencode-ai/ui/tabs"
 import { ResizeHandle } from "@opencode-ai/ui/resize-handle"
@@ -150,6 +151,7 @@ export function TerminalPanel() {
   })
 
   const all = terminal.all
+  const mount = createTerminalMountTracker({ opened, active: terminal.active })
   const ids = createMemo(() => all().map((pty) => pty.id))
 
   const recoverTerminal = (key: string, id: string, clone: (id: string) => Promise<void>) => {
@@ -295,7 +297,7 @@ export function TerminalPanel() {
                 </Tabs.List>
               </Tabs>
               <div class="flex-1 min-h-0 relative">
-                <For each={all()}>
+                <For each={all().filter((pty) => mount.has(pty.id))}>
                   {(pty) => {
                     const ops = terminal.bind()
                     return (

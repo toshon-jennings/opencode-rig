@@ -1,5 +1,6 @@
 import { For, Show, createEffect, createMemo, on, onCleanup, onMount } from "solid-js"
 import { createStore } from "solid-js/store"
+import { createTerminalMountTracker } from "./terminal-mount"
 import { makeEventListener } from "@solid-primitives/event-listener"
 import { createMediaQuery } from "@solid-primitives/media"
 import { DragDropProvider, PointerSensor } from "@dnd-kit/solid"
@@ -138,6 +139,7 @@ export function TerminalPanelV2(props: { stacked?: boolean } = {}) {
   })
 
   const all = terminal.all
+  const mount = createTerminalMountTracker({ opened, active: terminal.active })
   const ids = createMemo(() => all().map((pty) => pty.id))
 
   const recoverTerminal = (key: string, id: string, clone: (id: string) => Promise<void>) => {
@@ -320,7 +322,7 @@ export function TerminalPanelV2(props: { stacked?: boolean } = {}) {
                 </Tabs.List>
               </Tabs>
               <div class="flex-1 min-h-0 relative">
-                <For each={all()}>
+                <For each={all().filter((pty) => mount.has(pty.id))}>
                   {(pty) => {
                     const ops = terminal.bind()
                     return (
