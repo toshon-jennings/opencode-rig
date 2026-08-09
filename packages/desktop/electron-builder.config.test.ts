@@ -89,3 +89,32 @@ for (const channel of ["beta", "prod"] as const) {
     })
   })
 }
+
+// Regression guard: v0.1.3 through v0.2.1 all shipped a macOS app that Gatekeeper called
+// "damaged and can't be opened". electron-builder skips signing without a Developer ID,
+// leaving the stock Electron linker signature and no sealed resources. An invalid signature
+// gets no "Open Anyway" override in Privacy & Security, so the app was simply unusable.
+test("ad-hoc signs macOS builds when no Developer ID is configured", async () => {
+  const saved = {
+    link: process.env.CSC_LINK,
+    keychain: process.env.CSC_KEYCHAIN,
+    key: process.env.APPLE_API_KEY,
+  }
+  delete process.env.CSC_LINK
+  delete process.env.CSC_KEYCHAIN
+  delete process.env.APPLE_API_KEY
+
+  const module = await import("./electron-builder.config.ts?unsigned-adhoc")
+  const config = module.default as Configuration
+
+  for (const [name, value] of Object.entries(saved)) {
+    const key = { link: "CSC_LINK", keychain: "CSC_KEYCHAIN", key: "APPLE_API_KEY" }[name]!
+    if (value === undefined) delete process.env[key]
+    else process.env[key] = value
+  }
+
+  // identity null only tells electron-builder not to hunt for a certificate; afterPack is
+  // what actually seals the bundle. Without it the DMG ships unopenable.
+  expect(config.mac?.identity).toBeNull()
+  expect(typeof config.afterPack).toBe("function")
+})

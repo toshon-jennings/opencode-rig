@@ -3,7 +3,7 @@ import path from "node:path"
 import { fileURLToPath } from "node:url"
 import { promisify } from "node:util"
 
-import type { Configuration } from "electron-builder"
+import type { AfterPackContext, Configuration } from "electron-builder"
 
 import { FORK_OWNER, FORK_REPO } from "./fork"
 
@@ -40,6 +40,20 @@ const channel = (() => {
 // Signing is opt-in: a fork without Apple credentials still produces a working DMG,
 // it just cannot be notarized. Notarizing unconditionally would fail the whole build.
 const signed = Boolean(process.env.CSC_LINK || process.env.CSC_KEYCHAIN || process.env.APPLE_API_KEY)
+
+// Without a Developer ID, electron-builder skips macOS signing altogether, which ships the
+// stock Electron linker signature with no sealed resources. macOS rejects that bundle as
+// "damaged and can't be opened" and offers NO Gatekeeper override — an invalid signature is
+// a different class from an unrecognised one, so "Open Anyway" never appears in Privacy &
+// Security. Ad-hoc signing seals the bundle, making an unsigned build merely unidentified
+// rather than corrupt. Notarized builds skip this: electron-builder signs them for real.
+async function adhocSignMac(context: AfterPackContext) {
+  if (signed || context.electronPlatformName !== "darwin") return
+  const app = path.join(context.appOutDir, `${context.packager.appInfo.productFilename}.app`)
+  await execFileAsync("codesign", ["--force", "--deep", "--sign", "-", app])
+  // Verify in CI so a broken bundle fails the build instead of every user's download.
+  await execFileAsync("codesign", ["--verify", "--deep", "--strict", app])
+}
 
 const APP_IDS = {
   dev: "ai.opencode.desktop.dev",
@@ -94,10 +108,12 @@ const getBase = (appId: string): Configuration => ({
     entitlementsInherit: "resources/entitlements.plist",
     notarize: signed,
     // null tells electron-builder to skip signing outright rather than hunt for an
-    // identity and emit a warning per artifact.
+    // identity and emit a warning per artifact. `adhocSignMac` then seals the bundle
+    // itself — see the note there for why skipping signing entirely ships a broken app.
     identity: signed ? undefined : null,
     target: ["dmg", "zip"],
   },
+  afterPack: adhocSignMac,
   dmg: {
     sign: signed,
   },
