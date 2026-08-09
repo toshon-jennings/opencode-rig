@@ -17,6 +17,7 @@ import { Script } from "@opencode-ai/script"
 import pkg from "../package.json"
 
 const singleFlag = process.argv.includes("--single")
+const targetFlag = process.argv.find((arg) => arg.startsWith("--target="))?.slice("--target=".length)
 const baselineFlag = process.argv.includes("--baseline")
 const skipInstall = process.argv.includes("--skip-install")
 const sourcemapsFlag = process.argv.includes("--sourcemaps")
@@ -113,26 +114,40 @@ const allTargets: {
   },
 ]
 
-const targets = singleFlag
-  ? allTargets.filter((item) => {
-      if (item.os !== process.platform || item.arch !== process.arch) {
-        return false
-      }
+// `--single` builds only the host's own target, which forces one runner per architecture.
+// `--target=<os>-<arch>` builds a named target on any host instead: Bun cross-compiles via
+// `compile.target`, the native deps below are installed for every platform, and the smoke
+// test already skips non-host binaries. Used by CI so linux-arm64 does not need an arm64
+// runner — GitHub's shared `ubuntu-latest-arm` pool starved three releases in a row.
+const targets = targetFlag
+  ? allTargets.filter(
+      (item) => `${item.os}-${item.arch}` === targetFlag && item.avx2 !== false && item.abi === undefined,
+    )
+  : singleFlag
+    ? allTargets.filter((item) => {
+        if (item.os !== process.platform || item.arch !== process.arch) {
+          return false
+        }
 
-      // When building for the current platform, prefer a single native binary by default.
-      // Baseline binaries require additional Bun artifacts and can be flaky to download.
-      if (item.avx2 === false) {
-        return baselineFlag
-      }
+        // When building for the current platform, prefer a single native binary by default.
+        // Baseline binaries require additional Bun artifacts and can be flaky to download.
+        if (item.avx2 === false) {
+          return baselineFlag
+        }
 
-      // also skip abi-specific builds for the same reason
-      if (item.abi !== undefined) {
-        return false
-      }
+        // also skip abi-specific builds for the same reason
+        if (item.abi !== undefined) {
+          return false
+        }
 
-      return true
-    })
-  : allTargets
+        return true
+      })
+    : allTargets
+
+if (targetFlag && targets.length === 0) {
+  console.error(`Unknown --target=${targetFlag}`)
+  process.exit(1)
+}
 
 await $`rm -rf dist`
 

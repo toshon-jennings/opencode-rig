@@ -127,8 +127,14 @@ jobs:
             install-flags: "--os=darwin --cpu=x64"
           - runner: ubuntu-latest
             install-flags: "--os=linux --cpu=x64"
-          - runner: ubuntu-latest-arm
+          # Cross-compiled on x64 rather than run on `ubuntu-latest-arm`: GitHub's shared
+          # ARM pool starved this leg on three consecutive releases (v0.1.8 and v0.2.1
+          # both shipped without their arm64 tarball; the v0.1.8 retry never once got a
+          # runner across ~5 attempts over two days). Bun cross-compiles via
+          # `compile.target`, and build.ts installs the native deps for every platform.
+          - runner: ubuntu-latest
             install-flags: "--os=linux --cpu=arm64"
+            build-flags: "--target=linux-arm64"
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 30
     steps:
@@ -151,8 +157,11 @@ jobs:
           install-flags: ${{ matrix.install-flags }}
 
       - name: Build CLI
-        run: bun ./packages/opencode/script/build.ts --single
+        run: bun ./packages/opencode/script/build.ts "$BUILD_FLAGS"
         env:
+          # Static matrix literal, not event input. Passed via env rather than interpolated
+          # into the shell so the pattern stays safe if it ever becomes dynamic.
+          BUILD_FLAGS: ${{ matrix.build-flags || '--single' }}
           OPENCODE_CHANNEL: prod
           OPENCODE_VERSION: ${{ steps.version.outputs.value }}
           OPENCODE_RELEASE: "1"
