@@ -15,6 +15,7 @@ import { useServerSDK } from "@/context/server-sdk"
 import { terminalFontFamily, useSettings } from "@/context/settings"
 import type { LocalPTY } from "@/context/terminal"
 import { disposeIfDisposable, getHoveredLinkText, setOptionIfSupported } from "@/utils/runtime-adapters"
+import { captureTerminalModes, terminalModeSequence } from "@/utils/terminal-modes"
 import { terminalWriter } from "@/utils/terminal-writer"
 import { terminalWebSocketURL } from "@/utils/terminal-websocket-url"
 
@@ -198,6 +199,11 @@ const persistTerminal = (input: {
     }
   })()
 
+  // The serialized buffer carries screen contents, not emulator mode state. Capture the modes
+  // separately so the rebuilt terminal can be put back into them. Omitted, not cleared, when
+  // the emulator could not be queried.
+  const modes = captureTerminalModes(input.term)
+
   input.onCleanup({
     id: input.id,
     buffer,
@@ -205,6 +211,7 @@ const persistTerminal = (input: {
     rows: input.term.rows,
     cols: input.term.cols,
     scrollY: input.term.getViewportY(),
+    ...(modes ? { modes } : {}),
   })
 }
 
@@ -246,6 +253,7 @@ export const Terminal = (props: TerminalProps) => {
       ? { cols: local.pty.cols, rows: local.pty.rows }
       : undefined
   const scrollY = typeof local.pty.scrollY === "number" ? local.pty.scrollY : undefined
+  const modes = terminalModeSequence(local.pty.modes)
   let ws: WebSocket | undefined
   let term: Term | undefined
   let _ghostty: Ghostty
@@ -555,6 +563,12 @@ export const Terminal = (props: TerminalProps) => {
           output.push(data)
           output.flush(resolve)
         })
+
+      // Before the restore buffer and before the live replay: a fresh emulator starts with
+      // every one of these modes off, and the TUI that turned them on will never re-emit the
+      // enable sequence. Anything in the buffer or replay that changes them again wins, since
+      // it is written after.
+      if (modes) await write(modes)
 
       if (restore && restoreSize) {
         await write(restore)

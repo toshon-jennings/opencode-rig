@@ -8,6 +8,7 @@ import { useServerSDK } from "./server-sdk"
 import { base64Encode } from "@opencode-ai/core/util/encode"
 import { defaultTitle, titleNumber } from "./terminal-title"
 import { Persist, persisted, removePersisted } from "@/utils/persist"
+import { parseTerminalModes } from "@/utils/terminal-modes"
 import { ScopedKey, ServerScope, type ServerScope as ServerScopeValue } from "@/utils/server-scope"
 
 export type LocalPTY = {
@@ -19,6 +20,7 @@ export type LocalPTY = {
   buffer?: string
   scrollY?: number
   cursor?: number
+  modes?: number[]
 }
 
 const WORKSPACE_KEY = "__workspace__"
@@ -53,6 +55,7 @@ function pty(value: unknown): LocalPTY | undefined {
   const buffer = text(value.buffer)
   const scrollY = num(value.scrollY)
   const cursor = num(value.cursor)
+  const modes = parseTerminalModes(value.modes)
 
   return {
     id,
@@ -63,6 +66,7 @@ function pty(value: unknown): LocalPTY | undefined {
     ...(buffer !== undefined ? { buffer } : {}),
     ...(scrollY !== undefined ? { scrollY } : {}),
     ...(cursor !== undefined ? { cursor } : {}),
+    ...(modes !== undefined ? { modes } : {}),
   }
 }
 
@@ -103,7 +107,11 @@ type TerminalCacheEntry = {
 
 const caches = new Set<Map<string, TerminalCacheEntry>>()
 
-const trimTerminal = (pty: LocalPTY) => {
+// `modes` deliberately survives the trim. Dropping the buffer forces the reconnect to replay
+// from cursor 0, and the server's ring buffer evicts from the front at 2 MB — so for a busy
+// TUI the original mouse-tracking enable sequence is long gone from the replay. The captured
+// mode set is the only thing that can bring mouse input back.
+export const trimTerminal = (pty: LocalPTY) => {
   if (!pty.buffer && pty.cursor === undefined && pty.scrollY === undefined) return pty
   return {
     ...pty,

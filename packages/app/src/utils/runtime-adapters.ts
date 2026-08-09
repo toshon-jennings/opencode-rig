@@ -26,14 +26,15 @@ export const hasGetMode = (value: unknown): value is { getMode: (mode: number, i
   return isRecord(value) && typeof value.getMode === "function"
 }
 
-// ghostty's getMode asserts the terminal is open, so a terminal torn down before it ever
-// rendered throws rather than reporting "off".
+// Returns undefined when the mode cannot be queried at all — ghostty's getMode asserts the
+// terminal is open, so one torn down before it ever rendered throws rather than reporting
+// "off". Callers must not read that as "the mode is off".
 export const getModeIfSupported = (value: unknown, mode: number) => {
-  if (!hasGetMode(value)) return false
+  if (!hasGetMode(value)) return undefined
   try {
     return value.getMode(mode, false) === true
   } catch {
-    return false
+    return undefined
   }
 }
 
