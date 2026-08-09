@@ -22,6 +22,21 @@ export const setOptionIfSupported = (value: unknown, key: string, next: unknown)
   value.setOption(key, next)
 }
 
+export const hasGetMode = (value: unknown): value is { getMode: (mode: number, isAnsi?: boolean) => boolean } => {
+  return isRecord(value) && typeof value.getMode === "function"
+}
+
+// ghostty's getMode asserts the terminal is open, so a terminal torn down before it ever
+// rendered throws rather than reporting "off".
+export const getModeIfSupported = (value: unknown, mode: number) => {
+  if (!hasGetMode(value)) return false
+  try {
+    return value.getMode(mode, false) === true
+  } catch {
+    return false
+  }
+}
+
 export const getHoveredLinkText = (value: unknown) => {
   if (!isRecord(value)) return
   const link = value.currentHoveredLink
