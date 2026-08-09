@@ -1,6 +1,7 @@
 import { Popover as Kobalte } from "@kobalte/core/popover"
 import { Component, ComponentProps, createEffect, createMemo, For, JSX, Show } from "solid-js"
 import { createStore } from "solid-js/store"
+import { modelCapabilityTags } from "./model-capability-tags"
 import { useLocal } from "@/context/local"
 import { useDialog } from "@opencode-ai/ui/context/dialog"
 import { popularProviders } from "@/hooks/use-providers"
@@ -66,33 +67,35 @@ const CapabilityTag: Component<{ v2?: boolean; class?: string; children: JSX.Ele
   )
 }
 
+// `compact` renders ONLY the context-window chip. Selector rows are ~300px wide and every
+// chip is shrink-0, so the model name — the one thing the row exists to show — was the only
+// element flexbox could shrink. With reasoning/vision/tools chips alongside the pre-existing
+// Free/Latest tags, names collapsed to "Bi…". Reasoning, vision and tool-calling all still
+// appear in ModelTooltip, which has the room for them; the row keeps the context window
+// because it is the one capability worth comparing at a glance.
 export const ModelCapabilityChips: Component<{
   model: {
     limit?: { context?: number }
     capabilities?: { reasoning?: boolean; input?: { image?: boolean }; toolcall?: boolean }
   }
   v2?: boolean
+  compact?: boolean
 }> = (props) => {
   const language = useLanguage()
+  const tags = createMemo(() => modelCapabilityTags(props.model, props.compact))
 
   return (
     <div class={`flex items-center gap-1.5 opacity-80 ${props.v2 ? "ml-1 mr-1" : ""}`}>
-      <Show when={props.model.limit?.context}>
+      <Show when={tags().includes("context") && props.model.limit?.context}>
         {(limit) => (
           <CapabilityTag v2={props.v2} class="font-mono uppercase">
             {formatContextLimit(limit())}
           </CapabilityTag>
         )}
       </Show>
-      <Show when={props.model.capabilities?.reasoning}>
-        <CapabilityTag v2={props.v2}>{language.t("model.tag.reasoning")}</CapabilityTag>
-      </Show>
-      <Show when={props.model.capabilities?.input?.image}>
-        <CapabilityTag v2={props.v2}>{language.t("model.tag.vision")}</CapabilityTag>
-      </Show>
-      <Show when={props.model.capabilities?.toolcall}>
-        <CapabilityTag v2={props.v2}>{language.t("model.tag.tools")}</CapabilityTag>
-      </Show>
+      <For each={tags().filter((tag) => tag !== "context")}>
+        {(tag) => <CapabilityTag v2={props.v2}>{language.t(`model.tag.${tag}`)}</CapabilityTag>}
+      </For>
     </div>
   )
 }
@@ -152,8 +155,10 @@ const ModelList: Component<{
     >
       {(i) => (
         <div class="w-full flex items-center gap-x-2 text-13-regular">
-          <span class="truncate">{i.name}</span>
-          <ModelCapabilityChips model={i} />
+          {/* min-w-0 flex-1 keeps the name the element that owns the leftover space; every
+              chip beside it is shrink-0, so without this the name is what collapses. */}
+          <span class="min-w-0 flex-1 truncate">{i.name}</span>
+          <ModelCapabilityChips model={i} compact />
           <Show when={isFree(i.provider.id, i.cost)}>
             <Tag>{language.t("model.tag.free")}</Tag>
           </Show>
@@ -536,8 +541,8 @@ function ModelSelectorPopoverV2View(props: {
                                 }}
                                 onSelect={() => selectModel(item)}
                               >
-                                <span class="min-w-0 truncate leading-5">{item.name}</span>
-                                <ModelCapabilityChips model={item} v2 />
+                                <span class="min-w-0 flex-1 truncate leading-5">{item.name}</span>
+                                <ModelCapabilityChips model={item} v2 compact />
                                 <Show when={isFree(item.provider.id, item.cost)}>
                                   <TagV2 class="shrink-0">{language.t("model.tag.free")}</TagV2>
                                 </Show>
