@@ -119,6 +119,9 @@ jobs:
     # finishes first and every leg fails with "release not found".
     needs: desktop
     strategy:
+      # One bad leg must not cancel the others — each uploads its own artifact, so a
+      # partial release beats a release that loses three good binaries to one failure.
+      fail-fast: false
       matrix:
         include:
           - runner: macos-26
@@ -132,8 +135,14 @@ jobs:
           # both shipped without their arm64 tarball; the v0.1.8 retry never once got a
           # runner across ~5 attempts over two days). Bun cross-compiles via
           # `compile.target`, and build.ts installs the native deps for every platform.
+          #
+          # install-flags track the HOST, not the target: `bun install` here provisions the
+          # build tooling that runs on this machine (vite/rollup need
+          # @rollup/rollup-linux-x64-gnu). The target's embedded native deps are installed
+          # separately by build.ts with `--os="*" --cpu="*"`. Setting these to arm64 fails
+          # the Web UI embed step with MODULE_NOT_FOUND.
           - runner: ubuntu-latest
-            install-flags: "--os=linux --cpu=arm64"
+            install-flags: "--os=linux --cpu=x64"
             build-flags: "--target=linux-arm64"
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 30
