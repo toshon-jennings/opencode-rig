@@ -7,22 +7,19 @@ const full = {
   capabilities: { reasoning: true, input: { image: true }, toolcall: true },
 }
 
-// Regression guard for v0.2.3: four shrink-0 chips in a ~300px selector row left the model
-// name as the only shrinkable element, so names rendered as "Bi…" / "D…". A compact row must
-// never carry more than the context chip.
-test("compact rows carry the context chip only", () => {
-  expect(modelCapabilityTags(full, true)).toEqual(["context"])
-})
-
-test("non-compact carries the full capability set", () => {
+// v0.2.3 shipped these chips into a 284px popover, where every chip is shrink-0 and the
+// model name was the only thing flexbox could shrink — names rendered as "Bi…". The fix is
+// the popover width plus a min-width floor on the name, NOT dropping capabilities: the row
+// is supposed to carry all of them.
+test("carries every capability the model reports", () => {
   expect(modelCapabilityTags(full)).toEqual(["context", "reasoning", "vision", "tools"])
 })
 
-test("omits the context chip when the model reports no limit", () => {
-  expect(modelCapabilityTags({ capabilities: { reasoning: true } }, true)).toEqual([])
+test("omits capabilities the model does not report", () => {
+  expect(modelCapabilityTags({ limit: { context: 200_000 } })).toEqual(["context"])
   expect(modelCapabilityTags({ capabilities: { reasoning: true } })).toEqual(["reasoning"])
 })
 
 test("treats a zero context limit as absent rather than rendering an empty chip", () => {
-  expect(modelCapabilityTags({ limit: { context: 0 } }, true)).toEqual([])
+  expect(modelCapabilityTags({ limit: { context: 0 } })).toEqual([])
 })

@@ -67,22 +67,18 @@ const CapabilityTag: Component<{ v2?: boolean; class?: string; children: JSX.Ele
   )
 }
 
-// `compact` renders ONLY the context-window chip. Selector rows are ~300px wide and every
-// chip is shrink-0, so the model name — the one thing the row exists to show — was the only
-// element flexbox could shrink. With reasoning/vision/tools chips alongside the pre-existing
-// Free/Latest tags, names collapsed to "Bi…". Reasoning, vision and tool-calling all still
-// appear in ModelTooltip, which has the room for them; the row keeps the context window
-// because it is the one capability worth comparing at a glance.
+// Chips render shrink-0, so the name is the only element flexbox can shrink. It is given a
+// min-width floor by callers and the popover is sized to fit both — see the width note in
+// ModelSelectorPopover. Do not solve crowding by dropping capabilities.
 export const ModelCapabilityChips: Component<{
   model: {
     limit?: { context?: number }
     capabilities?: { reasoning?: boolean; input?: { image?: boolean }; toolcall?: boolean }
   }
   v2?: boolean
-  compact?: boolean
 }> = (props) => {
   const language = useLanguage()
-  const tags = createMemo(() => modelCapabilityTags(props.model, props.compact))
+  const tags = createMemo(() => modelCapabilityTags(props.model))
 
   return (
     <div class={`flex items-center gap-1.5 opacity-80 ${props.v2 ? "ml-1 mr-1" : ""}`}>
@@ -155,10 +151,10 @@ const ModelList: Component<{
     >
       {(i) => (
         <div class="w-full flex items-center gap-x-2 text-13-regular">
-          {/* min-w-0 flex-1 keeps the name the element that owns the leftover space; every
-              chip beside it is shrink-0, so without this the name is what collapses. */}
-          <span class="min-w-0 flex-1 truncate">{i.name}</span>
-          <ModelCapabilityChips model={i} compact />
+          {/* flex-1 gives the name the leftover space; the min-width floor stops it
+              collapsing behind shrink-0 chips the way it did in v0.2.3. */}
+          <span class="min-w-[8rem] flex-1 truncate">{i.name}</span>
+          <ModelCapabilityChips model={i} />
           <Show when={isFree(i.provider.id, i.cost)}>
             <Tag>{language.t("model.tag.free")}</Tag>
           </Show>
@@ -437,7 +433,9 @@ function ModelSelectorPopoverV2View(props: {
       <MenuV2.Portal>
         <MenuV2.Content
           ref={(element: HTMLDivElement) => (contentRef = element)}
-          class="w-[284px] overflow-hidden rounded-md border-0 bg-v2-background-bg-layer-01 !p-0 shadow-[var(--v2-elevation-floating)] focus:outline-none"
+          /* 284px could not fit a model name beside its capability chips, so names
+             truncated to "Bi…". Capped against the viewport so narrow windows still fit. */
+          class="w-[min(30rem,calc(100vw-2rem))] overflow-hidden rounded-md border-0 bg-v2-background-bg-layer-01 !p-0 shadow-[var(--v2-elevation-floating)] focus:outline-none"
           onPointerDownOutside={dismiss.preventTriggerRestore}
           onFocusOutside={dismiss.preventTriggerRestore}
           onCloseAutoFocus={dismiss.onCloseAutoFocus}
@@ -541,8 +539,8 @@ function ModelSelectorPopoverV2View(props: {
                                 }}
                                 onSelect={() => selectModel(item)}
                               >
-                                <span class="min-w-0 flex-1 truncate leading-5">{item.name}</span>
-                                <ModelCapabilityChips model={item} v2 compact />
+                                <span class="min-w-[8rem] flex-1 truncate leading-5">{item.name}</span>
+                                <ModelCapabilityChips model={item} v2 />
                                 <Show when={isFree(item.provider.id, item.cost)}>
                                   <TagV2 class="shrink-0">{language.t("model.tag.free")}</TagV2>
                                 </Show>

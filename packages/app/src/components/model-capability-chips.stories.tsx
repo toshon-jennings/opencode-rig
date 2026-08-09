@@ -19,10 +19,6 @@ export const Default = {
   render: () => <ModelCapabilityChips model={model} />,
 }
 
-export const CompactRow = {
-  render: () => <ModelCapabilityChips model={model} compact />,
-}
-
 export const V2 = {
   render: () => <ModelCapabilityChips model={model} v2 />,
 }
