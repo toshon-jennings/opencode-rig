@@ -181,8 +181,12 @@ function getConfig() {
         appId,
         productName: "OpenCode Rig",
         protocols: { name: "OpenCode Rig", schemes: ["opencode"] },
-        // Not a draft: the updater cannot read latest-mac.yml from an unpublished release.
-        publish: { provider: "github", owner: FORK_OWNER, repo: FORK_REPO, channel: "latest", releaseType: "release" },
+        // Draft until every artifact has landed. The updater cannot read latest-mac.yml
+        // from an unpublished release, so release.yml's `finalize` job flips the draft to
+        // published once desktop AND all four CLI legs succeed. Publishing up front — as
+        // this did until v0.2.2 — renders a "Latest" page whose DMG is still uploading,
+        // so users arrive at a download list with their file simply missing.
+        publish: { provider: "github", owner: FORK_OWNER, repo: FORK_REPO, channel: "latest", releaseType: "draft" },
         deb: { fpm: [metainfoFpm(appId), legacyDesktopEntryFpm] },
         rpm: { packageName: "opencode", fpm: [metainfoFpm(appId), legacyDesktopEntryFpm] },
       }

@@ -41,10 +41,14 @@ jobs:
           fi
           echo "value=$version" >> "$GITHUB_OUTPUT"
 
-      # GitHub rejects a published (non-draft) release whose tag does not already exist,
-      # and electron-builder's parallel asset uploads each race to create it. Creating the
-      # tag up front makes that deterministic. Idempotent, so a tag-triggered run is a no-op.
-      - name: Ensure release tag
+      # Create BOTH the tag and the release up front, because electron-builder runs one
+      # publisher per target (zip and DMG) and they race. In v0.2.2 both logged
+      # "creating GitHub release reason=release doesn't exist" within 30ms and each made
+      # its own release object for tag v0.2.2: the DMG + latest-mac.yml landed on one, the
+      # CLI tarballs on the other, and users hit whichever the page showed first — with
+      # their file missing. Pre-creating the release makes every publisher an uploader.
+      # Both steps are idempotent, so re-runs and tag-triggered runs are no-ops.
+      - name: Ensure release tag and draft release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ steps.version.outputs.value }}
@@ -56,6 +60,20 @@ jobs:
             gh api "repos/$GITHUB_REPOSITORY/git/refs" \
               -f ref="refs/tags/$tag" -f sha="$GITHUB_SHA" >/dev/null
             echo "Created tag $tag at $GITHUB_SHA"
+          fi
+
+          count="$(gh api "repos/$GITHUB_REPOSITORY/releases?per_page=100" \
+            --jq "[.[] | select(.tag_name == \"$tag\")] | length")"
+          if [ "$count" -gt 1 ]; then
+            echo "Refusing to build: $count releases already exist for $tag." >&2
+            echo "Delete the duplicates before re-running." >&2
+            exit 1
+          fi
+          if [ "$count" -eq 1 ]; then
+            echo "Release $tag already exists"
+          else
+            gh release create "$tag" --draft --title "$VERSION" --notes "" --repo "$GITHUB_REPOSITORY"
+            echo "Created draft release $tag"
           fi
 
       # Signing is optional: without these the build still produces a DMG, just an
@@ -98,8 +116,10 @@ jobs:
           OPENCODE_CHANNEL: prod
           OPENCODE_VERSION: ${{ steps.version.outputs.value }}
 
-      # --publish always uploads the DMG, the zip, and latest-mac.yml. That yml is the
-      # feed the in-app updater reads, so the release must not stay a draft.
+      # --publish always uploads the DMG, the zip, and latest-mac.yml into a DRAFT release
+      # (see electron-builder.config.ts). That yml is the feed the in-app updater reads and
+      # is unreadable while drafted, so the `finalize` job publishes the draft once every
+      # artifact has landed.
       - name: Package and publish
         run: npx electron-builder --mac --arm64 --publish always --config electron-builder.config.ts
         working-directory: packages/desktop
@@ -177,3 +197,62 @@ jobs:
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+
+  # The release is built as a draft so nobody can land on a "Latest" page whose DMG is
+  # still uploading. Only once desktop and every CLI leg has succeeded is it made public,
+  # which is also when the updater may first see latest-mac.yml. If any leg failed, the
+  # release stays a draft: an incomplete release is strictly worse than a late one.
+  finalize:
+    needs: [desktop, cli]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Resolve version
+        id: version
+        env:
+          RAW_VERSION: ${{ inputs.version || github.ref_name }}
+        run: |
+          version="${RAW_VERSION#v}"
+          if ! printf '%s' "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z]+)*$'; then
+            echo "Refusing to finalize unrecognised version: $version" >&2
+            exit 1
+          fi
+          echo "value=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Verify every expected asset is present
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          TAG: v${{ steps.version.outputs.value }}
+        run: |
+          expected="opencode-desktop-mac-arm64.dmg
+          opencode-desktop-mac-arm64.zip
+          latest-mac.yml
+          opencode-darwin-arm64.zip
+          opencode-darwin-x64.zip
+          opencode-linux-x64.tar.gz
+          opencode-linux-arm64.tar.gz"
+          actual="$(gh release view "$TAG" --json assets -q '.assets[].name')"
+          missing=0
+          while IFS= read -r name; do
+            name="$(printf '%s' "$name" | xargs)"
+            [ -z "$name" ] && continue
+            if ! printf '%s\n' "$actual" | grep -qx "$name"; then
+              echo "MISSING: $name" >&2
+              missing=1
+            fi
+          done <<< "$expected"
+          if [ "$missing" -ne 0 ]; then
+            echo "Leaving $TAG as a draft — an incomplete release is worse than a late one." >&2
+            exit 1
+          fi
+          echo "All expected assets present on $TAG."
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          TAG: v${{ steps.version.outputs.value }}
+        run: gh release edit "$TAG" --draft=false --latest
