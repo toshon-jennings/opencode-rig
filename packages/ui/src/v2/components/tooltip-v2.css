@@ -4,6 +4,7 @@
 
 [data-popper-positioner]:has([data-component="tooltip-v2"]) {
   z-index: 1000;
+  pointer-events: none;
 }
 
 [data-component="tooltip-v2"] {
