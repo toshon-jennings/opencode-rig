@@ -177,9 +177,16 @@ const SettingsProvidersContent: Component<{ onBack?: () => void }> = (props) => 
                     <Show
                       when={canDisconnect(item)}
                       fallback={
-                        <span class="text-14-regular text-text-base opacity-0 group-hover:opacity-100 transition-opacity duration-200 pr-3 cursor-default">
-                          {language.t("settings.providers.connected.environmentDescription")}
-                        </span>
+                        <Show when={source(item) === "env"}>
+                          <div class="flex items-center gap-2">
+                            <span class="text-14-regular text-text-base opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-default">
+                              {language.t("settings.providers.connected.environmentDescription")}
+                            </span>
+                            <Button size="large" variant="ghost" onClick={() => connect(item.id)}>
+                              {language.t("common.connect")}
+                            </Button>
+                          </div>
+                        </Show>
                       }
                     >
                       <Button size="large" variant="ghost" onClick={() => void disconnect(item.id, item.name)}>

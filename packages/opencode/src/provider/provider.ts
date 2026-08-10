@@ -1555,17 +1555,19 @@ const layer = Layer.effect(
           })
         }
 
-        // load apikeys
+        // load stored auth
         const auths = yield* auth.all().pipe(Effect.orDie)
         for (const [id, provider] of Object.entries(auths)) {
           const providerID = ProviderV2.ID.make(id)
           if (disabled.has(providerID)) continue
-          if (provider.type === "api") {
-            mergeProvider(providerID, {
-              source: "api",
-              key: provider.key,
-            })
+          if (provider.type !== "api") {
+            mergeProvider(providerID, { source: "custom" })
+            continue
           }
+          mergeProvider(providerID, {
+            source: "api",
+            key: provider.key,
+          })
         }
 
         // plugin auth loader - database now has entries for config providers

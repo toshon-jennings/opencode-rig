@@ -297,6 +297,13 @@
   cursor: default;
 }
 
+.settings-v2-provider-actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+}
+
 .group:hover .settings-v2-provider-env-hint {
   opacity: 1;
 }

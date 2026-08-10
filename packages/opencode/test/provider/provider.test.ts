@@ -85,6 +85,7 @@ const paid = (providers: Record<string, { models: Record<string, { cost: { input
 const languageBaseURL = (language: unknown) => (language as { config: { baseURL: string } }).config.baseURL
 
 const it = testEffect(LayerNode.compile(LayerNode.group([Provider.node, Env.node, Plugin.node])))
+const withAuth = testEffect(providerLayer())
 const experimentalModels = testEffect(providerLayer({ enableExperimentalModels: true }))
 
 const alphaProviderConfig = {
@@ -118,6 +119,22 @@ it.instance("provider loaded from env variable", () =>
     // merge additional options.
     expect(providers[ProviderV2.ID.anthropic].source).toBe("env")
     expect(providers[ProviderV2.ID.anthropic].options.headers["anthropic-beta"]).toBeDefined()
+  }),
+)
+
+withAuth.instance("stored OAuth takes precedence over an environment connection source", () =>
+  Effect.gen(function* () {
+    yield* setProcessEnv("ANTHROPIC_API_KEY", "test-api-key")
+    const auth = yield* Auth.Service
+    yield* auth.set("anthropic", {
+      type: "oauth",
+      refresh: "refresh-token",
+      access: "access-token",
+      expires: Date.now() + 60_000,
+    })
+
+    const providers = yield* list
+    expect(providers[ProviderV2.ID.anthropic].source).toBe("custom")
   }),
 )
 

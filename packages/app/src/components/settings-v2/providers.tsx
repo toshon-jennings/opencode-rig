@@ -237,9 +237,16 @@ export const SettingsProvidersV2: Component<{
                     <Show
                       when={canDisconnect(item)}
                       fallback={
-                        <span class="settings-v2-provider-env-hint">
-                          {language.t("settings.providers.connected.environmentDescription")}
-                        </span>
+                        <Show when={source(item) === "env"}>
+                          <div class="settings-v2-provider-actions">
+                            <span class="settings-v2-provider-env-hint">
+                              {language.t("settings.providers.connected.environmentDescription")}
+                            </span>
+                            <ButtonV2 size="normal" variant="ghost-muted" onClick={() => connect(item.id)}>
+                              {language.t("common.connect")}
+                            </ButtonV2>
+                          </div>
+                        </Show>
                       }
                     >
                       <ButtonV2 size="normal" variant="ghost-muted" onClick={() => void disconnect(item.id, item.name)}>

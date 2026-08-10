@@ -161,6 +161,15 @@ export function createHomeSessionsController(home: HomeController) {
         ))
       },
     },
+    {
+      id: "provider.connect",
+      title: language.t("command.provider.connect"),
+      category: language.t("command.category.provider"),
+      onSelect: async () => {
+        const { DialogConnectProvider } = await import("@/components/dialog-connect-provider")
+        void dialog.show(() => <DialogConnectProvider />)
+      },
+    },
   ])
 
   return {
