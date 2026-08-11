@@ -132,6 +132,51 @@ jobs:
           APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
           APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
 
+      # On arm64 hdiutil cannot create HFS+, so electron-builder falls back to APFS and
+      # writes a classic HFS-style alias into .DS_Store to point at the background. Those
+      # identifiers do not resolve on an APFS volume, so Finder silently renders a plain
+      # grey window — no error, and a .DS_Store that inspects as perfect. Only Finder can
+      # write an alias valid for the volume, which is what build/fix-dmg-background.sh does.
+      #
+      # It has to happen here rather than before `--publish always`, because that flag
+      # uploads each artifact the moment it is built. Rewriting .DS_Store changes the DMG,
+      # so its blockmap and its sha512/size in latest-mac.yml are regenerated and all three
+      # assets replaced. Safe after the fact because the release is a DRAFT until
+      # `finalize` runs, so users never see the intermediate state.
+      #
+      # This step needs Finder automation on the runner. If that is unavailable the script
+      # fails rather than shipping grey, the job fails, finalize never runs, and the
+      # release stays a draft — the same "incomplete is worse than late" policy as the
+      # asset check below.
+      - name: Render the DMG background and refresh the update feed
+        working-directory: packages/desktop
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          TAG: v${{ steps.version.outputs.value }}
+        run: |
+          dmg=dist/opencode-desktop-mac-arm64.dmg
+          ./build/fix-dmg-background.sh "$dmg"
+          python3 build/refresh-update-feed.py dist/latest-mac.yml "$dmg"
+
+          # app-builder is electron-builder's own blockmap tool and produces exactly the
+          # sha512 it would have written. It is a transitive dependency, so it is located
+          # by path rather than by `require` — bun's node_modules layout does not expose
+          # it to the CJS resolver from this package.
+          app_builder="$(find ../../node_modules -type f -name 'app-builder_arm64' \
+            -path '*app-builder-bin*' -print -quit)"
+          if [ -n "$app_builder" ]; then
+            "$app_builder" blockmap --input "$dmg" --output "$dmg.blockmap"
+            gh release upload "$TAG" "$dmg" "$dmg.blockmap" dist/latest-mac.yml --clobber
+          else
+            # Nothing references the DMG blockmap — macOS updates come from the .zip named
+            # by the feed's `path:` — so dropping it is strictly better than leaving one
+            # that describes the pre-fix file.
+            echo "app-builder not found; removing the stale DMG blockmap instead"
+            gh release delete-asset "$TAG" "$(basename "$dmg").blockmap" --yes || true
+            gh release upload "$TAG" "$dmg" dist/latest-mac.yml --clobber
+          fi
+
   cli:
     # build.ts uploads to an existing release (`gh release upload`) rather than
     # creating one; the desktop job is what actually creates it via electron-builder's
