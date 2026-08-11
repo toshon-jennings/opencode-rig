@@ -114,8 +114,20 @@ const getBase = (appId: string): Configuration => ({
     target: ["dmg", "zip"],
   },
   afterPack: adhocSignMac,
+  // House DMG convention: ~/.config/agent-rules/DMG.md. background.png lives in
+  // build/, NOT buildResources — electron-builder silently runs tiffutil and ships
+  // a .tiff whenever it finds a background@2x.png beside the PNG, and macOS 26
+  // Finder does not render multi-representation TIFFs. The @2x source is kept in
+  // build/retina-src/ for that reason.
   dmg: {
     sign: signed,
+    background: "build/background.png",
+    window: { width: 540, height: 380 },
+    iconSize: 100,
+    contents: [
+      { x: 140, y: 225, type: "file" },
+      { x: 400, y: 225, type: "link", path: "/Applications" },
+    ],
   },
   protocols: {
     name: "OpenCode Rig",

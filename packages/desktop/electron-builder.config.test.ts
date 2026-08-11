@@ -118,3 +118,24 @@ test("ad-hoc signs macOS builds when no Developer ID is configured", async () =>
   expect(config.mac?.identity).toBeNull()
   expect(typeof config.afterPack).toBe("function")
 })
+
+// electron-builder runs tiffutil behind your back whenever background.png and
+// background@2x.png sit together in buildResources, and macOS 26 Finder renders
+// the resulting multi-representation .tiff as a plain grey window with no error.
+// The only defence is keeping the @2x source out of buildResources entirely.
+test("ships a single PNG dmg background at the window size", async () => {
+  const module = await import("./electron-builder.config.ts?dmg")
+  const config = module.default as Configuration
+
+  expect(config.dmg?.background).toBe("build/background.png")
+  expect(config.dmg?.window).toEqual({ width: 540, height: 380 })
+
+  const png = Bun.file(new URL("./build/background.png", import.meta.url))
+  expect(await png.exists()).toBe(true)
+
+  // IHDR: width and height are big-endian uint32 at byte 16 and 20.
+  const header = new DataView(await png.slice(0, 24).arrayBuffer())
+  expect([header.getUint32(16), header.getUint32(20)]).toEqual([540, 380])
+
+  expect(await Bun.file(new URL("./resources/background@2x.png", import.meta.url)).exists()).toBe(false)
+})
