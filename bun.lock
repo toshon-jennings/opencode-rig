@@ -381,7 +381,7 @@
     },
     "packages/desktop": {
       "name": "@opencode-ai/desktop",
-      "version": "0.2.13",
+      "version": "0.2.14",
       "dependencies": {
         "@zip.js/zip.js": "2.7.62",
         "drizzle-orm": "catalog:",
@@ -559,7 +559,7 @@
     },
     "packages/opencode": {
       "name": "opencode",
-      "version": "0.2.13",
+      "version": "0.2.14",
       "bin": {
         "opencode": "./bin/opencode",
       },

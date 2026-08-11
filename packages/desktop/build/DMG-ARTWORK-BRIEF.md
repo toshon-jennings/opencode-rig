@@ -99,11 +99,12 @@ a classic HFS-style alias into `.DS_Store`. Those identifiers don't resolve on a
 volume, so **Finder silently falls back to grey**. Nothing errors; `.DS_Store` inspects
 as perfect.
 
-`build/fix-dmg-background.sh` re-drives Finder over the real volume so it writes a valid
-alias, then repacks. `bun run package:mac` runs it over every DMG in `dist/`.
+`build/fix-dmg-background.sh` moves dmgbuild's root `.background.png` into the conventional
+`.background/` folder, re-drives Finder over the real volume so it writes a valid alias,
+then repacks. `bun run package:mac` runs it over every DMG in `dist/`.
 
-Tell a good alias from a generated one by size — electron-builder writes ~408 bytes,
-Finder ~658.
+Tell a good alias from a generated one by size — Finder's volume-aware alias is substantially
+larger than electron-builder's generated alias (732 versus about 408 bytes on macOS 26).
 
 The release workflow runs the repair while the GitHub release is still a draft, then
 regenerates the DMG blockmap and the DMG entry in `latest-mac.yml` before replacing all

@@ -48,9 +48,25 @@ VOL=$(hdiutil attach "$RW" -nobrowse -noautoopen | grep '/Volumes/' | sed 's/.*\
 NAME=$(basename "$VOL")
 echo "    volume: $NAME"
 
-BG=$(ls "$VOL/.background/" 2>/dev/null | head -1)
-[ -n "$BG" ] || { echo "no .background/ in volume - nothing to fix" >&2; exit 1; }
-echo "    background asset: $BG"
+BG=""
+BG_REF=""
+if [ -f "$VOL/.background.png" ]; then
+  # dmgbuild places custom PNGs at the volume root. Finder cannot select that
+  # hidden root file as a background, so move it into the conventional folder.
+  mkdir -p "$VOL/.background"
+  mv "$VOL/.background.png" "$VOL/.background/background.png"
+  BG="background.png"
+  BG_REF=".background:$BG"
+elif [ -d "$VOL/.background" ]; then
+  for candidate in "$VOL/.background/"*; do
+    [ -f "$candidate" ] || continue
+    BG=$(basename "$candidate")
+    BG_REF=".background:$BG"
+    break
+  done
+fi
+[ -n "$BG_REF" ] || { echo "no background asset in volume - nothing to fix" >&2; exit 1; }
+echo "    background asset: $BG_REF"
 case "$BG" in
   *.tiff) echo "    NOTE: multi-rep .tiff backgrounds are unreliable in Finder;"
           echo "          prefer a single PNG at exactly ${W}x${H}." ;;
@@ -78,7 +94,7 @@ tell application "Finder"
     set vo to the icon view options of container window
     set arrangement of vo to not arranged
     set icon size of vo to 100
-    set background picture of vo to file ".background:$BG"
+    set background picture of vo to file "$BG_REF"
     set position of item "$APP" of container window to {$IX, $IY}
     set position of item "Applications" of container window to {$AX, $AY}
     close
