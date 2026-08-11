@@ -32,11 +32,11 @@ laid over one.
 
 Icons are fixed by house convention at **(140, 225)** and **(400, 225)**, 100px.
 
-| Band | y | Treatment |
-|---|---|---|
-| Field | 0–142 | Dark. Wordmark, then three dim lines of syntax-coloured blocks |
+| Band      | y           | Treatment                                                                  |
+| --------- | ----------- | -------------------------------------------------------------------------- |
+| Field     | 0–142       | Dark. Wordmark, then three dim lines of syntax-coloured blocks             |
 | **Plate** | **142–322** | **Silver. Solid core 160–304, dithered edges. Non-negotiable — see below** |
-| Floor | 322–380 | Dark. The accent rule from the og-image, and nothing else |
+| Floor     | 322–380     | Dark. The accent rule from the og-image, and nothing else                  |
 
 Free horizontal space between the icon boxes is **x = 190–350**. The `❯` sits at
 208–244 and the cursor trail ends at 334, clear of both.
@@ -49,10 +49,10 @@ land has to be mid-luminance — light enough for black text, dark enough for wh
 
 Measured on the shipped PNG at the label row (y=285):
 
-| | luminance |
-|---|---|
-| app icon, x=140 | **0.61** |
-| /Applications, x=400 | **0.63** |
+|                      | luminance |
+| -------------------- | --------- |
+| app icon, x=140      | **0.61**  |
+| /Applications, x=400 | **0.63**  |
 
 Target is 0.60–0.75. Re-check after any edit:
 
@@ -67,14 +67,14 @@ x=46 to x=494, which covers both icon boxes (90–190 and 350–450) with room t
 
 Sampled from `assets/og-image.html`. Do not introduce colours outside this set.
 
-| Role | Hex |
-|---|---|
-| Field, top → bottom | `#1D1A19` → `#121010` |
-| Plate, top → bottom | `#C4BDBA` → `#9C9592` |
-| Wordmark silver / white / shadow | `#B7B1B1` / `#F1ECEC` / `#4B4646` |
-| RIG + cursor amber | `#FAB283` |
-| Chevron ink | `#5E3A21` |
-| Accents (code lines, rule) | `#7FD88F` `#56B6C2` `#9D7CD8` `#FAB283` |
+| Role                             | Hex                                     |
+| -------------------------------- | --------------------------------------- |
+| Field, top → bottom              | `#1D1A19` → `#121010`                   |
+| Plate, top → bottom              | `#C4BDBA` → `#9C9592`                   |
+| Wordmark silver / white / shadow | `#B7B1B1` / `#F1ECEC` / `#4B4646`       |
+| RIG + cursor amber               | `#FAB283`                               |
+| Chevron ink                      | `#5E3A21`                               |
+| Accents (code lines, rule)       | `#7FD88F` `#56B6C2` `#9D7CD8` `#FAB283` |
 
 The chevron is **dark** amber, not `#FAB283`. On a 0.65-luminance plate the brand amber
 sits at 0.76 and vanishes; it only reads as light-on-dark. Amber stays in the dark bands.
@@ -105,12 +105,10 @@ alias, then repacks. `bun run package:mac` runs it over every DMG in `dist/`.
 Tell a good alias from a generated one by size — electron-builder writes ~408 bytes,
 Finder ~658.
 
-> **`.github/workflows/release.yml` does not run this.** The release job invokes
-> `npx electron-builder --mac --arm64 --publish always`, which uploads each artifact as
-> soon as it is built, leaving no point to post-process the DMG before it ships. Fixing
-> that means switching to `--publish never` and uploading with `gh release upload` — but
-> that job is also what *creates* the GitHub release the `cli` job waits on, so the
-> change is not local to one step. Until then, released arm64 DMGs render grey.
+The release workflow runs the repair while the GitHub release is still a draft, then
+regenerates the DMG blockmap and the DMG entry in `latest-mac.yml` before replacing all
+three uploaded assets. If Finder automation or metadata refresh fails, the desktop job
+fails and the incomplete release remains unpublished.
 
 ## Verify before shipping
 

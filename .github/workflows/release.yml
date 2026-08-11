@@ -242,7 +242,6 @@ jobs:
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-
   # The release is built as a draft so nobody can land on a "Latest" page whose DMG is
   # still uploading. Only once desktop and every CLI leg has succeeded is it made public,
   # which is also when the updater may first see latest-mac.yml. If any leg failed, the
