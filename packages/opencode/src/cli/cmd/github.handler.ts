@@ -787,7 +787,17 @@ export const githubRun = Effect.fn("Cli.github.run")(function* (args: { event?: 
         const tag = m[0]
         const url = m[1]
         const start = m.index
-        const filename = path.basename(url)
+
+        // The prefix match above is textual, so `../` inside the path can still escape
+        // /user-attachments/ once the URL is normalized. Re-check after normalizing, or the
+        // installation token below gets sent to an attacker-chosen github.com path.
+        const parsed = URL.parse(url)
+        if (!parsed || parsed.origin !== "https://github.com" || !parsed.pathname.startsWith("/user-attachments/")) {
+          console.error(`Skipping attachment outside /user-attachments/: ${url}`)
+          continue
+        }
+
+        const filename = path.basename(parsed.pathname)
 
         // Download image
         const res = await fetch(url, {

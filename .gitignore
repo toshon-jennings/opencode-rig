@@ -13,6 +13,7 @@ tmp
 dist
 ts-dist
 .turbo
+.wrangler
 **/.serena
 .serena/
 **/.omo

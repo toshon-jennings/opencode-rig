@@ -459,7 +459,17 @@ async function getUserPrompt() {
     const start = m.index
 
     if (!url) continue
-    const filename = path.basename(url)
+
+    // The prefix match above is textual, so `../` inside the path can still escape
+    // /user-attachments/ once the URL is normalized. Re-check after normalizing, or the
+    // access token below gets sent to an attacker-chosen github.com path.
+    const parsed = URL.parse(url)
+    if (!parsed || parsed.origin !== "https://github.com" || !parsed.pathname.startsWith("/user-attachments/")) {
+      console.error(`Skipping attachment outside /user-attachments/: ${url}`)
+      continue
+    }
+
+    const filename = path.basename(parsed.pathname)
 
     // Download image
     const res = await fetch(url, {
