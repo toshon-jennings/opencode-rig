@@ -9,6 +9,7 @@ import { EventV2 } from "./event"
 import { Policy } from "./policy"
 import { State } from "./state"
 import { Integration } from "./integration"
+import { ModelDefault } from "./model-default"
 
 export type ProviderRecord = {
   provider: ProviderV2.MutableInfo
@@ -222,9 +223,13 @@ const layer = Layer.effect(
             }
           }
 
+          const available = yield* result.model.available()
+          const preferred = ModelDefault.find(available)
+          if (preferred) return preferred
+
           return Option.getOrUndefined(
             pipe(
-              yield* result.model.available(),
+              available,
               Array.sortWith((item) => item.time.released, Order.flip(Order.Number)),
               Array.head,
             ),

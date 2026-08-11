@@ -257,6 +257,28 @@ describe("CatalogV2", () => {
     }),
   )
 
+  it.effect("prefers free LongCat on OpenCode Zen when no default is configured", () =>
+    Effect.gen(function* () {
+      const catalog = yield* Catalog.Service
+      const opencode = ProviderV2.ID.make("opencode")
+      yield* catalog.transform((catalog) => {
+        catalog.provider.update(ProviderV2.ID.make("test"), () => {})
+        catalog.model.update(ProviderV2.ID.make("test"), ModelV2.ID.make("newest"), (model) => {
+          model.time.released = 3000
+        })
+        catalog.provider.update(opencode, () => {})
+        catalog.model.update(opencode, ModelV2.ID.make("longcat-2.0-free"), (model) => {
+          model.time.released = 1000
+        })
+      })
+
+      expect(yield* catalog.model.default()).toMatchObject({
+        providerID: opencode,
+        id: ModelV2.ID.make("longcat-2.0-free"),
+      })
+    }),
+  )
+
   it.effect("uses a transform-provided default model until that transform is replaced", () =>
     Effect.gen(function* () {
       const catalog = yield* Catalog.Service

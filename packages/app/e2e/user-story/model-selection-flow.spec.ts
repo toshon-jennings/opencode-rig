@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test"
+import { expect, test, type Page } from "@playwright/test"
 import { mockOpenCodeServer } from "../utils/mock-server"
 import { expectAppVisible } from "../utils/waits"
 
@@ -68,14 +68,7 @@ test("creates a session in a new project, connects OpenCode Go, and selects its 
     localStorage.setItem("opencode.global.dat:server", JSON.stringify({ projects: { local: [] } }))
   })
 
-  await page.goto("/")
-  const addProject = page.locator('[data-action="home-add-project-row"]')
-  await expectAppVisible(addProject)
-  await addProject.click()
-  await page.locator("[data-directory-path]").click()
-
-  await page.locator('[data-action="home-new-session"]').click()
-  await expectAppVisible(page.locator('[data-component="prompt-input-v2"]'))
+  await openNewProjectSession(page)
 
   const modelControl = page.locator('[data-action="prompt-model"]')
   await modelControl.click()
@@ -95,3 +88,91 @@ test("creates a session in a new project, connects OpenCode Go, and selects its 
 
   await expect(modelControl).toContainText("Go Model 1")
 })
+
+test("defaults new users to free LongCat on OpenCode Zen", async ({ page }) => {
+  await mockOpenCodeServer(page, {
+    directory,
+    project: {
+      id: "proj_default_model_flow",
+      worktree: directory,
+      vcs: "git",
+      name: "NewProject",
+      time: { created: 1_700_000_000_000, updated: 1_700_000_000_000 },
+      sandboxes: [],
+    },
+    provider: {
+      all: [
+        {
+          id: "anthropic",
+          name: "Anthropic",
+          models: {
+            sonnet: {
+              id: "sonnet",
+              name: "Sonnet",
+              cost: { input: 3, output: 15 },
+              release_date: "2026-07-01",
+              limit: { context: 200_000 },
+            },
+          },
+        },
+        {
+          id: "opencode",
+          name: "OpenCode Zen",
+          models: {
+            "paid-model": {
+              id: "paid-model",
+              name: "Paid Model",
+              cost: { input: 1, output: 1 },
+              release_date: "2025-01-01",
+              limit: { context: 200_000 },
+            },
+            "longcat-2.0-free": {
+              id: "longcat-2.0-free",
+              name: "LongCat-2.0 Free",
+              cost: { input: 0, output: 0 },
+              release_date: "2025-01-01",
+              limit: { context: 200_000 },
+            },
+            "other-free": {
+              id: "other-free",
+              name: "Other Free",
+              cost: { input: 0, output: 0 },
+              release_date: "2025-01-01",
+              limit: { context: 200_000 },
+            },
+          },
+        },
+      ],
+      connected: ["anthropic", "opencode"],
+      default: { anthropic: "sonnet", opencode: "paid-model" },
+    },
+    sessions: [],
+    pageMessages: () => ({ items: [] }),
+    fileList: (path) =>
+      path ? [] : [{ name: "NewProject", path: "NewProject", absolute: directory, type: "directory", ignored: false }],
+    findFiles: () => ["NewProject"],
+  })
+  await page.addInitScript(() => {
+    localStorage.setItem("settings.v3", JSON.stringify({ general: { newLayoutDesigns: true } }))
+    localStorage.setItem("opencode.global.dat:server", JSON.stringify({ projects: { local: [] } }))
+  })
+
+  await openNewProjectSession(page)
+
+  const modelControl = page.locator('[data-action="prompt-model"]')
+  await expect(modelControl).toContainText("LongCat-2.0 Free")
+  await modelControl.click()
+  await expect(page.locator('[data-option-key="opencode:longcat-2.0-free"]')).toBeVisible()
+  await expect(page.locator('[data-option-key="opencode:other-free"]')).toBeVisible()
+  await expect(page.locator('[data-option-key="opencode:paid-model"]')).toHaveCount(0)
+})
+
+async function openNewProjectSession(page: Page) {
+  await page.goto("/")
+  const addProject = page.locator('[data-action="home-add-project-row"]')
+  await expectAppVisible(addProject)
+  await addProject.click()
+  await page.locator("[data-directory-path]").click()
+  await page.locator('[data-action="home-new-session"]').click()
+  await expectAppVisible(page.locator('[data-component="prompt-input-v2"]'))
+}

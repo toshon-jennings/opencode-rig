@@ -6,6 +6,7 @@ import { usePrompt } from "@/context/prompt"
 import { useSDK } from "@/context/sdk"
 import { useSync } from "@/context/sync"
 import { useProviders } from "@/hooks/use-providers"
+import { ModelDefault } from "@opencode-ai/core/model-default"
 
 export function createPromptModelSelection(input: { agent: () => { model?: ModelKey; variant?: string } | undefined }) {
   const sdk = useSDK()
@@ -29,13 +30,7 @@ export function createPromptModelSelection(input: { agent: () => { model?: Model
   }
 
   const recent = () => models.recent.list().find(valid)
-  const fallback = () => {
-    const defaults = providers.default()
-    return providers.connected().flatMap((provider) => {
-      const modelID = defaults[provider.id] ?? Object.values(provider.models)[0]?.id
-      return modelID ? [{ providerID: provider.id, modelID }] : []
-    })[0]
-  }
+  const fallback = () => ModelDefault.select(providers.connected(), providers.default())
 
   const current = () => {
     const key = [prompt.model.current(), input.agent()?.model, configured(), recent(), fallback()].find(

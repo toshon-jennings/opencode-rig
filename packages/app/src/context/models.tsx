@@ -5,6 +5,7 @@ import { filter, firstBy, flat, groupBy, mapValues, pipe, uniqueBy, values } fro
 import { createSimpleContext } from "@opencode-ai/ui/context"
 import { useProviders } from "@/hooks/use-providers"
 import { Persist, persisted } from "@/utils/persist"
+import { ModelDefault } from "@opencode-ai/core/model-default"
 
 export type ModelKey = { providerID: string; modelID: string }
 
@@ -86,6 +87,14 @@ export const { use: useModels, provider: ModelsProvider } = createSimpleContext(
     )
 
     const latestSet = createMemo(() => new Set(latest().map((x) => modelKey(x))))
+    const freeSet = createMemo(
+      () =>
+        new Set(
+          available()
+            .filter((model) => ModelDefault.free({ providerID: model.provider.id, cost: model.cost }))
+            .map((model) => modelKey({ providerID: model.provider.id, modelID: model.id })),
+        ),
+    )
 
     const visibility = createMemo(() => {
       const map = new Map<string, Visibility>()
@@ -117,6 +126,7 @@ export const { use: useModels, provider: ModelsProvider } = createSimpleContext(
       const state = visibility().get(key)
       if (state === "hide") return false
       if (state === "show") return true
+      if (freeSet().has(key)) return true
       if (latestSet().has(key)) return true
       const date = release().get(key)
       if (!date?.isValid) return true

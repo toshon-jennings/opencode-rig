@@ -32,6 +32,7 @@ import { ModelStatus } from "./model-status"
 import { RuntimeFlags } from "@/effect/runtime-flags"
 import { CliAuth } from "@opencode-ai/core/cli-auth"
 import { ProviderError } from "./error"
+import { ModelDefault } from "@opencode-ai/core/model-default"
 
 const OPENAI_HEADER_TIMEOUT_DEFAULT = 300_000
 
@@ -1116,7 +1117,12 @@ export function toPublicInfo(provider: Info): Info {
 }
 
 export function defaultModelIDs<T extends { models: Record<string, { id: string }> }>(providers: Record<string, T>) {
-  return mapValues(providers, (item) => sort(Object.values(item.models))[0].id)
+  return mapValues(
+    providers,
+    (item, providerID) =>
+      (providerID === ModelDefault.providerID ? item.models[ModelDefault.modelID] : undefined)?.id ??
+      sort(Object.values(item.models))[0].id,
+  )
 }
 
 export class ModelNotFoundError extends Schema.TaggedErrorClass<ModelNotFoundError>()("ProviderModelNotFoundError", {
@@ -1995,7 +2001,11 @@ const layer = Layer.effect(
       }
 
       const configured = Object.keys(cfg.provider ?? {})
-      const provider = Object.values(s.providers).find((p) => configured.length === 0 || configured.includes(p.id))
+      const providers = Object.values(s.providers).filter((p) => configured.length === 0 || configured.includes(p.id))
+      const preferred = ModelDefault.find(providers.flatMap((provider) => Object.values(provider.models)))
+      if (preferred) return { providerID: preferred.providerID, modelID: preferred.id }
+
+      const provider = providers[0]
       if (!provider) return yield* new NoProvidersError()
       const [model] = sort(Object.values(provider.models))
       if (!model) return yield* new NoModelsError({ providerID: provider.id })

@@ -13,6 +13,7 @@ import { useTheme } from "./theme"
 import { useToast } from "../ui/toast"
 import { useRoute } from "./route"
 import { usePermission } from "./permission"
+import { ModelDefault } from "@opencode-ai/core/model-default"
 
 export type LocalTheme = {
   secondary: RGBA
@@ -221,16 +222,7 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
           }
         }
 
-        const provider = sync.data.provider[0]
-        if (!provider) return undefined
-        const defaultModel = sync.data.provider_default[provider.id]
-        const firstModel = Object.values(provider.models)[0]
-        const model = defaultModel ?? firstModel?.id
-        if (!model) return undefined
-        return {
-          providerID: provider.id,
-          modelID: model,
-        }
+        return ModelDefault.select(sync.data.provider, sync.data.provider_default)
       })
 
       const currentModel = createMemo(() => {

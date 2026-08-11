@@ -364,6 +364,19 @@ test("parseModel handles model IDs with slashes", () => {
   expect(String(result.modelID)).toBe("anthropic/claude-3-opus")
 })
 
+test("defaultModelIDs prefers free LongCat for OpenCode Zen", () => {
+  expect(
+    Provider.defaultModelIDs({
+      opencode: {
+        models: {
+          paid: { id: "paid" },
+          "longcat-2.0-free": { id: "longcat-2.0-free" },
+        },
+      },
+    }),
+  ).toEqual({ opencode: "longcat-2.0-free" })
+})
+
 it.instance("defaultModel returns first available model when no config set", () =>
   Effect.gen(function* () {
     yield* setProcessEnv("ANTHROPIC_API_KEY", "test-api-key")
