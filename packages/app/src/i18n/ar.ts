@@ -665,6 +665,8 @@ export const dict = {
   "home.title": "الرئيسية",
   "home.projects": "المشاريع",
   "home.project.add": "إضافة مشروع",
+  "home.project.none": "بدون مشروع",
+  "home.project.none.hint": "ابدأ جلسة بدون مشروع",
   "home.recentlyClosed": "المغلقة مؤخرًا",
   "home.server.collapse": "طي مشاريع الخادم",
   "home.server.expand": "توسيع مشاريع الخادم",

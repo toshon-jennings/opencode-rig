@@ -717,6 +717,8 @@ export const dict = {
   "home.title": "主页",
   "home.projects": "项目",
   "home.project.add": "添加项目",
+  "home.project.none": "无项目",
+  "home.project.none.hint": "在没有项目的情况下开始会话",
   "home.recentlyClosed": "最近关闭",
   "home.server.collapse": "折叠服务器项目",
   "home.server.expand": "展开服务器项目",

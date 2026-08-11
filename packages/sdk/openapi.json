@@ -22382,6 +22382,9 @@
           "config": {
             "type": "string"
           },
+          "scratch": {
+            "type": "string"
+          },
           "worktree": {
             "type": "string"
           },
@@ -22389,7 +22392,7 @@
             "type": "string"
           }
         },
-        "required": ["home", "state", "config", "worktree", "directory"],
+        "required": ["home", "state", "config", "scratch", "worktree", "directory"],
         "additionalProperties": false
       },
       "VcsInfo": {

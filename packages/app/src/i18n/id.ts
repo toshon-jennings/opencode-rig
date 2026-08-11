@@ -741,6 +741,8 @@ export const dict = {
   "home.title": "Beranda",
   "home.projects": "Proyek",
   "home.project.add": "Tambah proyek",
+  "home.project.none": "Tanpa proyek",
+  "home.project.none.hint": "Mulai sesi tanpa proyek",
   "home.recentlyClosed": "Baru saja ditutup",
   "home.server.collapse": "Ciutkan proyek server",
   "home.server.expand": "Bentangkan proyek server",

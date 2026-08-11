@@ -33,6 +33,9 @@ export function HomeProjects(props: { projects: HomeProjectsController; scroll: 
       onRevealProject={props.projects.project.reveal}
       onClearNotifications={props.projects.project.clearNotifications}
       onCloseProject={props.projects.project.close}
+      scratchDirectory={props.projects.scratch.directory}
+      onSelectScratch={props.projects.scratch.select}
+      onOpenScratchNewSession={props.projects.scratch.openNewSession}
       onOpenSettings={props.projects.utility.settings}
       onOpenHelp={props.projects.utility.help}
     />

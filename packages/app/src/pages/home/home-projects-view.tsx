@@ -20,6 +20,7 @@ import { ServerRowMenuView, serverMenuLabels } from "@/components/server/server-
 import { ServerHealthIndicator } from "@/components/server/server-row"
 import { type ServerHealth } from "@/utils/server-health"
 import { fileManagerApp } from "@/utils/file-manager"
+import { isScratchWorktree } from "@/utils/scratch-project"
 
 const HOME_PROJECT_NAV_LABEL = "min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap"
 
@@ -56,9 +57,16 @@ export type HomeProjectsViewProps = {
   onRevealProject: (server: ServerConnection.Any, project: LocalProject) => void
   onClearNotifications: (server: ServerConnection.Any, project: LocalProject) => void
   onCloseProject: (server: ServerConnection.Any, directory: string) => void
+  scratchDirectory: (server: ServerConnection.Any) => string
+  onSelectScratch: (server: ServerConnection.Any) => void
+  onOpenScratchNewSession: (server: ServerConnection.Any) => void
   onOpenSettings: () => void
   onOpenHelp: () => void
 }
+
+// The scratch directory is a real project everywhere downstream (tabs, session
+// records, avatars) but gets its own pinned row here instead of a project row.
+const withoutScratch = (projects: LocalProject[]) => projects.filter((project) => !isScratchWorktree(project.worktree))
 
 export function HomeProjectsView(props: HomeProjectsViewProps) {
   const [contextMenu, setContextMenu] = createStore({ open: undefined as string | undefined })
@@ -81,7 +89,10 @@ export function HomeProjectsView(props: HomeProjectsViewProps) {
       <div class="flex h-7 min-w-0 shrink-0 items-center justify-between pl-1.5 pr-3">
         <div class="text-v2-text-text-muted [font-weight:530]">{props.language.t("home.projects")}</div>
         <Show
-          when={props.servers().length === 1 && !(props.projects().length === 0 && props.recentlyClosed().length > 0)}
+          when={
+            props.servers().length === 1 &&
+            !(withoutScratch(props.projects()).length === 0 && props.recentlyClosed().length > 0)
+          }
         >
           <TooltipV2 placement="bottom" value={props.language.t("home.project.add")}>
             <IconButtonV2
@@ -101,17 +112,18 @@ export function HomeProjectsView(props: HomeProjectsViewProps) {
         <Show
           when={props.servers().length > 1}
           fallback={
-            <div class="pr-3">
+            <div class="flex min-w-0 flex-col gap-1 pr-3">
               <Show
-                when={props.projects().length > 0}
+                when={withoutScratch(props.projects()).length > 0}
                 fallback={<HomeProjectEmpty {...props} server={props.servers()[0]} items={props.recentlyClosed()} />}
               >
                 <HomeProjectList
                   {...props}
                   {...contextMenuProps}
                   server={props.servers()[0]}
-                  items={props.projects()}
+                  items={withoutScratch(props.projects())}
                 />
+                <HomeScratchRow {...props} server={props.servers()[0]} />
               </Show>
             </div>
           }
@@ -119,9 +131,10 @@ export function HomeProjectsView(props: HomeProjectsViewProps) {
           <div class="flex min-w-0 flex-col gap-4 pr-3">
             <For each={props.servers()}>
               {(item) => {
-                const projects = () => props.projectsForServer(item)
+                const projects = () => withoutScratch(props.projectsForServer(item))
                 const healthy = () => !!props.serverHealth(item)?.healthy
                 const hasProjects = () => projects().length > 0
+                const hasScratch = () => !!props.scratchDirectory(item)
                 const collapsed = () => props.collapsed(item)
                 return (
                   <div class="flex min-w-0 flex-col gap-1">
@@ -133,9 +146,12 @@ export function HomeProjectsView(props: HomeProjectsViewProps) {
                       collapsed={collapsed()}
                       health={props.serverHealth(item)}
                     />
-                    <Show when={healthy() && hasProjects() && !collapsed()}>
+                    <Show when={healthy() && !collapsed() && (hasProjects() || hasScratch())}>
                       <div class="mx-3 h-px bg-v2-border-border-base" />
-                      <HomeProjectList {...props} {...contextMenuProps} server={item} items={projects()} />
+                      <Show when={hasProjects()}>
+                        <HomeProjectList {...props} {...contextMenuProps} server={item} items={projects()} />
+                      </Show>
+                      <HomeScratchRow {...props} server={item} />
                     </Show>
                   </div>
                 )
@@ -402,6 +418,7 @@ function HomeProjectEmpty(
         <IconV2 name="folder-add-left" size="small" />
         <span class={HOME_PROJECT_NAV_LABEL}>{props.language.t("home.project.add")}</span>
       </HomeProjectNavButton>
+      <HomeScratchRow {...props} server={props.server} />
       <Show when={props.items.length > 0}>
         <div class="mt-3 flex h-7 min-w-0 shrink-0 items-center pl-1.5 pr-3">
           <div class="text-v2-text-text-faint [font-weight:530]">{props.language.t("home.recentlyClosed")}</div>
@@ -411,6 +428,53 @@ function HomeProjectEmpty(
         </For>
       </Show>
     </div>
+  )
+}
+
+function HomeScratchRow(
+  props: HomeProjectsViewProps & {
+    server: ServerConnection.Any
+  },
+) {
+  const directory = () => props.scratchDirectory(props.server)
+  const unreachable = () => props.serverHealth(props.server)?.healthy === false
+  const selected = () =>
+    props.selection().server === ServerConnection.key(props.server) && props.selection().directory === directory()
+  return (
+    <Show when={directory()}>
+      <TooltipV2 placement="right" value={props.language.t("home.project.none.hint")}>
+        <div class="group/project relative flex h-7 min-w-0 items-center rounded-[6px]">
+          <HomeProjectNavButton
+            type="button"
+            data-component="home-scratch-row"
+            class="pr-8 disabled:opacity-60 [&>[data-slot=icon-svg]]:text-v2-icon-icon-muted"
+            data-selected={selected() ? "" : undefined}
+            aria-current={selected() ? "page" : undefined}
+            disabled={unreachable()}
+            onClick={() => props.onSelectScratch(props.server)}
+          >
+            <IconV2 name="folder" size="small" />
+            <span class={HOME_PROJECT_NAV_LABEL}>{props.language.t("home.project.none")}</span>
+          </HomeProjectNavButton>
+          <div
+            class={`
+              hover-reveal absolute right-1 top-1/2 flex -translate-y-1/2 items-center gap-1
+              group-hover/project:opacity-100 focus-within:opacity-100
+            `}
+          >
+            <IconButtonV2
+              data-action="home-scratch-new-session"
+              variant="ghost-muted"
+              size="small"
+              icon={<IconV2 name="edit" />}
+              disabled={unreachable()}
+              aria-label={props.language.t("command.session.new")}
+              onClick={() => props.onOpenScratchNewSession(props.server)}
+            />
+          </div>
+        </div>
+      </TooltipV2>
+    </Show>
   )
 }
 

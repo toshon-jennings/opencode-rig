@@ -2304,6 +2304,7 @@ export type Path = {
   home: string
   state: string
   config: string
+  scratch: string
   worktree: string
   directory: string
 }
@@ -2954,6 +2955,14 @@ export type ProjectCopyError = {
   data: {
     message: string
     forceRequired?: boolean
+  }
+}
+
+export type ReviewMutationError = {
+  name: "ReviewMutationError"
+  data: {
+    message: string
+    reason: "stale" | "overlap" | "not-found" | "non-git"
   }
 }
 
@@ -6165,6 +6174,26 @@ export type ReferenceInfo = {
 
 export type ProjectCopyCopy = {
   directory: string
+}
+
+export type ReviewHunk = {
+  id: string
+}
+
+export type ReviewFile = {
+  id: string
+  path: string
+  hunks: Array<ReviewHunk>
+}
+
+export type ReviewRevision = {
+  id: string
+  files: Array<ReviewFile>
+}
+
+export type ReviewMutation = {
+  operation: "accept" | "reject"
+  hunkIDs: Array<string>
 }
 
 export type EventModelsDevRefreshed = {
@@ -13600,6 +13629,90 @@ export type V2ProjectCopyRefreshResponses = {
 }
 
 export type V2ProjectCopyRefreshResponse = V2ProjectCopyRefreshResponses[keyof V2ProjectCopyRefreshResponses]
+
+export type V2ReviewCaptureData = {
+  body?: never
+  path?: never
+  query?: {
+    location?: {
+      directory?: string
+      workspace?: string
+    }
+  }
+  url: "/api/review"
+}
+
+export type V2ReviewCaptureErrors = {
+  /**
+   * InvalidRequestError
+   */
+  400: InvalidRequestError
+  /**
+   * UnauthorizedError
+   */
+  401: UnauthorizedError
+  /**
+   * ReviewMutationError
+   */
+  409: ReviewMutationError
+}
+
+export type V2ReviewCaptureError = V2ReviewCaptureErrors[keyof V2ReviewCaptureErrors]
+
+export type V2ReviewCaptureResponses = {
+  /**
+   * Success
+   */
+  200: {
+    location: LocationInfo
+    data: ReviewRevision
+  }
+}
+
+export type V2ReviewCaptureResponse = V2ReviewCaptureResponses[keyof V2ReviewCaptureResponses]
+
+export type V2ReviewMutateData = {
+  body: ReviewMutation
+  path: {
+    revisionID: string
+  }
+  query?: {
+    location?: {
+      directory?: string
+      workspace?: string
+    }
+  }
+  url: "/api/review/{revisionID}"
+}
+
+export type V2ReviewMutateErrors = {
+  /**
+   * InvalidRequestError
+   */
+  400: InvalidRequestError
+  /**
+   * UnauthorizedError
+   */
+  401: UnauthorizedError
+  /**
+   * ReviewMutationError
+   */
+  409: ReviewMutationError
+}
+
+export type V2ReviewMutateError = V2ReviewMutateErrors[keyof V2ReviewMutateErrors]
+
+export type V2ReviewMutateResponses = {
+  /**
+   * Success
+   */
+  200: {
+    location: LocationInfo
+    data: ReviewRevision
+  }
+}
+
+export type V2ReviewMutateResponse = V2ReviewMutateResponses[keyof V2ReviewMutateResponses]
 
 export type PtyConnectData = {
   body?: never

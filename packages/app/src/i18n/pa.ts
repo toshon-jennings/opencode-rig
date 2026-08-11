@@ -687,6 +687,8 @@ export const dict = {
   "home.title": "گھر",
   "home.projects": "پروجیکٹ",
   "home.project.add": "پروجیکٹ شامل کرو",
+  "home.project.none": "ਕੋਈ ਪ੍ਰੋਜੈਕਟ ਨਹੀਂ",
+  "home.project.none.hint": "ਪ੍ਰੋਜੈਕਟ ਤੋਂ ਬਿਨਾਂ ਸੈਸ਼ਨ ਸ਼ੁਰੂ ਕਰੋ",
   "home.recentlyClosed": "حال ای چ بند کیتا گیا",
   "home.server.collapse": "سرور دے پروجیکٹ سمیٹو",
   "home.server.expand": "سرور دے پروجیکٹ کھولو",

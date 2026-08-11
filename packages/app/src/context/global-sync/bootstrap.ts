@@ -305,7 +305,7 @@ export const loadPathQuery = (
     queryKey: [scope, directory, "path"],
     queryFn: async () => {
       if ((await protocol) !== "v1")
-        return { state: "", config: "", worktree: "", directory: directory ?? "", home: "" }
+        return { state: "", config: "", scratch: "", worktree: "", directory: directory ?? "", home: "" }
       return retry(() => sdk.path.get({ directory: directory ?? undefined }).then((result) => result.data!))
     },
   })

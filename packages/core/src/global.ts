@@ -22,6 +22,8 @@ const paths = {
   bin: path.join(cache, "bin"),
   log: path.join(data, "log"),
   repos: path.join(data, "repos"),
+  // Working directory for sessions started without a project.
+  scratch: path.join(data, "scratch"),
   cache,
   config,
   state,
@@ -40,6 +42,7 @@ await Promise.all([
   fs.mkdir(Path.log, { recursive: true }),
   fs.mkdir(Path.bin, { recursive: true }),
   fs.mkdir(Path.repos, { recursive: true }),
+  fs.mkdir(Path.scratch, { recursive: true }),
 ])
 
 export class Service extends Context.Service<Service, Interface>()("@opencode/Global") {}
@@ -54,6 +57,7 @@ export interface Interface {
   readonly bin: string
   readonly log: string
   readonly repos: string
+  readonly scratch: string
 }
 
 export function make(input: Partial<Interface> = {}): Interface {
@@ -67,6 +71,7 @@ export function make(input: Partial<Interface> = {}): Interface {
     bin: Path.bin,
     log: Path.log,
     repos: Path.repos,
+    scratch: Path.scratch,
     ...input,
   }
 }

@@ -63,6 +63,7 @@ import LegacyLayout from "@/pages/layout"
 import NewLayout from "@/pages/layout-new"
 import { ErrorPage } from "./pages/error"
 import { useCheckServerHealth } from "./utils/server-health"
+import { setScratchLabel } from "@/utils/scratch-project"
 import { legacySessionHref, legacySessionServer, requireServerKey, sessionHref } from "./utils/session-route"
 import { createSessionLineage } from "@/pages/session/session-lineage"
 
@@ -234,6 +235,7 @@ function ResolvedDraftRoute(props: { draft: DraftTab }) {
 
 function UiI18nBridge(props: ParentProps) {
   const language = useLanguage()
+  createEffect(() => setScratchLabel(language.t("home.project.none")))
   return (
     <I18nProvider
       value={{ locale: language.intl, layoutLocale: language.layoutLocale, t: language.t, plural: language.plural }}

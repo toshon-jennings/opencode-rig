@@ -683,6 +683,8 @@ export const dict = {
   "home.title": "Hem",
   "home.projects": "Projekt",
   "home.project.add": "Lägg till projekt",
+  "home.project.none": "Inget projekt",
+  "home.project.none.hint": "Starta en session utan projekt",
   "home.recentlyClosed": "Nyligen stängda",
   "home.server.collapse": "Fäll ihop serverprojekt",
   "home.server.expand": "Fäll ut serverprojekt",

@@ -216,7 +216,7 @@ export function createChildStoreManager(input: {
             },
             config: {},
             get path() {
-              const EMPTY = { state: "", config: "", worktree: "", directory, home: "" }
+              const EMPTY = { state: "", config: "", scratch: "", worktree: "", directory, home: "" }
               if (pathQuery.isLoading) return EMPTY
               return pathQuery.data ?? EMPTY
             },

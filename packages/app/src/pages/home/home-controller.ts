@@ -46,6 +46,12 @@ export function createHomeController() {
     layout.home.setSelection(next)
   }
 
+  // Directory a project-less session runs in. Reported by the server, so it is
+  // empty until that server's bootstrap lands (and on servers too old to send it).
+  function scratchDirectory(conn: ServerConnection.Any) {
+    return global.ensureServerCtx(conn).sync.data.path.scratch
+  }
+
   function openProjectNewSession(conn: ServerConnection.Any, directory: string) {
     const ctx = global.ensureServerCtx(conn)
     ctx.projects.open(directory)
@@ -101,6 +107,21 @@ export function createHomeController() {
         openProjectNewSession(conn, project.worktree)
       },
       openProjectNewSession,
+    },
+    scratch: {
+      directory: scratchDirectory,
+      select: (conn: ServerConnection.Any) => {
+        const directory = scratchDirectory(conn)
+        if (!directory) return
+        const key = ServerConnection.key(conn)
+        global.ensureServerCtx(conn).projects.open(directory)
+        setSelection(toggleHomeProjectSelection(selection(), key, directory))
+      },
+      openNewSession: (conn: ServerConnection.Any) => {
+        const directory = scratchDirectory(conn)
+        if (!directory) return
+        openProjectNewSession(conn, directory)
+      },
     },
   }
 }

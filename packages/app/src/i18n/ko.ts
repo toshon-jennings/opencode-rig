@@ -979,6 +979,8 @@ export const dict = {
   "home.title": "홈",
   "home.projects": "프로젝트",
   "home.project.add": "프로젝트 추가",
+  "home.project.none": "프로젝트 없음",
+  "home.project.none.hint": "프로젝트 없이 세션 시작",
   "home.recentlyClosed": "최근에 닫은 항목",
   "home.server.collapse": "서버 프로젝트 접기",
   "home.server.expand": "서버 프로젝트 펼치기",

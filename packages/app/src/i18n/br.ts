@@ -671,6 +671,8 @@ export const dict = {
   "home.title": "Início",
   "home.projects": "Projetos",
   "home.project.add": "Adicionar projeto",
+  "home.project.none": "Sem projeto",
+  "home.project.none.hint": "Iniciar uma sessão sem projeto",
   "home.recentlyClosed": "Projetos fechados recentemente",
   "home.server.collapse": "Recolher projetos do servidor",
   "home.server.expand": "Expandir projetos do servidor",

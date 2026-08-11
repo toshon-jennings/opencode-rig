@@ -723,6 +723,8 @@ export const dict = {
   "home.title": "Главная",
   "home.projects": "Проекты",
   "home.project.add": "Добавить проект",
+  "home.project.none": "Без проекта",
+  "home.project.none.hint": "Начать сессию без проекта",
   "home.recentlyClosed": "Недавно закрытые",
   "home.server.collapse": "Свернуть проекты сервера",
   "home.server.expand": "Развернуть проекты сервера",

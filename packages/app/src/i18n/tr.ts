@@ -728,6 +728,8 @@ export const dict = {
   "home.title": "Ana Sayfa",
   "home.projects": "Projeler",
   "home.project.add": "Proje ekle",
+  "home.project.none": "Proje yok",
+  "home.project.none.hint": "Projesiz bir oturum başlat",
   "home.recentlyClosed": "Yakın zamanda kapatılanlar",
   "home.server.collapse": "Sunucu projelerini daralt",
   "home.server.expand": "Sunucu projelerini genişlet",

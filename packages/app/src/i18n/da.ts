@@ -603,6 +603,8 @@ export const dict = {
   "home.title": "Hjem",
   "home.projects": "Projekter",
   "home.project.add": "Tilføj projekt",
+  "home.project.none": "Intet projekt",
+  "home.project.none.hint": "Start en session uden et projekt",
   "home.recentlyClosed": "Lukket for nylig",
   "home.server.collapse": "Skjul serverprojekter",
   "home.server.expand": "Udvid serverprojekter",

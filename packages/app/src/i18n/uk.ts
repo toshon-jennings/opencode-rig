@@ -746,6 +746,8 @@ export const dict = {
   "home.title": "Головна",
   "home.projects": "Проєкти",
   "home.project.add": "Додати проєкт",
+  "home.project.none": "Без проєкту",
+  "home.project.none.hint": "Почати сесію без проєкту",
   "home.recentlyClosed": "Нещодавно закриті",
   "home.server.collapse": "Згорнути проєкти сервера",
   "home.server.expand": "Розгорнути проєкти сервера",

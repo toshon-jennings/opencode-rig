@@ -175,6 +175,7 @@ import type {
   QuestionReplyErrors,
   QuestionReplyResponses,
   QuestionV2Reply,
+  ReviewMutation,
   SessionAbortErrors,
   SessionAbortResponses,
   SessionChildrenErrors,
@@ -333,6 +334,10 @@ import type {
   V2QuestionRequestListResponses,
   V2ReferenceListErrors,
   V2ReferenceListResponses,
+  V2ReviewCaptureErrors,
+  V2ReviewCaptureResponses,
+  V2ReviewMutateErrors,
+  V2ReviewMutateResponses,
   V2SessionActiveErrors,
   V2SessionActiveResponses,
   V2SessionCompactErrors,
@@ -6987,6 +6992,70 @@ export class ProjectCopy2 extends HeyApiClient {
   }
 }
 
+export class Review extends HeyApiClient {
+  /**
+   * Capture working tree review
+   *
+   * Capture server-issued file and hunk identifiers for the current working-tree diff.
+   */
+  public capture<ThrowOnError extends boolean = false>(
+    parameters?: {
+      location?: {
+        directory?: string
+        workspace?: string
+      }
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "location" }] }])
+    return (options?.client ?? this.client).post<V2ReviewCaptureResponses, V2ReviewCaptureErrors, ThrowOnError>({
+      url: "/api/review",
+      ...options,
+      ...params,
+    })
+  }
+
+  /**
+   * Accept or reject captured review hunks
+   *
+   * Apply one server-captured working-tree review decision after checking the captured revision.
+   */
+  public mutate<ThrowOnError extends boolean = false>(
+    parameters: {
+      revisionID: string
+      location?: {
+        directory?: string
+        workspace?: string
+      }
+      reviewMutation: ReviewMutation
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "path", key: "revisionID" },
+            { in: "query", key: "location" },
+            { key: "reviewMutation", map: "body" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).post<V2ReviewMutateResponses, V2ReviewMutateErrors, ThrowOnError>({
+      url: "/api/review/{revisionID}",
+      ...options,
+      ...params,
+      headers: {
+        "Content-Type": "application/json",
+        ...options?.headers,
+        ...params.headers,
+      },
+    })
+  }
+}
+
 export class V2 extends HeyApiClient {
   private _health?: Health
   get health(): Health {
@@ -7071,6 +7140,11 @@ export class V2 extends HeyApiClient {
   private _projectCopy?: ProjectCopy2
   get projectCopy(): ProjectCopy2 {
     return (this._projectCopy ??= new ProjectCopy2({ client: this.client }))
+  }
+
+  private _review?: Review
+  get review(): Review {
+    return (this._review ??= new Review({ client: this.client }))
   }
 }
 

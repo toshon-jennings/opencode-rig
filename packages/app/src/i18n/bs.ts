@@ -723,6 +723,8 @@ export const dict = {
   "home.title": "Početna",
   "home.projects": "Projekti",
   "home.project.add": "Dodaj projekat",
+  "home.project.none": "Bez projekta",
+  "home.project.none.hint": "Pokrenite sesiju bez projekta",
   "home.recentlyClosed": "Nedavno zatvoreni projekti",
   "home.server.collapse": "Sažmi projekte servera",
   "home.server.expand": "Proširi projekte servera",

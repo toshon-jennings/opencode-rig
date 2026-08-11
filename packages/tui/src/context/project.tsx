@@ -15,6 +15,7 @@ export const { use: useProject, provider: ProjectProvider } = createSimpleContex
       home: "",
       state: "",
       config: "",
+      scratch: "",
       worktree: "",
       directory: sdk.directory ?? "",
     } satisfies Path

@@ -668,6 +668,8 @@ export const dict = {
   "home.title": "ホーム",
   "home.projects": "プロジェクト",
   "home.project.add": "プロジェクトを追加",
+  "home.project.none": "プロジェクトなし",
+  "home.project.none.hint": "プロジェクトなしでセッションを開始",
   "home.recentlyClosed": "最近閉じたプロジェクト",
   "home.server.collapse": "サーバーのプロジェクトを折りたたむ",
   "home.server.expand": "サーバーのプロジェクトを展開",

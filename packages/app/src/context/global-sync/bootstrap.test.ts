@@ -50,7 +50,7 @@ function directoryState() {
     provider_ready: true,
     provider,
     config: {},
-    path: { state: "", config: "", worktree: "/project", directory: "/project", home: "/home" },
+    path: { state: "", config: "", scratch: "", worktree: "/project", directory: "/project", home: "/home" },
     session: [],
     sessionTotal: 0,
     session_status: {},
@@ -87,7 +87,7 @@ describe("bootstrapDirectory", () => {
       mcp: true,
       global: {
         config: {} satisfies Config,
-        path: { state: "", config: "", worktree: "/project", directory: "/project", home: "/home" },
+        path: { state: "", config: "", scratch: "", worktree: "/project", directory: "/project", home: "/home" },
         project: [{ id: "project", worktree: "/project" } as Project],
         provider,
       },
@@ -154,7 +154,7 @@ describe("bootstrapDirectory", () => {
       mcp: false,
       global: {
         config: {} satisfies Config,
-        path: { state: "", config: "", worktree: "/project", directory: "/project", home: "/home" },
+        path: { state: "", config: "", scratch: "", worktree: "/project", directory: "/project", home: "/home" },
         project: [{ id: "project", worktree: "/project" } as Project],
         provider,
       },

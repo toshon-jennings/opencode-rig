@@ -307,19 +307,6 @@
   display: inline-flex;
 }
 
-[data-component="session-review-v2"] .session-review-v2-segmented-control [data-component="tooltip-v2-trigger"] {
-  display: flex;
-  flex: 0 0 auto;
-  min-width: 0;
-}
-
-[data-component="session-review-v2"]
-  .session-review-v2-segmented-control
-  [data-component="tooltip-v2-trigger"]
-  [data-slot="segmented-control-v2-item"] {
-  width: 100%;
-}
-
 [data-component="icon-button-v2"].session-review-v2-sidebar-toggle {
   width: 36px;
   height: 28px;

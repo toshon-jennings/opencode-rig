@@ -118,6 +118,7 @@ export function createHomeProjectsController(home: HomeController) {
         )
       },
     },
+    scratch: home.scratch,
     utility: {
       settings: openSettings,
       help: () => platform.openExternal("https://opencode.ai/desktop-feedback"),

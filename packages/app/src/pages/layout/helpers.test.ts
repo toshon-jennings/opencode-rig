@@ -21,6 +21,7 @@ import {
   toggleHomeProjectSelection,
 } from "./helpers"
 import { pathKey } from "@/utils/path-key"
+import { registerScratchWorktree, setScratchLabel } from "@/utils/scratch-project"
 import { ServerConnection } from "@/context/server"
 
 const serverKey = ServerConnection.Key.make
@@ -224,6 +225,13 @@ describe("layout workspace helpers", () => {
     expect(displayName({ worktree: "/tmp/app" })).toBe("app")
     expect(displayName({ worktree: "/tmp/app", name: "My App" })).toBe("My App")
     expect(displayName({ worktree: "/" })).toBe("/")
+  })
+
+  test("labels the normalized server scratch worktree as project-less", () => {
+    registerScratchWorktree("/tmp/opencode/scratch/")
+    setScratchLabel("No project")
+
+    expect(displayName({ worktree: "/tmp/opencode/scratch", name: "scratch" })).toBe("No project")
   })
 
   test("scopes home project selection by server", () => {
