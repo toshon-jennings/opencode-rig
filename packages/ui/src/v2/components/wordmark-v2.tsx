@@ -7,7 +7,7 @@ export function WordmarkV2(props: Pick<ComponentProps<"svg">, "class">) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 1240 129"
+      viewBox="0 0 1072 129"
       fill="none"
       classList={{ [props.class ?? ""]: !!props.class }}
     >
@@ -55,44 +55,7 @@ export function WordmarkV2(props: Pick<ComponentProps<"svg">, "class">) {
               fill="currentColor"
             />
 
-            <g transform="translate(270, 0)" fill="currentColor" opacity="0.7" shape-rendering="crispEdges">
-              <rect x="528" y="0" width="16" height="16" />
-              <rect x="480" y="16" width="16" height="16" />
-              <rect x="496" y="16" width="16" height="16" />
-              <rect x="512" y="16" width="16" height="16" />
-              <rect x="528" y="16" width="16" height="16" />
-              <rect x="480" y="32" width="16" height="16" />
-              <rect x="528" y="32" width="16" height="16" />
-              <rect x="480" y="48" width="16" height="16" />
-              <rect x="528" y="48" width="16" height="16" />
-              <rect x="480" y="64" width="16" height="16" />
-              <rect x="528" y="64" width="16" height="16" />
-              <rect x="480" y="80" width="16" height="16" />
-              <rect x="496" y="80" width="16" height="16" />
-              <rect x="512" y="80" width="16" height="16" />
-              <rect x="528" y="80" width="16" height="16" />
-              <rect x="496" y="48" width="16" height="16" />
-              <rect x="512" y="48" width="16" height="16" />
-              <rect x="496" y="64" width="16" height="16" />
-              <rect x="512" y="64" width="16" height="16" />
-              <rect x="560" y="16" width="16" height="16" />
-              <rect x="576" y="16" width="16" height="16" />
-              <rect x="592" y="16" width="16" height="16" />
-              <rect x="608" y="16" width="16" height="16" />
-              <rect x="560" y="32" width="16" height="16" />
-              <rect x="608" y="32" width="16" height="16" />
-              <rect x="560" y="48" width="16" height="16" />
-              <rect x="576" y="48" width="16" height="16" />
-              <rect x="592" y="48" width="16" height="16" />
-              <rect x="608" y="48" width="16" height="16" />
-              <rect x="560" y="64" width="16" height="16" />
-              <rect x="560" y="80" width="16" height="16" />
-              <rect x="576" y="80" width="16" height="16" />
-              <rect x="592" y="80" width="16" height="16" />
-              <rect x="608" y="80" width="16" height="16" />
-              <rect x="576" y="64" width="16" height="16" />
-              <rect x="592" y="64" width="16" height="16" />
-              <rect x="608" y="64" width="16" height="16" />
+            <g transform="translate(112, 0)" fill="currentColor" opacity="0.7" shape-rendering="crispEdges">
               <rect x="672" y="16" width="16" height="16" />
               <rect x="688" y="16" width="16" height="16" />
               <rect x="704" y="16" width="16" height="16" />
@@ -138,10 +101,10 @@ export function WordmarkV2(props: Pick<ComponentProps<"svg">, "class">) {
         </g>
       </g>
       <defs>
-        <mask id={mask} style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="1240" height="129">
-          <rect width="1240" height="129" fill={`url(#${maskGradient})`} />
+        <mask id={mask} style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="1072" height="129">
+          <rect width="1072" height="129" fill={`url(#${maskGradient})`} />
         </mask>
-        <linearGradient id={maskGradient} x1="620" y1="68" x2="620" y2="129" gradientUnits="userSpaceOnUse">
+        <linearGradient id={maskGradient} x1="536" y1="68" x2="536" y2="129" gradientUnits="userSpaceOnUse">
           <stop stop-color="white" stop-opacity="0.7" />
           <stop offset="1" stop-color="white" stop-opacity="0" />
         </linearGradient>
