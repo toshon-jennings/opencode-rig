@@ -279,13 +279,24 @@ describe("acp tool conversion", () => {
         mime: "text/plain",
         url: "data:text/plain;base64,BBBB",
       },
+      {
+        mime: "image/png",
+        url: `data:image/png${";parameter=value".repeat(1_000)};base64,CCCC`,
+      },
     ]
 
-    expect(extractImageAttachments(attachments)).toEqual([{ mimeType: "image/webp", data: "AAAA" }])
+    expect(extractImageAttachments(attachments)).toEqual([
+      { mimeType: "image/webp", data: "AAAA" },
+      { mimeType: "image/png", data: "CCCC" },
+    ])
     expect(imageContents(attachments)).toEqual([
       {
         type: "content",
         content: { type: "image", mimeType: "image/webp", data: "AAAA" },
+      },
+      {
+        type: "content",
+        content: { type: "image", mimeType: "image/png", data: "CCCC" },
       },
     ])
   })

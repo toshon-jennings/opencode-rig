@@ -350,13 +350,17 @@ function readDisplayText(metadata: unknown) {
 }
 
 function dataUrlImage(attachment: ToolAttachment) {
-  const match = stringValue(attachment.url)?.match(/^data:([^;,]+)(?:;[^,]*)*;base64,(.*)$/)
-  const mime = match?.[1] ?? stringValue(attachment.mime)
+  const url = stringValue(attachment.url)
+  if (!url?.startsWith("data:")) return undefined
+  const comma = url.indexOf(",")
+  if (comma === -1) return undefined
+  const metadata = url.slice(5, comma).split(";")
+  if (metadata.at(-1)?.toLowerCase() !== "base64") return undefined
+
+  const mime = metadata[0] || stringValue(attachment.mime)
   if (!mime?.startsWith("image/")) return undefined
 
-  const data = match?.[2]
-  if (data === undefined) return undefined
-  return { mimeType: mime, data }
+  return { mimeType: mime, data: url.slice(comma + 1) }
 }
 
 function stringValue(value: unknown) {

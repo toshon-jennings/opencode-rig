@@ -472,7 +472,7 @@ async function getUserPrompt() {
     const filename = path.basename(parsed.pathname)
 
     // Download image
-    const res = await fetch(url, {
+    const res = await fetch(parsed, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
         Accept: "application/vnd.github.v3+json",

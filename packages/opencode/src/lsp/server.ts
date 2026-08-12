@@ -984,9 +984,7 @@ export const Clangd: Info = {
     } = await releaseResponse.json()
 
     const tag = release.tag_name
-    if (!tag) {
-      return
-    }
+    if (!tag || !/^\d+(?:\.\d+){1,3}$/.test(tag)) return
     const platform = process.platform
     const tokens: Record<string, string> = {
       darwin: "mac",
@@ -998,24 +996,23 @@ export const Clangd: Info = {
       return
     }
 
-    const assets = release.assets ?? []
-    const valid = (item: { name?: string; browser_download_url?: string }) => {
-      if (!item.name) return false
-      if (!item.browser_download_url) return false
-      if (!item.name.includes(token)) return false
-      return item.name.includes(tag)
-    }
-
-    const asset =
-      assets.find((item) => valid(item) && item.name?.endsWith(".zip")) ??
-      assets.find((item) => valid(item) && item.name?.endsWith(".tar.xz")) ??
-      assets.find((item) => valid(item))
+    const names = [`clangd-${token}-${tag}.zip`, `clangd-${token}-${tag}.tar.xz`]
+    const asset = names
+      .map((name) => release.assets?.find((item) => item.name === name))
+      .find((item) => item?.browser_download_url)
     if (!asset?.name || !asset.browser_download_url) {
       return
     }
 
     const name = asset.name
-    const downloadResponse = await fetch(asset.browser_download_url)
+    const downloadUrl = URL.parse(asset.browser_download_url)
+    if (
+      !downloadUrl ||
+      downloadUrl.origin !== "https://github.com" ||
+      !downloadUrl.pathname.startsWith(`/clangd/clangd/releases/download/${tag}/`)
+    )
+      return
+    const downloadResponse = await fetch(downloadUrl)
     if (!downloadResponse.ok) {
       return
     }
@@ -1135,13 +1132,27 @@ function isModuleOf(pomContent: string, modulePath: string): boolean {
   if (!normalized) return false
   const modulesBlocks = pomContent.match(/<modules>([\s\S]*?)<\/modules>/g) ?? []
   for (const block of modulesBlocks) {
-    const stripped = block.replace(/<!--[\s\S]*?-->/g, "")
+    const stripped = stripXmlComments(block)
     for (const m of stripped.matchAll(/<module>\s*([^<]+?)\s*<\/module>/g)) {
       const decl = m[1].replace(/\\/g, "/").replace(/^\.\//, "").replace(/\/$/, "")
       if (decl === normalized) return true
     }
   }
   return false
+}
+
+function stripXmlComments(value: string) {
+  let result = ""
+  let offset = 0
+  while (offset < value.length) {
+    const start = value.indexOf("<!--", offset)
+    if (start === -1) return result + value.slice(offset)
+    result += value.slice(offset, start)
+    const end = value.indexOf("-->", start + 4)
+    if (end === -1) return result
+    offset = end + 3
+  }
+  return result
 }
 
 export const JDTLS: Info = {

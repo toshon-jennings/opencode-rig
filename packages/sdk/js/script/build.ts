@@ -71,6 +71,15 @@ await createClient({
   ],
 })
 
+const paramsPath = "./src/v2/gen/core/params.gen.ts"
+const paramsSource = await Bun.file(paramsPath).text()
+if (
+  [...paramsSource.matchAll(/Object\.create\(null\)/g)].length < 4 ||
+  /\b(?:body|headers|path|query): \{\}/.test(paramsSource)
+) {
+  throw new Error(`Generated request parameter maps are not prototype-safe (${paramsPath})`)
+}
+
 const generatedTypes = await Bun.file("./src/v2/gen/types.gen.ts").text()
 if (/export type SessionNext\w+1 =/.test(generatedTypes)) {
   throw new Error("Session history generated duplicate Session event variants")

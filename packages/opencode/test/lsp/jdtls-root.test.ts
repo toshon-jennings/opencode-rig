@@ -73,6 +73,22 @@ describe("JDTLS.root", () => {
       expect(result).toBe(root)
     })
 
+    test("Maven module discovery ignores commented module declarations", async () => {
+      const root = path.join(tmpBase, "commented-module")
+      await mkdirp(root)
+      await Bun.write(
+        path.join(root, "pom.xml"),
+        "<project><modules><!-- <module>module-a</module> --></modules></project>",
+      )
+      const childDir = path.join(root, "module-a")
+      await mkdirp(childDir)
+      await touch(path.join(childDir, "pom.xml"))
+      const file = path.join(childDir, "src", "App.java")
+      await touch(file)
+
+      expect(await LSPServer.JDTLS.root(file, makeCtx(root))).toBe(childDir)
+    })
+
     test("Maven project inside a nested directory (ctx.directory is workspace root)", async () => {
       // Workspace root = ctx.directory, Maven project in a subdirectory
       const workspace = path.join(tmpBase, "maven-workspace")

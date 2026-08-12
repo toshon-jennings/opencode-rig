@@ -54,16 +54,22 @@ const walk = async (dir: string): Promise<ReadonlyArray<string>> =>
       )),
     )
 
-const providerFromUrl = (url: string) => {
-  if (url.includes("api.openai.com")) return "openai"
-  if (url.includes("api.anthropic.com")) return "anthropic"
-  if (url.includes("generativelanguage.googleapis.com")) return "google"
-  if (url.includes("bedrock")) return "amazon-bedrock"
-  if (url.includes("openrouter.ai")) return "openrouter"
-  if (url.includes("api.x.ai")) return "xai"
-  if (url.includes("api.groq.com")) return "groq"
-  if (url.includes("api.deepseek.com")) return "deepseek"
-  if (url.includes("api.together.xyz")) return "togetherai"
+const providerFromUrl = (value: string) => {
+  const url = URL.parse(value)
+  if (!url) return "unknown"
+  if (url.hostname === "api.openai.com") return "openai"
+  if (url.hostname === "api.anthropic.com") return "anthropic"
+  if (url.hostname === "generativelanguage.googleapis.com") return "google"
+  if (
+    (url.hostname.startsWith("bedrock.") || url.hostname.startsWith("bedrock-runtime.")) &&
+    url.hostname.endsWith(".amazonaws.com")
+  )
+    return "amazon-bedrock"
+  if (url.hostname === "openrouter.ai") return "openrouter"
+  if (url.hostname === "api.x.ai") return "xai"
+  if (url.hostname === "api.groq.com") return "groq"
+  if (url.hostname === "api.deepseek.com") return "deepseek"
+  if (url.hostname === "api.together.xyz") return "togetherai"
   return "unknown"
 }
 

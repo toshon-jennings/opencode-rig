@@ -800,7 +800,7 @@ export const githubRun = Effect.fn("Cli.github.run")(function* (args: { event?: 
         const filename = path.basename(parsed.pathname)
 
         // Download image
-        const res = await fetch(url, {
+        const res = await fetch(parsed, {
           headers: {
             Authorization: `Bearer ${appToken}`,
             Accept: "application/vnd.github.v3+json",
