@@ -2,6 +2,7 @@ import { defineConfig, PluginOption } from "vite"
 import { solidStart } from "@solidjs/start/config"
 import { nitro } from "nitro/vite"
 import tailwindcss from "@tailwindcss/vite"
+import { unwasm } from "unwasm/plugin"
 
 const nitroConfig: any = (() => {
   const target = process.env.OPENCODE_DEPLOYMENT_TARGET
@@ -20,6 +21,7 @@ const nitroConfig: any = (() => {
 export default defineConfig({
   plugins: [
     tailwindcss(),
+    unwasm({}),
     solidStart() as PluginOption,
     nitro({
       ...nitroConfig,
