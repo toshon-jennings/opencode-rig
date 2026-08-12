@@ -11,7 +11,7 @@ export function randomString(length: number, alphabet: string) {
     result.push(
       ...Array.from(bytes)
         .filter((byte) => byte < limit)
-        .map((byte) => alphabet[byte % alphabet.length]),
+        .map((byte) => alphabet[byte - Math.floor(byte / alphabet.length) * alphabet.length]),
     )
   }
   return result.join("")

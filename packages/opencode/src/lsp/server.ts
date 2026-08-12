@@ -1017,18 +1017,16 @@ export const Clangd: Info = {
       return
     }
 
-    const archive = path.join(Global.Path.bin, name)
+    const zip = name.endsWith(".zip")
+    const tar = name.endsWith(".tar.xz")
+    if (!zip && !tar) return
+
+    const archive = path.join(Global.Path.bin, zip ? "clangd-download.zip" : "clangd-download.tar.xz")
     const buf = await downloadResponse.arrayBuffer()
     if (buf.byteLength === 0) {
       return
     }
     await Filesystem.write(archive, Buffer.from(buf))
-
-    const zip = name.endsWith(".zip")
-    const tar = name.endsWith(".tar.xz")
-    if (!zip && !tar) {
-      return
-    }
 
     if (zip) {
       const ok = await Archive.extractZip(archive, Global.Path.bin)
@@ -1418,7 +1416,12 @@ export const LuaLS: Info = {
         return
       }
 
-      const release = await releaseResponse.json()
+      const release: {
+        tag_name?: string
+        assets?: { name?: string; browser_download_url?: string }[]
+      } = await releaseResponse.json()
+      const tag = release.tag_name
+      if (!tag || !/^\d+(?:\.\d+){1,3}$/.test(tag)) return
 
       const platform = process.platform
       const arch = process.arch
@@ -1436,7 +1439,7 @@ export const LuaLS: Info = {
 
       const ext = platform === "win32" ? "zip" : "tar.gz"
 
-      assetName = `lua-language-server-${release.tag_name}-${lualsPlatform}-${lualsArch}.${ext}`
+      assetName = `lua-language-server-${tag}-${lualsPlatform}-${lualsArch}.${ext}`
 
       const supportedCombos = [
         "darwin-arm64.tar.gz",
@@ -1452,18 +1455,25 @@ export const LuaLS: Info = {
         return
       }
 
-      const asset = release.assets.find((a: any) => a.name === assetName)
-      if (!asset) {
+      const asset = release.assets?.find((item) => item.name === assetName)
+      if (!asset?.browser_download_url) {
         return
       }
 
-      const downloadUrl = asset.browser_download_url
+      const downloadUrl = URL.parse(asset.browser_download_url)
+      if (
+        !downloadUrl ||
+        downloadUrl.origin !== "https://github.com" ||
+        !downloadUrl.pathname.startsWith(`/LuaLS/lua-language-server/releases/download/${tag}/`) ||
+        path.basename(downloadUrl.pathname) !== assetName
+      )
+        return
       const downloadResponse = await fetch(downloadUrl)
       if (!downloadResponse.ok) {
         return
       }
 
-      const tempPath = path.join(Global.Path.bin, assetName)
+      const tempPath = path.join(Global.Path.bin, ext === "zip" ? "lua-ls-download.zip" : "lua-ls-download.tar.gz")
       if (downloadResponse.body) await Filesystem.writeStream(tempPath, downloadResponse.body)
 
       // Unlike zls which is a single self-contained binary,
