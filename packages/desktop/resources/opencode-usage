@@ -2,7 +2,7 @@
 # Prints per-model token and cost totals from the local OpenCode databases as a
 # `sqlite3 -header -column` table. Consumed by the workbench usage panel
 # (packages/app/src/pages/session/usage-panel.tsx), which expects exactly these
-# eight columns plus a trailing TOTAL row.
+# nine columns plus a trailing TOTAL row.
 #
 # OpenCode keeps a separate database per release channel (opencode.db,
 # opencode-dev.db, ...), so a single build only ever sees a slice of the history.
@@ -33,8 +33,9 @@ fi
 sqlite3 -header -column "" "
 $attach
 WITH messages AS ($union)
-SELECT model, msgs, input, output, reasoning, cache_read, cache_write, cost FROM (
+SELECT model, provider, msgs, input, output, reasoning, cache_read, cache_write, cost FROM (
   SELECT COALESCE(json_extract(data,'\$.modelID'),'unknown') AS model,
+         COALESCE(json_extract(data,'\$.providerID'),'unknown') AS provider,
          COUNT(*) AS msgs,
          SUM(json_extract(data,'\$.tokens.input')) AS input,
          SUM(json_extract(data,'\$.tokens.output')) AS output,
@@ -43,9 +44,9 @@ SELECT model, msgs, input, output, reasoning, cache_read, cache_write, cost FROM
          SUM(json_extract(data,'\$.tokens.cache.write')) AS cache_write,
          SUM(json_extract(data,'\$.cost')) AS cost
   FROM messages WHERE json_extract(data,'\$.role')='assistant'
-  GROUP BY json_extract(data,'\$.modelID')
+  GROUP BY json_extract(data,'\$.modelID'), json_extract(data,'\$.providerID')
   UNION ALL
-  SELECT 'TOTAL', COUNT(*),
+  SELECT 'TOTAL', '-', COUNT(*),
          SUM(json_extract(data,'\$.tokens.input')),
          SUM(json_extract(data,'\$.tokens.output')),
          SUM(json_extract(data,'\$.tokens.reasoning')),

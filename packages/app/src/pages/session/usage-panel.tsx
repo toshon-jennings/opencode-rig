@@ -5,6 +5,7 @@ const REFRESH_MS = 30_000
 
 type UsageRow = {
   model: string
+  provider: string
   msgs: string
   input: string
   output: string
@@ -28,6 +29,7 @@ type UsageData = {
  */
 const COLUMNS = [
   { key: "model", label: "Model", tone: "text-text-strong" },
+  { key: "provider", label: "Provider", tone: "text-text-weak" },
   { key: "msgs", label: "Msgs", tone: "text-text-weak" },
   { key: "input", label: "Input", tone: "text-icon-info-active" },
   { key: "output", label: "Output", tone: "text-icon-success-active" },
@@ -53,13 +55,14 @@ function parseUsage(stdout: string): UsageData {
 
     const row: UsageRow = {
       model: parts[0],
-      msgs: parts[1],
-      input: parts[2],
-      output: parts[3],
-      reasoning: parts[4],
-      cacheRead: parts[5],
-      cacheWrite: parts[6],
-      cost: parts[7],
+      provider: parts[1],
+      msgs: parts[2],
+      input: parts[3],
+      output: parts[4],
+      reasoning: parts[5],
+      cacheRead: parts[6],
+      cacheWrite: parts[7],
+      cost: parts[8],
     }
 
     if (row.model === "TOTAL") total = row
@@ -86,6 +89,7 @@ function formatCost(value: string) {
 
 function cell(row: UsageRow, key: (typeof COLUMNS)[number]["key"]) {
   if (key === "model") return row.model
+  if (key === "provider") return row.provider
   if (key === "cost") return formatCost(row.cost)
   return formatCount(row[key])
 }
