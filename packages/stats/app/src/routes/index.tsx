@@ -509,6 +509,7 @@ function TopModelsChart(props: {
                     <i
                       data-series={item.index}
                       data-model={item.segment.model}
+                      data-provider={item.segment.provider}
                       data-active={props.activeModel === item.segment.model ? "true" : undefined}
                       style={{
                         background: getTopModelsSegmentColor(
@@ -569,7 +570,7 @@ function TopModelsChart(props: {
                                 background: getRankColor(item.segment.model, item.index, segmentOrder(), usageColors),
                               }}
                             />{" "}
-                            {item.segment.model}
+                            {item.segment.model} {item.segment.provider}
                           </span>
                           <b>{formatUsageChartValue(item.segment.value, metric())}</b>
                         </p>

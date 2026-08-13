@@ -9,7 +9,7 @@ import type { ProviderStatMetric } from "./provider"
 export type UsageProduct = "All Users" | "Zen" | "Go" | "Enterprise"
 export type TokenProduct = "Zen" | "Go" | "Enterprise"
 export type UsageRange = "1D" | "1W" | "2W" | "1M" | "2M" | "3M" | "YTD" | "ALL"
-export type UsagePoint = { date: string; segments: { model: string; value: number }[] }
+export type UsagePoint = { date: string; segments: { model: string; provider: string; value: number }[] }
 export type MarketDay = { date: string; total: number; authors: { author: string; share: number; tokens: number }[] }
 export type LeaderboardEntry = {
   model: string
@@ -547,15 +547,24 @@ function buildUsagePoints(
 
   return createBuckets(window, range).map((bucket) => {
     const bucketRows = aggregateByModelName(rowsForProduct(rows, product, bucket.start, bucket.end))
-    const byModel = new Map(bucketRows.map((item) => [item.model, modelUsageValue(item, metric)]))
-    const segments = modelOrder.map((model) => ({ model, value: byModel.get(model) ?? 0 }))
+    const byModel = new Map(
+      bucketRows.map((item) => [item.model, { value: modelUsageValue(item, metric), provider: item.provider }]),
+    )
+    const segments = modelOrder.map((model) => {
+      const entry = byModel.get(model) ?? { value: 0, provider: "unknown" }
+      return { model, value: entry.value, provider: entry.provider }
+    })
     const knownValue = segments.reduce((sum, item) => sum + item.value, 0)
     const totalValue = bucketRows.reduce((sum, item) => sum + modelUsageValue(item, metric), 0)
     return {
       date: bucket.label,
       segments: [
-        ...segments.map((item) => ({ model: item.model, value: usagePointValue(item.value, metric) })),
-        { model: "Other", value: usagePointValue(Math.max(totalValue - knownValue, 0), metric) },
+        ...segments.map((item) => ({
+          model: item.model,
+          provider: item.provider,
+          value: usagePointValue(item.value, metric),
+        })),
+        { model: "Other", provider: "Other", value: usagePointValue(Math.max(totalValue - knownValue, 0), metric) },
       ],
     }
   })
