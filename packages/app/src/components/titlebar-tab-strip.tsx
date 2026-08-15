@@ -176,6 +176,7 @@ function DraftTabSlot(props: {
   onNavigate: (element: HTMLDivElement) => void
   onClose: () => void
 }) {
+  const tabs = useTabs()
   const sortable = useSortable({
     get id() {
       return props.id
@@ -199,7 +200,8 @@ function DraftTabSlot(props: {
           ref = el
         }}
         href={tabHref(props.tab)}
-        title={props.title}
+        title={tabs.info[props.id]?.title ?? props.title}
+        onRename={async (title) => tabs.renameTab(props.id, title)}
         onNavigate={() => props.onNavigate(ref)}
         onClose={props.onClose}
         active={props.active()}

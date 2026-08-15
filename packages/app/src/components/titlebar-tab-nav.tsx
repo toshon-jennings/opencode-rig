@@ -316,6 +316,7 @@ export function DraftTabItem(props: {
   ref?: Ref<HTMLDivElement>
   href: string
   title: string
+  onRename: (title: string) => Promise<void>
   active?: boolean
   onNavigate: () => void
   onClose: () => void
@@ -325,18 +326,88 @@ export function DraftTabItem(props: {
   hidden?: boolean
 }) {
   const language = useLanguage()
+  const [editing, setEditing] = createSignal(false)
+  const rename = createMutation(() => ({ mutationFn: props.onRename }))
+  let tabRoot!: HTMLDivElement
+  let titleEl!: HTMLSpanElement
   const closeTab = (event: MouseEvent) => {
     event.preventDefault()
     event.stopPropagation()
     props.onClose()
   }
+
+  const selectTitle = () => {
+    const range = document.createRange()
+    range.selectNodeContents(titleEl)
+    const selection = window.getSelection()
+    selection?.removeAllRanges()
+    selection?.addRange(range)
+  }
+
+  const closeRename = async (save: boolean) => {
+    if (rename.isPending || !editing()) return
+
+    const original = props.title
+    const next = (titleEl.textContent ?? "").trim()
+
+    titleEl.scrollLeft = 0
+    setEditing(false)
+
+    if (!save || !next || next === original) {
+      return
+    }
+
+    await rename.mutateAsync(next)
+  }
+
+  const openRename = (event: MouseEvent) => {
+    event.preventDefault()
+    event.stopPropagation()
+    if (!canOpenTabRename(props.dragging, editing(), rename.isPending)) return
+    titleEl.textContent = props.title
+    setEditing(true)
+
+    requestAnimationFrame(() => {
+      titleEl.focus()
+      selectTitle()
+    })
+  }
+
+  createEffect(() => {
+    if (editing()) return
+    if (!titleEl) return
+    titleEl.textContent = props.title
+  })
+
+  createEffect(() => {
+    if (!editing()) return
+
+    const cleanup = makeEventListener(
+      document,
+      "pointerdown",
+      (event) => {
+        const target = event.target
+        if (!(target instanceof Node)) return
+        if (tabRoot.contains(target)) return
+        void closeRename(true)
+      },
+      { capture: true },
+    )
+
+    onCleanup(cleanup)
+  })
+
   return (
     <div
-      ref={(el) => forwardTabRef(props.ref, el)}
+      ref={(el) => {
+        tabRoot = el
+        forwardTabRef(props.ref, el)
+      }}
       data-titlebar-tab
       data-slot="titlebar-tab-item"
       data-active={props.active}
       data-dragging={props.dragging}
+      data-editing={editing()}
       data-state={props.active || props.pressed ? "pressed" : undefined}
       class="group relative flex h-7 w-full min-w-0 flex-row items-center gap-1.5 overflow-hidden rounded-[6px] px-1.5 [container-type:inline-size] whitespace-nowrap"
       classList={{ invisible: props.hidden }}
@@ -362,6 +433,7 @@ export function DraftTabItem(props: {
         onMouseDown={(event) => {
           // Navigate on mousedown to shave the press-release delay off tab switches.
           if (event.button !== 0) return
+          if (editing()) return
           if (props.suppressNavigation?.()) return
           props.onNavigate()
         }}
@@ -369,6 +441,7 @@ export function DraftTabItem(props: {
           event.preventDefault()
           // Mouse navigation already happened on mousedown; detail 0 means keyboard activation.
           if (event.detail > 0) return
+          if (editing()) return
           if (props.suppressNavigation?.()) return
           props.onNavigate()
         }}
@@ -378,11 +451,41 @@ export function DraftTabItem(props: {
           <IconV2 name="edit" />
         </span>
         <span
+          ref={(el) => {
+            titleEl = el
+            titleEl.textContent = props.title
+          }}
+          data-slot="tab-title"
           data-titlebar-tab-title
-          class="min-w-0 flex-1 overflow-hidden text-clip whitespace-nowrap outline-none leading-4"
-        >
-          {props.title}
-        </span>
+          class="min-w-0 flex-1 outline-none leading-4"
+          classList={{
+            "overflow-hidden text-clip whitespace-nowrap": !editing(),
+            "select-text": editing(),
+          }}
+          contenteditable={editing() ? true : undefined}
+          onDblClick={openRename}
+          onKeyDown={(event) => {
+            event.stopPropagation()
+            if (event.key === "Enter") {
+              event.preventDefault()
+              void closeRename(true)
+              return
+            }
+            if (event.key !== "Escape") return
+            event.preventDefault()
+            titleEl.textContent = props.title
+            void closeRename(false)
+          }}
+          onBlur={() => void closeRename(true)}
+          onPointerDown={(event) => {
+            if (!editing()) return
+            event.stopPropagation()
+          }}
+          onClick={(event) => {
+            if (!editing()) return
+            event.preventDefault()
+          }}
+        />
       </a>
       <div data-slot="tab-close">
         <IconButtonV2
