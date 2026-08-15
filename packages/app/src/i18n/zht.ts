@@ -3,6 +3,18 @@ import { dict as en } from "./en"
 type Keys = keyof typeof en
 
 export const dict = {
+  "desktop.updater.dialog.available.message": "更新 {{version}} 已推出。要開啟下載頁面嗎？",
+  "desktop.updater.dialog.available.title": "有可用的更新",
+  "desktop.updater.dialog.download": "下載",
+  "command.session.export": "匯出工作階段",
+  "command.session.export.description": "將完整的工作階段記錄匯出為 JSON",
+  "context.export.session": "匯出工作階段",
+  "toast.session.export.success.title": "工作階段已匯出",
+  "toast.session.export.success.description": "已將工作階段儲存至 {{filename}}",
+  "toast.session.export.failed.title": "匯出工作階段失敗",
+  "toast.session.export.failed.description": "匯出工作階段時發生錯誤",
+  "common.export": "匯出",
+
   "desktop.menu.app": "OpenCode",
   "desktop.menu.file": "檔案",
   "desktop.menu.edit": "編輯",

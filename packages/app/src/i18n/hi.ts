@@ -1,4 +1,16 @@
 export const dict = {
+  "desktop.updater.dialog.available.message": "अपडेट {{version}} उपलब्ध है। डाउनलोड पेज खोलें?",
+  "desktop.updater.dialog.available.title": "अपडेट उपलब्ध है",
+  "desktop.updater.dialog.download": "डाउनलोड करें",
+  "command.session.export": "सेशन निर्यात करें",
+  "command.session.export.description": "सेशन की पूरी ट्रांसक्रिप्ट को JSON के रूप में निर्यात करें",
+  "context.export.session": "सेशन निर्यात करें",
+  "toast.session.export.success.title": "सेशन निर्यात किया गया",
+  "toast.session.export.success.description": "सेशन को {{filename}} में सहेजा गया",
+  "toast.session.export.failed.title": "सेशन निर्यात करने में विफल",
+  "toast.session.export.failed.description": "सेशन निर्यात करते समय एक त्रुटि हुई",
+  "common.export": "निर्यात करें",
+
   "desktop.menu.app": "OpenCode",
   "desktop.menu.file": "फ़ाइल",
   "desktop.menu.edit": "संपादित करें",

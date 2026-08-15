@@ -2,6 +2,18 @@ import { dict as en } from "./en"
 type Keys = keyof typeof en
 
 export const dict = {
+  "desktop.updater.dialog.available.message": "Oppdatering {{version}} er tilgjengelig. Vil du åpne nedlastingssiden?",
+  "desktop.updater.dialog.available.title": "Oppdatering tilgjengelig",
+  "desktop.updater.dialog.download": "Last ned",
+  "command.session.export": "Eksporter sesjon",
+  "command.session.export.description": "Eksporter hele sesjonsutskriften som JSON",
+  "context.export.session": "Eksporter sesjon",
+  "toast.session.export.success.title": "Sesjon eksportert",
+  "toast.session.export.success.description": "Sesjonen ble lagret i {{filename}}",
+  "toast.session.export.failed.title": "Kunne ikke eksportere sesjon",
+  "toast.session.export.failed.description": "Det oppstod en feil under eksport av sesjonen",
+  "common.export": "Eksporter",
+
   "desktop.menu.app": "OpenCode",
   "desktop.menu.file": "Arkiv",
   "desktop.menu.edit": "Rediger",

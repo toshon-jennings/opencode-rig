@@ -1,4 +1,16 @@
 export const dict = {
+  "desktop.updater.dialog.available.message": "{{version}} yeniləməsi əlçatandır. Endirmə səhifəsi açılsın?",
+  "desktop.updater.dialog.available.title": "Yeniləmə əlçatandır",
+  "desktop.updater.dialog.download": "Endir",
+  "command.session.export": "Sessiyanı ixrac et",
+  "command.session.export.description": "Sessiyanın tam transkriptini JSON formatında ixrac et",
+  "context.export.session": "Sessiyanı ixrac et",
+  "toast.session.export.success.title": "Sessiya ixrac edildi",
+  "toast.session.export.success.description": "Sessiya {{filename}} faylına saxlanıldı",
+  "toast.session.export.failed.title": "Sessiya ixrac edilə bilmədi",
+  "toast.session.export.failed.description": "Sessiyanı ixrac edərkən xəta baş verdi",
+  "common.export": "İxrac et",
+
   "desktop.menu.app": "OpenCode",
   "desktop.menu.file": "Fayl",
   "desktop.menu.edit": "Redaktə",

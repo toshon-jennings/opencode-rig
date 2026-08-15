@@ -1,4 +1,16 @@
 export const dict = {
+  "desktop.updater.dialog.available.message": "È disponibile l’aggiornamento {{version}}. Aprire la pagina di download?",
+  "desktop.updater.dialog.available.title": "Aggiornamento disponibile",
+  "desktop.updater.dialog.download": "Scarica",
+  "command.session.export": "Esporta sessione",
+  "command.session.export.description": "Esporta la trascrizione completa della sessione in formato JSON",
+  "context.export.session": "Esporta sessione",
+  "toast.session.export.success.title": "Sessione esportata",
+  "toast.session.export.success.description": "Sessione salvata in {{filename}}",
+  "toast.session.export.failed.title": "Impossibile esportare la sessione",
+  "toast.session.export.failed.description": "Si è verificato un errore durante l’esportazione della sessione",
+  "common.export": "Esporta",
+
   "command.category.suggested": "Suggeriti",
   "command.category.view": "Visualizzazione",
   "command.category.project": "Progetto",

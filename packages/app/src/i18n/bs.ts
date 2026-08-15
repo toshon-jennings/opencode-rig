@@ -1,4 +1,16 @@
 export const dict = {
+  "desktop.updater.dialog.available.message": "Dostupno je ažuriranje {{version}}. Otvoriti stranicu za preuzimanje?",
+  "desktop.updater.dialog.available.title": "Ažuriranje je dostupno",
+  "desktop.updater.dialog.download": "Preuzmi",
+  "command.session.export": "Izvezi sesiju",
+  "command.session.export.description": "Izvezi cijeli zapis sesije u JSON formatu",
+  "context.export.session": "Izvezi sesiju",
+  "toast.session.export.success.title": "Sesija izvezena",
+  "toast.session.export.success.description": "Sesija je sačuvana kao {{filename}}",
+  "toast.session.export.failed.title": "Izvoz sesije nije uspio",
+  "toast.session.export.failed.description": "Došlo je do greške prilikom izvoza sesije",
+  "common.export": "Izvezi",
+
   "desktop.menu.app": "OpenCode",
   "desktop.menu.file": "Datoteka",
   "desktop.menu.edit": "Uredi",

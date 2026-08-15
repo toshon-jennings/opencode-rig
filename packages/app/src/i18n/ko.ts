@@ -1,4 +1,16 @@
 export const dict = {
+  "desktop.updater.dialog.available.message": "업데이트 {{version}} 버전을 사용할 수 있습니다. 다운로드 페이지를 열까요?",
+  "desktop.updater.dialog.available.title": "업데이트 사용 가능",
+  "desktop.updater.dialog.download": "다운로드",
+  "command.session.export": "세션 내보내기",
+  "command.session.export.description": "전체 세션 기록을 JSON으로 내보내기",
+  "context.export.session": "세션 내보내기",
+  "toast.session.export.success.title": "세션을 내보냈습니다",
+  "toast.session.export.success.description": "세션 저장 위치: {{filename}}",
+  "toast.session.export.failed.title": "세션 내보내기 실패",
+  "toast.session.export.failed.description": "세션을 내보내는 동안 오류가 발생했습니다",
+  "common.export": "내보내기",
+
   "command.category.suggested": "추천",
   "command.category.view": "보기",
   "command.category.project": "프로젝트",

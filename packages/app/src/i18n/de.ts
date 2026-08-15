@@ -3,6 +3,18 @@ import { dict as en } from "./en"
 type Keys = keyof typeof en
 
 export const dict = {
+  "desktop.updater.dialog.available.message": "Update {{version}} ist verfügbar. Downloadseite öffnen?",
+  "desktop.updater.dialog.available.title": "Update verfügbar",
+  "desktop.updater.dialog.download": "Herunterladen",
+  "command.session.export": "Sitzung exportieren",
+  "command.session.export.description": "Das vollständige Transkript der Sitzung als JSON exportieren",
+  "context.export.session": "Sitzung exportieren",
+  "toast.session.export.success.title": "Sitzung exportiert",
+  "toast.session.export.success.description": "Sitzung unter {{filename}} gespeichert",
+  "toast.session.export.failed.title": "Sitzung konnte nicht exportiert werden",
+  "toast.session.export.failed.description": "Beim Exportieren der Sitzung ist ein Fehler aufgetreten",
+  "common.export": "Exportieren",
+
   "command.category.suggested": "Vorgeschlagen",
   "command.category.view": "Ansicht",
   "command.category.project": "Projekt",

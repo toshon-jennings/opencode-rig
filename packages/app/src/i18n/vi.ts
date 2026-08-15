@@ -1,4 +1,16 @@
 export const dict = {
+  "desktop.updater.dialog.available.message": "Bản cập nhật {{version}} đã có. Mở trang tải xuống?",
+  "desktop.updater.dialog.available.title": "Đã có bản cập nhật",
+  "desktop.updater.dialog.download": "Tải xuống",
+  "command.session.export": "Xuất phiên",
+  "command.session.export.description": "Xuất toàn bộ bản ghi phiên dưới dạng JSON",
+  "context.export.session": "Xuất phiên",
+  "toast.session.export.success.title": "Đã xuất phiên",
+  "toast.session.export.success.description": "Đã lưu phiên vào {{filename}}",
+  "toast.session.export.failed.title": "Không thể xuất phiên",
+  "toast.session.export.failed.description": "Đã xảy ra lỗi khi xuất phiên",
+  "common.export": "Xuất",
+
   "desktop.menu.app": "OpenCode",
   "desktop.menu.file": "Tệp",
   "desktop.menu.edit": "Chỉnh sửa",

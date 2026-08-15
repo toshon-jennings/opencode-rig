@@ -1,4 +1,16 @@
 export const dict = {
+  "desktop.updater.dialog.available.message": "มีอัปเดต {{version}} พร้อมใช้งาน เปิดหน้าดาวน์โหลดหรือไม่",
+  "desktop.updater.dialog.available.title": "มีอัปเดตพร้อมใช้งาน",
+  "desktop.updater.dialog.download": "ดาวน์โหลด",
+  "command.session.export": "ส่งออกเซสชัน",
+  "command.session.export.description": "ส่งออกบันทึกทั้งหมดของเซสชันเป็น JSON",
+  "context.export.session": "ส่งออกเซสชัน",
+  "toast.session.export.success.title": "ส่งออกเซสชันแล้ว",
+  "toast.session.export.success.description": "บันทึกเซสชันไปยัง {{filename}} แล้ว",
+  "toast.session.export.failed.title": "ไม่สามารถส่งออกเซสชัน",
+  "toast.session.export.failed.description": "เกิดข้อผิดพลาดขณะส่งออกเซสชัน",
+  "common.export": "ส่งออก",
+
   "desktop.menu.app": "OpenCode",
   "desktop.menu.file": "ไฟล์",
   "desktop.menu.edit": "แก้ไข",

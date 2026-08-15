@@ -3,6 +3,18 @@ import { dict as en } from "./en"
 type Keys = keyof typeof en
 
 export const dict = {
+  "desktop.updater.dialog.available.message": "{{version}} güncellemesi mevcut. İndirme sayfası açılsın mı?",
+  "desktop.updater.dialog.available.title": "Güncelleme mevcut",
+  "desktop.updater.dialog.download": "İndir",
+  "command.session.export": "Oturumu dışa aktar",
+  "command.session.export.description": "Oturumun tam dökümünü JSON olarak dışa aktar",
+  "context.export.session": "Oturumu dışa aktar",
+  "toast.session.export.success.title": "Oturum dışa aktarıldı",
+  "toast.session.export.success.description": "Oturum {{filename}} dosyasına kaydedildi",
+  "toast.session.export.failed.title": "Oturum dışa aktarılamadı",
+  "toast.session.export.failed.description": "Oturum dışa aktarılırken bir hata oluştu",
+  "common.export": "Dışa aktar",
+
   "desktop.menu.app": "OpenCode",
   "desktop.menu.file": "Dosya",
   "desktop.menu.edit": "Düzen",

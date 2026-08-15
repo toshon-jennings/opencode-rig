@@ -1,4 +1,16 @@
 export const dict = {
+  "desktop.updater.dialog.available.message": "Uppdatering {{version}} är tillgänglig. Öppna nedladdningssidan?",
+  "desktop.updater.dialog.available.title": "Uppdatering tillgänglig",
+  "desktop.updater.dialog.download": "Ladda ned",
+  "command.session.export": "Exportera session",
+  "command.session.export.description": "Exportera hela sessionsutskriften som JSON",
+  "context.export.session": "Exportera session",
+  "toast.session.export.success.title": "Session exporterad",
+  "toast.session.export.success.description": "Sessionen sparades i {{filename}}",
+  "toast.session.export.failed.title": "Det gick inte att exportera sessionen",
+  "toast.session.export.failed.description": "Ett fel uppstod när sessionen exporterades",
+  "common.export": "Exportera",
+
   "desktop.menu.app": "OpenCode",
   "desktop.menu.file": "Arkiv",
   "desktop.menu.edit": "Redigera",

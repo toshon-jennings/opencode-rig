@@ -1,4 +1,16 @@
 export const dict = {
+  "desktop.updater.dialog.available.message": "Pembaruan {{version}} tersedia. Buka halaman unduhan?",
+  "desktop.updater.dialog.available.title": "Pembaruan tersedia",
+  "desktop.updater.dialog.download": "Unduh",
+  "command.session.export": "Ekspor sesi",
+  "command.session.export.description": "Ekspor transkrip sesi lengkap sebagai JSON",
+  "context.export.session": "Ekspor sesi",
+  "toast.session.export.success.title": "Sesi diekspor",
+  "toast.session.export.success.description": "Sesi disimpan ke {{filename}}",
+  "toast.session.export.failed.title": "Gagal mengekspor sesi",
+  "toast.session.export.failed.description": "Terjadi kesalahan saat mengekspor sesi",
+  "common.export": "Ekspor",
+
   "desktop.menu.app": "OpenCode",
   "desktop.menu.file": "Berkas",
   "desktop.menu.edit": "Sunting",

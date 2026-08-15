@@ -1,4 +1,16 @@
 export const dict = {
+  "desktop.updater.dialog.available.message": "يتوفر التحديث \u2068{{version}}\u2069. هل تريد فتح صفحة التنزيل؟",
+  "desktop.updater.dialog.available.title": "يتوفر تحديث",
+  "desktop.updater.dialog.download": "تنزيل",
+  "command.session.export": "تصدير الجلسة",
+  "command.session.export.description": "تصدير النص الكامل للجلسة بصيغة JSON",
+  "context.export.session": "تصدير الجلسة",
+  "toast.session.export.success.title": "تم تصدير الجلسة",
+  "toast.session.export.success.description": "تم حفظ الجلسة في \u2068{{filename}}\u2069",
+  "toast.session.export.failed.title": "فشل تصدير الجلسة",
+  "toast.session.export.failed.description": "حدث خطأ أثناء تصدير الجلسة",
+  "common.export": "تصدير",
+
   "desktop.menu.app": "OpenCode",
   "desktop.menu.file": "ملف",
   "desktop.menu.edit": "تحرير",

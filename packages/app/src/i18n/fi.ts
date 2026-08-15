@@ -1,4 +1,16 @@
 export const dict = {
+  "desktop.updater.dialog.available.message": "Päivitys {{version}} on saatavilla. Avataanko lataussivu?",
+  "desktop.updater.dialog.available.title": "Päivitys saatavilla",
+  "desktop.updater.dialog.download": "Lataa",
+  "command.session.export": "Vie istunto",
+  "command.session.export.description": "Vie istunnon koko transkriptio JSON-muodossa",
+  "context.export.session": "Vie istunto",
+  "toast.session.export.success.title": "Istunto viety",
+  "toast.session.export.success.description": "Istunto tallennettu tiedostoon {{filename}}",
+  "toast.session.export.failed.title": "Istunnon vieminen epäonnistui",
+  "toast.session.export.failed.description": "Istuntoa vietäessä tapahtui virhe",
+  "common.export": "Vie",
+
   "command.category.suggested": "Ehdotetut",
   "command.category.view": "Näytä",
   "command.category.project": "Projekti",
