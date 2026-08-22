@@ -2,7 +2,9 @@ Community fork of OpenCode adding an integrated terminal and a persistent usage 
 
 ---
 
-![opencode-rig logo](assets/logo-rig-light.svg)OpenCode Rig — an unofficial fork of the open source AI coding agent.
+![opencode-rig logo](assets/logo-rig-light.svg)
+
+OpenCode Rig — an unofficial fork of the open source AI coding agent.
 
 [github.com/toshon-jennings/opencode-rig](https://github.com/toshon-jennings/opencode-rig)
 
