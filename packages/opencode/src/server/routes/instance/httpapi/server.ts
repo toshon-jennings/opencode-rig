@@ -1,7 +1,7 @@
 import { Config as EffectConfig, Context, Effect, Layer } from "effect"
 import { execFile } from "node:child_process"
 import { existsSync } from "node:fs"
-import { resolve } from "node:path"
+import { dirname, join, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 import { HttpApiBuilder, OpenApi } from "effect/unstable/httpapi"
 import { HttpClient, HttpMiddleware, HttpRouter, HttpServer, HttpServerResponse } from "effect/unstable/http"
@@ -195,11 +195,18 @@ const docRoute = HttpRouter.use((router) => router.add("GET", "/doc", () => Effe
   Layer.provide(authOnlyRouterLayer),
 )
 
+// Every source-tree candidate below only exists when the server runs from a checkout.
+// A compiled single-file build has no `packages/` on disk — `import.meta.url` points
+// into the embedded filesystem and the cwd-relative paths depend on where the user
+// happened to launch from — so those builds need the sibling-of-the-executable lookup
+// to find a script installed alongside the binary (e.g. ~/.local/bin/opencode-usage),
+// and fall back to PATH only after that.
 const usageCommand = (() => {
   const source = [
     fileURLToPath(new URL("../../../../../../desktop/resources/opencode-usage", import.meta.url)),
     resolve("packages/desktop/resources/opencode-usage"),
     resolve("../desktop/resources/opencode-usage"),
+    join(dirname(process.execPath), "opencode-usage"),
   ].find(existsSync)
   return source ?? "opencode-usage"
 })()
