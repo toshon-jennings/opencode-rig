@@ -47,6 +47,13 @@ const VERSION = await (async () => {
   return `${major}.${minor}.${patch + 1}`
 })()
 
+// The anomalyco/opencode release this fork is rebased on. Reported to opencode Zen so its
+// server-side feature gates (which are keyed to upstream's version line) resolve correctly;
+// this fork's own VERSION above is independent of upstream's numbering.
+const UPSTREAM_VERSION = await Bun.file(path.resolve(import.meta.dir, "../../../package.json"))
+  .json()
+  .then((data: any) => data.upstreamBase)
+
 const bot = ["actions-user", "opencode", "opencode-agent[bot]"]
 const teamPath = path.resolve(import.meta.dir, "../../../.github/TEAM_MEMBERS")
 const team = [
@@ -63,6 +70,9 @@ export const Script = {
   },
   get version() {
     return VERSION
+  },
+  get upstreamVersion() {
+    return UPSTREAM_VERSION
   },
   get preview() {
     return IS_PREVIEW
