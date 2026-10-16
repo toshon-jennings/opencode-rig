@@ -44,6 +44,17 @@ A panel pinned across the bottom of the session view, reporting per model: messa
 
 A terminal available directly in the session view, kept alongside the usage dashboard in the same layout so you can run commands without leaving the conversation.
 
+#### GitHub overview
+
+A GitHub tab in the session side panel (the GitHub icon in the panel header) showing the repository behind the current project directory at a glance:
+
+- **Repo header.** Owner/name with stars, forks, and primary language.
+- **Local work.** Current branch, staged / unstaged / untracked counts, and ahead / behind against the default branch.
+- **Recent commits, checks, issues, and pull requests.** Latest commits, GitHub Actions runs with status, open issues, and open PRs (drafts marked) — each row opens the item on GitHub.
+- **Dependencies.** Open Dependabot alert counts by severity plus dependency-update PR count.
+
+The repository is resolved from the `origin` remote, falling back to `upstream`. Set `GITHUB_TOKEN` (or `GH_TOKEN`) in the server environment for the full picture — without a token, public data still loads within the unauthenticated rate limit, but alerts and some resources report as unavailable.
+
 #### CLI agent providers
 
 Two extra providers — **Codex CLI** and **Claude CLI** — that answer prompts by running the official `codex` and `claude` binaries already installed and signed in on your machine.
@@ -105,7 +116,7 @@ Clone [this repository](https://github.com/toshon-jennings/opencode-rig) and bui
 
 ### Desktop App (BETA)
 
-OpenCode is also available as a desktop application. Download directly from the [releases page](https://github.com/anomalyco/opencode/releases) or [opencode.ai/download](https://opencode.ai/download).
+OpenCode is also available as a desktop application. Download directly from the [releases page](https://github.com/toshon-jennings/opencode-rig/releases).
 
 PlatformDownloadmacOS (Apple Silicon)`opencode-desktop-mac-arm64.dmg`macOS (Intel)`opencode-desktop-mac-x64.dmg`Windows`opencode-desktop-windows-x64.exe`Linux`.deb`, `.rpm`, or `.AppImage`
 
