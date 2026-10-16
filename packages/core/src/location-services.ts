@@ -9,6 +9,7 @@ import { Node } from "./effect/app-node"
 import { FileMutation } from "./file-mutation"
 import { FileSystem } from "./filesystem"
 import { FileSystemSearch } from "./filesystem/search"
+import { GithubOverview } from "./github-overview"
 import { Watcher } from "./filesystem/watcher"
 import { Image } from "./image"
 import { Integration } from "./integration"
@@ -71,6 +72,7 @@ export const locationServices = LayerNode.group([
   SkillGuidance.node,
   ReferenceGuidance.node,
   Review.node,
+  GithubOverview.node,
   SessionTodo.node,
   QuestionV2.node,
   ReadToolFileSystem.node,

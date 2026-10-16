@@ -116,6 +116,8 @@ import type {
   ServerReviewCaptureOutput,
   ServerReviewMutateInput,
   ServerReviewMutateOutput,
+  ServerGithubOverviewGetInput,
+  ServerGithubOverviewGetOutput,
 } from "./types"
 import { ClientError } from "./client-error"
 
@@ -1013,6 +1015,20 @@ export function make(options: ClientOptions) {
             body: { operation: input["operation"], hunkIDs: input["hunkIDs"] },
             successStatus: 200,
             declaredStatuses: [409, 401, 400],
+            empty: false,
+          },
+          requestOptions,
+        ),
+    },
+    "server.github-overview": {
+      get: (input?: ServerGithubOverviewGetInput, requestOptions?: RequestOptions) =>
+        request<ServerGithubOverviewGetOutput>(
+          {
+            method: "GET",
+            path: `/api/github-overview`,
+            query: { location: input?.["location"] },
+            successStatus: 200,
+            declaredStatuses: [401, 400],
             empty: false,
           },
           requestOptions,

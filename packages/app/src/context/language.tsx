@@ -30,6 +30,14 @@ type PluralKey =
   | "session.question.pending"
   | "session.followupDock.summary"
   | "session.revertDock.summary"
+  | "session.github.staged"
+  | "session.github.unstaged"
+  | "session.github.untracked"
+  | "session.github.unpushed"
+  | "session.github.behind"
+  | "session.github.updatePRs"
+  | "session.github.stars"
+  | "session.github.forks"
 type Source = { dict: Record<string, string> }
 
 function cookie(locale: Locale) {

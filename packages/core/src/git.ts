@@ -61,6 +61,24 @@ export class PatchError extends Schema.TaggedErrorClass<PatchError>()("Git.Patch
   cause: Schema.optional(Schema.Defect()),
 }) {}
 
+export interface WorktreeStatus {
+  readonly staged: number
+  readonly unstaged: number
+  readonly untracked: number
+}
+
+export interface AheadBehind {
+  readonly ahead: number
+  readonly behind: number
+}
+
+export interface RecentCommit {
+  readonly sha: string
+  readonly message: string
+  readonly author: string
+  readonly committedAt: string
+}
+
 export interface Interface {
   readonly repo: {
     readonly discover: (input: AbsolutePath) => Effect.Effect<Repository | undefined>
@@ -84,6 +102,11 @@ export interface Interface {
     readonly branch: (repository: Repository) => Effect.Effect<string | undefined>
     readonly defaultRemoteBranch: (repository: Repository, remote?: string) => Effect.Effect<string | undefined>
     readonly rootCommits: (repository: Repository) => Effect.Effect<readonly string[]>
+  }
+  readonly status: {
+    readonly summary: (repository: Repository) => Effect.Effect<WorktreeStatus>
+    readonly aheadBehind: (repository: Repository) => Effect.Effect<AheadBehind>
+    readonly recentCommits: (repository: Repository, limit?: number) => Effect.Effect<readonly RecentCommit[]>
   }
   readonly sync: {
     readonly fetchRemotes: (repository: Repository, input?: { prune?: boolean }) => Effect.Effect<void, OperationError>
@@ -239,6 +262,63 @@ const layer = Layer.effect(
       const result = yield* run(repository.worktree, proc)(["symbolic-ref", `refs/remotes/${remoteName}/HEAD`])
       if (result.exitCode !== 0) return undefined
       return result.text.trim().replace(new RegExp(`^refs/remotes/${remoteName}/`), "") || undefined
+    })
+
+    const statusSummary = Effect.fn("Git.status.summary")(function* (repository: Repository) {
+      const result = yield* run(repository.worktree, proc)([
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=all",
+        "--no-renames",
+        "-z",
+      ])
+      if (result.exitCode !== 0) return { staged: 0, unstaged: 0, untracked: 0 } satisfies WorktreeStatus
+      let staged = 0
+      let unstaged = 0
+      let untracked = 0
+      for (const entry of result.text.split("\0").filter(Boolean)) {
+        const code = entry.slice(0, 2)
+        if (code === "??") {
+          untracked++
+          continue
+        }
+        if (code === "!!") continue
+        if (code[0] !== " ") staged++
+        if (code[1] !== " ") unstaged++
+      }
+      return { staged, unstaged, untracked } satisfies WorktreeStatus
+    })
+
+    const statusAheadBehind = Effect.fn("Git.status.aheadBehind")(function* (repository: Repository) {
+      const result = yield* run(repository.worktree, proc)(["rev-list", "--left-right", "--count", "HEAD...@{upstream}"])
+      if (result.exitCode !== 0) return { ahead: 0, behind: 0 } satisfies AheadBehind
+      const [ahead, behind] = result.text.trim().split(/[\s\t]+/).map((part) => Number.parseInt(part, 10))
+      return {
+        ahead: Number.isFinite(ahead) ? ahead : 0,
+        behind: Number.isFinite(behind) ? behind : 0,
+      } satisfies AheadBehind
+    })
+
+    const statusRecentCommits = Effect.fn("Git.status.recentCommits")(function* (
+      repository: Repository,
+      limit = 10,
+    ) {
+      const result = yield* run(repository.worktree, proc)([
+        "log",
+        "-n",
+        String(limit),
+        "--format=%H%x1f%s%x1f%an%x1f%cI%x1e",
+      ])
+      if (result.exitCode !== 0) return []
+      return result.text
+        .split("\x1e")
+        .map((record) => record.trim())
+        .filter(Boolean)
+        .flatMap((record) => {
+          const [sha, message, author, committedAt] = record.split("\x1f")
+          if (!sha || !message || !author || !committedAt) return []
+          return [{ sha, message, author, committedAt } satisfies RecentCommit]
+        })
     })
 
     const operation = Effect.fnUntraced(function* (
@@ -941,6 +1021,7 @@ const layer = Layer.effect(
       repo: { discover, clone, create },
       remote: { get: remote },
       history: { head, branch, defaultRemoteBranch: remoteHead, rootCommits: roots },
+      status: { summary: statusSummary, aheadBehind: statusAheadBehind, recentCommits: statusRecentCommits },
       sync: { fetchRemotes: fetch, fetchBranch, checkoutRemoteBranch: checkout, resetHard: reset },
       change: { capture, apply, discard },
       worktree: { create: worktreeCreate, remove: worktreeRemove, list: worktreeList },

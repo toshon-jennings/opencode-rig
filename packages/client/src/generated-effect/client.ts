@@ -702,6 +702,13 @@ const Endpoint18_1 = (raw: RawClient["server.review"]) => (input: Endpoint18_1In
 
 const adaptGroup18 = (raw: RawClient["server.review"]) => ({ capture: Endpoint18_0(raw), mutate: Endpoint18_1(raw) })
 
+type Endpoint19_0Request = Parameters<RawClient["server.github-overview"]["github-overview.get"]>[0]
+type Endpoint19_0Input = { readonly location?: Endpoint19_0Request["query"]["location"] }
+const Endpoint19_0 = (raw: RawClient["server.github-overview"]) => (input?: Endpoint19_0Input) =>
+  raw["github-overview.get"]({ query: { location: input?.["location"] } }).pipe(Effect.mapError(mapClientError))
+
+const adaptGroup19 = (raw: RawClient["server.github-overview"]) => ({ get: Endpoint19_0(raw) })
+
 const adaptClient = (raw: RawClient) => ({
   health: adaptGroup0(raw["server.health"]),
   location: adaptGroup1(raw["server.location"]),
@@ -722,6 +729,7 @@ const adaptClient = (raw: RawClient) => ({
   references: adaptGroup16(raw["server.reference"]),
   projectCopies: adaptGroup17(raw["server.projectCopy"]),
   "server.review": adaptGroup18(raw["server.review"]),
+  "server.github-overview": adaptGroup19(raw["server.github-overview"]),
 })
 
 export const make = (options?: { readonly baseUrl?: URL | string }) =>

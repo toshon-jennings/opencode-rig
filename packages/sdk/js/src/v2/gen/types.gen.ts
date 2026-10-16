@@ -1706,31 +1706,7 @@ export type AgentConfig = {
   steps?: number
   maxSteps?: number
   permission?: PermissionConfig
-  [key: string]:
-    | unknown
-    | string
-    | number
-    | {
-        [key: string]: boolean
-      }
-    | boolean
-    | "subagent"
-    | "primary"
-    | "all"
-    | {
-        [key: string]: unknown
-      }
-    | string
-    | "primary"
-    | "secondary"
-    | "accent"
-    | "success"
-    | "warning"
-    | "error"
-    | "info"
-    | number
-    | PermissionConfig
-    | undefined
+  [key: string]: unknown
 }
 
 export type ProviderConfig = {
@@ -1755,7 +1731,7 @@ export type ProviderConfig = {
      */
     headerTimeout?: number | false
     chunkTimeout?: number
-    [key: string]: unknown | string | boolean | number | false | number | false | number | undefined
+    [key: string]: unknown
   }
   models?: {
     [key: string]: {
@@ -1815,7 +1791,7 @@ export type ProviderConfig = {
       variants?: {
         [key: string]: {
           disabled?: boolean
-          [key: string]: unknown | boolean | undefined
+          [key: string]: unknown
         }
       }
     }
@@ -6194,6 +6170,96 @@ export type ReviewRevision = {
 export type ReviewMutation = {
   operation: "accept" | "reject"
   hunkIDs: Array<string>
+}
+
+export type GithubOverviewLocalWork = {
+  branch?: string
+  defaultBranch?: string
+  staged: number | "NaN" | "Infinity" | "-Infinity" | "Infinity" | "-Infinity" | "NaN"
+  unstaged: number | "NaN" | "Infinity" | "-Infinity" | "Infinity" | "-Infinity" | "NaN"
+  untracked: number | "NaN" | "Infinity" | "-Infinity" | "Infinity" | "-Infinity" | "NaN"
+  ahead: number | "NaN" | "Infinity" | "-Infinity" | "Infinity" | "-Infinity" | "NaN"
+  behind: number | "NaN" | "Infinity" | "-Infinity" | "Infinity" | "-Infinity" | "NaN"
+}
+
+export type GithubOverviewCommit = {
+  sha: string
+  message: string
+  author: string
+  committedAt: string
+  htmlUrl?: string
+}
+
+export type GithubOverviewRemote = {
+  owner: string
+  repo: string
+  htmlUrl: string
+}
+
+export type GithubOverviewRepoMeta = {
+  description?: string
+  stars: number | "NaN" | "Infinity" | "-Infinity" | "Infinity" | "-Infinity" | "NaN"
+  forks: number | "NaN" | "Infinity" | "-Infinity" | "Infinity" | "-Infinity" | "NaN"
+  openIssues: number | "NaN" | "Infinity" | "-Infinity" | "Infinity" | "-Infinity" | "NaN"
+  language?: string
+}
+
+export type GithubOverviewRun = {
+  workflowName: string
+  status: string
+  conclusion?: "success" | "failure" | "cancelled" | "skipped" | "timed_out" | "action_required" | "neutral" | "stale"
+  runNumber: number | "NaN" | "Infinity" | "-Infinity" | "Infinity" | "-Infinity" | "NaN"
+  branch: string
+  htmlUrl: string
+  updatedAt: string
+}
+
+export type GithubOverviewIssue = {
+  number: number | "NaN" | "Infinity" | "-Infinity" | "Infinity" | "-Infinity" | "NaN"
+  title: string
+  author: string
+  labels: Array<string>
+  htmlUrl: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type GithubOverviewPullRequest = {
+  number: number | "NaN" | "Infinity" | "-Infinity" | "Infinity" | "-Infinity" | "NaN"
+  title: string
+  author: string
+  draft: boolean
+  htmlUrl: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type GithubOverviewDependencySummary = {
+  critical: number | "NaN" | "Infinity" | "-Infinity" | "Infinity" | "-Infinity" | "NaN"
+  high: number | "NaN" | "Infinity" | "-Infinity" | "Infinity" | "-Infinity" | "NaN"
+  medium: number | "NaN" | "Infinity" | "-Infinity" | "Infinity" | "-Infinity" | "NaN"
+  low: number | "NaN" | "Infinity" | "-Infinity" | "Infinity" | "-Infinity" | "NaN"
+  updatePRs: number | "NaN" | "Infinity" | "-Infinity" | "Infinity" | "-Infinity" | "NaN"
+  alertsAvailable: boolean
+}
+
+export type GithubOverviewRemoteData = {
+  meta: GithubOverviewRepoMeta
+  commits: Array<GithubOverviewCommit>
+  runs: Array<GithubOverviewRun>
+  issues: Array<GithubOverviewIssue>
+  pulls: Array<GithubOverviewPullRequest>
+  deps: GithubOverviewDependencySummary
+}
+
+export type GithubOverviewOverview = {
+  isRepo: boolean
+  local?: GithubOverviewLocalWork
+  commits: Array<GithubOverviewCommit>
+  remote?: GithubOverviewRemote
+  github?: GithubOverviewRemoteData
+  tokenConfigured: boolean
+  error?: string
 }
 
 export type EventModelsDevRefreshed = {
@@ -13713,6 +13779,43 @@ export type V2ReviewMutateResponses = {
 }
 
 export type V2ReviewMutateResponse = V2ReviewMutateResponses[keyof V2ReviewMutateResponses]
+
+export type V2GithubOverviewGetData = {
+  body?: never
+  path?: never
+  query?: {
+    location?: {
+      directory?: string
+      workspace?: string
+    }
+  }
+  url: "/api/github-overview"
+}
+
+export type V2GithubOverviewGetErrors = {
+  /**
+   * InvalidRequestError
+   */
+  400: InvalidRequestError
+  /**
+   * UnauthorizedError
+   */
+  401: UnauthorizedError
+}
+
+export type V2GithubOverviewGetError = V2GithubOverviewGetErrors[keyof V2GithubOverviewGetErrors]
+
+export type V2GithubOverviewGetResponses = {
+  /**
+   * Success
+   */
+  200: {
+    location: LocationInfo
+    data: GithubOverviewOverview
+  }
+}
+
+export type V2GithubOverviewGetResponse = V2GithubOverviewGetResponses[keyof V2GithubOverviewGetResponses]
 
 export type PtyConnectData = {
   body?: never

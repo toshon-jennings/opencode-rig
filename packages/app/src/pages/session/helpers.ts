@@ -2,9 +2,9 @@ import { batch, createMemo, onCleanup, onMount, type Accessor } from "solid-js"
 import { createStore } from "solid-js/store"
 import { makeEventListener } from "@solid-primitives/event-listener"
 import { same } from "@/utils/same"
-import { SESSION_OPEN_FILE_TAB } from "@/context/layout-tabs"
+import { SESSION_GITHUB_TAB, SESSION_OPEN_FILE_TAB } from "@/context/layout-tabs"
 
-export { SESSION_OPEN_FILE_TAB } from "@/context/layout-tabs"
+export { SESSION_GITHUB_TAB, SESSION_OPEN_FILE_TAB } from "@/context/layout-tabs"
 
 const emptyTabs: string[] = []
 
@@ -33,6 +33,9 @@ export const createSessionTabs = (input: TabsInput) => {
   const hasReview = input.hasReview ?? (() => false)
   const fileBrowser = input.fileBrowser ?? (() => false)
   const contextOpen = createMemo(() => input.tabs().active() === "context" || input.tabs().all().includes("context"))
+  const githubOpen = createMemo(
+    () => input.tabs().active() === SESSION_GITHUB_TAB || input.tabs().all().includes(SESSION_GITHUB_TAB),
+  )
   const openFileOpen = createMemo(
     () =>
       fileBrowser() &&
@@ -45,7 +48,7 @@ export const createSessionTabs = (input: TabsInput) => {
         .tabs()
         .all()
         .flatMap((tab) => {
-          if (tab === "context" || tab === "review") return []
+          if (tab === "context" || tab === "review" || tab === SESSION_GITHUB_TAB) return []
           if (tab === SESSION_OPEN_FILE_TAB && !fileBrowser()) return []
           const value = input.pathFromTab(tab) ? input.normalizeTab(tab) : tab
           if (seen.has(value)) return []
@@ -62,6 +65,7 @@ export const createSessionTabs = (input: TabsInput) => {
   const activeTab = createMemo(() => {
     const active = input.tabs().active()
     if (active === "context") return active
+    if (active === SESSION_GITHUB_TAB) return active
     if (active === SESSION_OPEN_FILE_TAB && openFileOpen()) return active
     if (active === "review" && review()) return active
     if (active && input.pathFromTab(active)) return input.normalizeTab(active)
@@ -80,6 +84,7 @@ export const createSessionTabs = (input: TabsInput) => {
   const closableTab = createMemo(() => {
     const active = activeTab()
     if (active === "context") return active
+    if (active === SESSION_GITHUB_TAB) return active
     if (active === SESSION_OPEN_FILE_TAB && openFileOpen()) return active
     if (!openedTabs().includes(active)) return
     return active
@@ -87,6 +92,7 @@ export const createSessionTabs = (input: TabsInput) => {
 
   return {
     contextOpen,
+    githubOpen,
     openFileOpen,
     panelTabs,
     openedTabs,

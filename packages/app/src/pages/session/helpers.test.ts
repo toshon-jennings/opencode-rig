@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test"
 import { createMemo, createRoot } from "solid-js"
 import { createStore } from "solid-js/store"
 import {
+  SESSION_GITHUB_TAB,
   SESSION_OPEN_FILE_TAB,
   createOpenReviewFile,
   createOpenSessionFileTab,
@@ -208,6 +209,29 @@ describe("createSessionTabs", () => {
       expect(result.openFileOpen()).toBe(false)
       expect(result.panelTabs()).toEqual(["file://src/a.ts"])
       expect(result.activeTab()).toBe("file://src/a.ts")
+      dispose()
+    })
+  })
+
+  test("tracks the GitHub tab without treating it as a file tab", () => {
+    createRoot((dispose) => {
+      const [state] = createStore({
+        active: SESSION_GITHUB_TAB as string | undefined,
+        all: ["file://src/a.ts", SESSION_GITHUB_TAB],
+      })
+      const tabs = createMemo(() => ({ active: () => state.active, all: () => state.all }))
+      const result = createSessionTabs({
+        tabs,
+        pathFromTab: (tab) => (tab.startsWith("file://") ? tab.slice("file://".length) : undefined),
+        normalizeTab: (tab) => tab,
+        fileBrowser: () => true,
+      })
+
+      expect(result.githubOpen()).toBe(true)
+      expect(result.panelTabs()).toEqual(["file://src/a.ts"])
+      expect(result.activeTab()).toBe(SESSION_GITHUB_TAB)
+      expect(result.activeFileTab()).toBeUndefined()
+      expect(result.closableTab()).toBe(SESSION_GITHUB_TAB)
       dispose()
     })
   })

@@ -2869,3 +2869,98 @@ export type ServerReviewMutateOutput = {
     }>
   }
 }
+
+export type ServerGithubOverviewGetInput = {
+  readonly location?: {
+    readonly location?: { readonly directory?: string | undefined; readonly workspace?: string | undefined } | undefined
+  }["location"]
+}
+
+export type ServerGithubOverviewGetOutput = {
+  readonly location: {
+    readonly directory: string
+    readonly workspaceID?: string
+    readonly project: { readonly id: string; readonly directory: string }
+  }
+  readonly data: {
+    readonly isRepo: boolean
+    readonly local?: {
+      readonly branch?: string
+      readonly defaultBranch?: string
+      readonly staged: number | "Infinity" | "-Infinity" | "NaN"
+      readonly unstaged: number | "Infinity" | "-Infinity" | "NaN"
+      readonly untracked: number | "Infinity" | "-Infinity" | "NaN"
+      readonly ahead: number | "Infinity" | "-Infinity" | "NaN"
+      readonly behind: number | "Infinity" | "-Infinity" | "NaN"
+    }
+    readonly commits: ReadonlyArray<{
+      readonly sha: string
+      readonly message: string
+      readonly author: string
+      readonly committedAt: string
+      readonly htmlUrl?: string
+    }>
+    readonly remote?: { readonly owner: string; readonly repo: string; readonly htmlUrl: string }
+    readonly github?: {
+      readonly meta: {
+        readonly description?: string
+        readonly stars: number | "Infinity" | "-Infinity" | "NaN"
+        readonly forks: number | "Infinity" | "-Infinity" | "NaN"
+        readonly openIssues: number | "Infinity" | "-Infinity" | "NaN"
+        readonly language?: string
+      }
+      readonly commits: ReadonlyArray<{
+        readonly sha: string
+        readonly message: string
+        readonly author: string
+        readonly committedAt: string
+        readonly htmlUrl?: string
+      }>
+      readonly runs: ReadonlyArray<{
+        readonly workflowName: string
+        readonly status: string
+        readonly conclusion?:
+          | "success"
+          | "failure"
+          | "cancelled"
+          | "skipped"
+          | "timed_out"
+          | "action_required"
+          | "neutral"
+          | "stale"
+        readonly runNumber: number | "Infinity" | "-Infinity" | "NaN"
+        readonly branch: string
+        readonly htmlUrl: string
+        readonly updatedAt: string
+      }>
+      readonly issues: ReadonlyArray<{
+        readonly number: number | "Infinity" | "-Infinity" | "NaN"
+        readonly title: string
+        readonly author: string
+        readonly labels: ReadonlyArray<string>
+        readonly htmlUrl: string
+        readonly createdAt: string
+        readonly updatedAt: string
+      }>
+      readonly pulls: ReadonlyArray<{
+        readonly number: number | "Infinity" | "-Infinity" | "NaN"
+        readonly title: string
+        readonly author: string
+        readonly draft: boolean
+        readonly htmlUrl: string
+        readonly createdAt: string
+        readonly updatedAt: string
+      }>
+      readonly deps: {
+        readonly critical: number | "Infinity" | "-Infinity" | "NaN"
+        readonly high: number | "Infinity" | "-Infinity" | "NaN"
+        readonly medium: number | "Infinity" | "-Infinity" | "NaN"
+        readonly low: number | "Infinity" | "-Infinity" | "NaN"
+        readonly updatePRs: number | "Infinity" | "-Infinity" | "NaN"
+        readonly alertsAvailable: boolean
+      }
+    }
+    readonly tokenConfigured: boolean
+    readonly error?: string
+  }
+}

@@ -35,6 +35,7 @@ import { SessionContextUsage } from "@/components/session-context-usage"
 const reviewTabID = "session-side-panel-review-tab"
 const reviewTabPanelID = "session-side-panel-review-tabpanel"
 const fileBrowserTabPanelID = "session-side-panel-file-browser-tabpanel"
+const githubTabPanelID = "session-side-panel-github-tabpanel"
 import { SessionContextTab, SortableTab, SortableTabV2, FileVisual } from "@/components/session"
 import { OpenInAppV2 } from "@/components/session/open-in-app-v2"
 import { useCommand } from "@/context/command"
@@ -46,6 +47,7 @@ import { useSettings } from "@/context/settings"
 import { createFileTabListSync } from "@/pages/session/file-tab-scroll"
 import { FileTabContent } from "@/pages/session/file-tabs"
 import {
+  SESSION_GITHUB_TAB,
   SESSION_OPEN_FILE_TAB,
   createOpenSessionFileTab,
   createSessionTabs,
@@ -53,6 +55,7 @@ import {
   shouldShowFileTree,
   type Sizing,
 } from "@/pages/session/helpers"
+import { GithubOverviewTab } from "@/pages/session/github-overview-tab"
 import { setSessionHandoff } from "@/pages/session/handoff"
 import { useSessionLayout } from "@/pages/session/session-layout"
 import { SessionFileBrowserTab, type SessionFileBrowserState } from "@/pages/session/v2/session-file-browser-tab"
@@ -182,6 +185,7 @@ export function SessionSidePanel(props: {
     fileBrowser: () => !!props.fileBrowserState,
   })
   const contextOpen = tabState.contextOpen
+  const githubOpen = tabState.githubOpen
   const openFileOpen = tabState.openFileOpen
   const panelTabs = tabState.panelTabs
   const openedTabs = tabState.openedTabs
@@ -215,6 +219,13 @@ export function SessionSidePanel(props: {
     previewTab(SESSION_OPEN_FILE_TAB)
     queueMicrotask(() => fileFilter?.focus())
   }
+  const openGithub = () => {
+    tabs().open(SESSION_GITHUB_TAB)
+    openReviewPanel()
+    // Activate after the trigger mounts: Kobalte briefly falls back to Review
+    // while the tab list re-renders around the new trigger.
+    queueMicrotask(() => tabs().setActive(SESSION_GITHUB_TAB))
+  }
   const activateTab = (value: string) => {
     const next = normalizeTab(value)
     const path = file.pathFromTab(next)
@@ -238,7 +249,7 @@ export function SessionSidePanel(props: {
   })
   const fileBrowserVisible = createMemo(() => {
     const active = activeTab()
-    return active !== "review" && active !== "context" && active !== "empty"
+    return active !== "review" && active !== "context" && active !== "empty" && active !== SESSION_GITHUB_TAB
   })
   const openFileKeybind = createMemo(() => command.keybindParts("file.open"))
   const closeTabKeybind = createMemo(() => command.keybindParts("tab.close"))
@@ -605,6 +616,40 @@ export function SessionSidePanel(props: {
                                 </div>
                               </Tabs.Trigger>
                             </Show>
+                            <Show when={githubOpen()}>
+                              <Tabs.Trigger
+                                value={SESSION_GITHUB_TAB}
+                                closeButton={
+                                  <TooltipV2
+                                    value={
+                                      <>
+                                        {language.t("common.closeTab")}
+                                        <Show when={closeTabKeybind().length > 0}>
+                                          <KeybindV2 keys={closeTabKeybind()} variant="neutral" />
+                                        </Show>
+                                      </>
+                                    }
+                                    placement="bottom"
+                                    gutter={10}
+                                  >
+                                    <IconButton
+                                      icon="close-small"
+                                      variant="ghost"
+                                      class="h-5 w-5"
+                                      onClick={() => tabs().close(SESSION_GITHUB_TAB)}
+                                      aria-label={language.t("common.closeTab")}
+                                    />
+                                  </TooltipV2>
+                                }
+                                hideCloseButton
+                                onMiddleClick={() => tabs().close(SESSION_GITHUB_TAB)}
+                              >
+                                <div class="flex items-center gap-2">
+                                  <Icon name="github" size="small" />
+                                  <div>{language.t("session.tab.github")}</div>
+                                </div>
+                              </Tabs.Trigger>
+                            </Show>
                             <For each={panelTabs()}>
                               {(tab) => (
                                 <Show
@@ -684,10 +729,19 @@ export function SessionSidePanel(props: {
                             </div>
                           </Tabs.List>
                           <div
-                            class="session-review-v2-open-in-app-slot shrink-0 flex items-center pr-3"
+                            class="session-review-v2-open-in-app-slot shrink-0 flex items-center gap-1 pr-3"
                             onPointerDown={(event) => event.stopPropagation()}
                             onClick={(event) => event.stopPropagation()}
                           >
+                            <TooltipV2 value={language.t("session.github.open")} placement="bottom" class="flex items-center">
+                              <IconButtonV2
+                                icon={<Icon name="github" />}
+                                variant="ghost-muted"
+                                size="large"
+                                onClick={() => openGithub()}
+                                aria-label={language.t("session.github.open")}
+                              />
+                            </TooltipV2>
                             <OpenInAppV2 directory={projectDirectory} />
                           </div>
                         </div>
@@ -724,6 +778,17 @@ export function SessionSidePanel(props: {
                               <SessionContextTab />
                             </div>
                           </Tabs.Content>
+                        </Show>
+
+                        <Show when={activeTab() === SESSION_GITHUB_TAB}>
+                          <div
+                            id={githubTabPanelID}
+                            role="tabpanel"
+                            data-slot="tabs-content"
+                            class="flex flex-col h-full overflow-hidden contain-strict"
+                          >
+                            <GithubOverviewTab active={() => activeTab() === SESSION_GITHUB_TAB} />
+                          </div>
                         </Show>
 
                         <Show when={fileBrowserMounted()}>
