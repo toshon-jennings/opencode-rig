@@ -42,7 +42,7 @@ describe("github-overview contract", () => {
           {
             workflowName: "ci",
             status: "completed",
-            conclusion: "success",
+            conclusion: "success" as const,
             runNumber: 7,
             branch: "dev",
             htmlUrl: "https://github.com/o/r/actions/runs/7",
