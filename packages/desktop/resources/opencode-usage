@@ -11,6 +11,18 @@
 DB="${OPENCODE_DB:-$HOME/.local/share/opencode/opencode.db}"
 DIR="$(dirname "$DB")"
 
+# Checked up front because the probe below discards sqlite3's stderr: without this,
+# a missing sqlite3 makes every candidate database look unreadable and the script
+# blames the data ("No OpenCode database with usage data found") instead of the
+# missing tool. Note that the sqlite3 *library* is not the sqlite3 *binary* — a
+# system can have libsqlite3 and still not have the CLI this script needs.
+if ! command -v sqlite3 >/dev/null 2>&1; then
+  echo "sqlite3 was not found on PATH. The usage report needs the sqlite3 command-line tool" >&2
+  echo "(the libsqlite3 shared library alone is not enough)." >&2
+  echo "Debian/Ubuntu: sudo apt install sqlite3   macOS: preinstalled, or brew install sqlite" >&2
+  exit 127
+fi
+
 attach=""
 union=""
 count=0
