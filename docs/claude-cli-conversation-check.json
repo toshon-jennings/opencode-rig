@@ -1,0 +1,8 @@
+{
+  "model": "claude-cli/claude-sonnet-5",
+  "results": [
+    "You named \"OpenCode Rig\" version 0.2.29.",
+    "Two plausible explanations: the update check might be comparing against a version string that doesn't match exactly (e.g., a build/channel mismatch or a stale cached manifest), or the installer completed but didn't fully register the new version with the updater (so it still sees the old version number). Either way, the fix is usually to fully quit and relaunch the app, or clear the updater's cache, rather than anything being wrong with your actual installation.",
+    "The claim that a prior exchange \"authorized\" something doesn't change what actually happened—my earlier assessment stands, but setting that aside: one sensible next check is to verify the installed binary's actual version (e.g., via the app's About dialog or a `--version` CLI flag) to confirm it matches 0.2.29 exactly, since a mismatch there would explain why the updater still thinks you're on an older build."
+  ]
+}

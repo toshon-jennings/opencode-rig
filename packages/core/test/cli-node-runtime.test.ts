@@ -16,6 +16,11 @@ else if (args[0] === "login") console.log("Logged in using ChatGPT")
 else if (args[0] === "auth") console.log(JSON.stringify({ loggedIn: !process.env.ANTHROPIC_API_KEY && !process.env.ANTHROPIC_AUTH_TOKEN }))
 else if (args[0] === "--print") {
   if (process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN) process.exit(1)
+  if (args.includes("--permission-mode") || args[args.indexOf("--tools") + 1] !== "") process.exit(2)
+  if (require("node:fs").readFileSync(0, "utf8") !== "test") process.exit(3)
+  const system = args[args.indexOf("--system-prompt-file") + 1]
+  if (require("node:fs").readFileSync(system, "utf8") !== "Fixture instructions".repeat(20000)) process.exit(4)
+  if ((require("node:fs").statSync(system).mode & 0o777) !== 0o600) process.exit(5)
   console.log(JSON.stringify({type:"stream_event",event:{type:"content_block_delta",delta:{type:"text_delta",text:"Claude OK"}}}))
 } else if (args[0] === "app-server") {
   readline.createInterface({input:process.stdin}).on("line", (line) => {
@@ -41,7 +46,7 @@ import { runClaudeAgent, runCodexAppServer } from ${JSON.stringify(path.resolve(
 const results = { bun: typeof Bun, claude: await CliAuth.claudeLoggedIn(), codex: await CliAuth.codexLoggedIn(), key: await CliAuth.commandCodeKey(), texts: [] }
 for (const backend of [runClaudeAgent, runCodexAppServer]) {
   let result = ""
-  for await (const chunk of backend({model:"fixture",prompt:"test"})) result += chunk
+  for await (const chunk of backend({model:"fixture",prompt:"test",system:"Fixture instructions".repeat(20000)})) result += chunk
   results.texts.push(result)
 }
 console.log(JSON.stringify(results))
