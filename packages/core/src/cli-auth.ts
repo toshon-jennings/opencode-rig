@@ -1,6 +1,10 @@
 export * as CliAuth from "./cli-auth"
 
 import { homedir } from "node:os"
+import { execFile } from "node:child_process"
+import { access, readFile } from "node:fs/promises"
+import { constants } from "node:fs"
+import { which } from "./util/which"
 import path from "node:path"
 
 type CommandCodeModel = {
@@ -19,49 +23,55 @@ export const commandCodeFallbackModels = [
   { id: "deepseek/deepseek-v4-flash", name: "DeepSeek V4 Flash", context_length: 256_000 },
 ] satisfies CommandCodeModel[]
 
-async function output(command: string, args: string[]) {
-  for (const executable of await executables(command)) {
-    const process = Bun.spawn([executable, ...args], {
-      stdin: "ignore",
-      stdout: "pipe",
-      stderr: "pipe",
-      timeout: 3000,
+function run(command: string, args: string[], env = process.env) {
+  return new Promise<{ stdout: string; stderr: string } | undefined>((resolve) => {
+    execFile(command, args, { timeout: 3000, env }, (error, stdout, stderr) => {
+      resolve(error ? undefined : { stdout, stderr })
     })
-    const [stdout, stderr, code] = await Promise.all([
-      new Response(process.stdout).text(),
-      new Response(process.stderr).text(),
-      process.exited,
-    ])
-    if (code === 0) return stdout.trim() || stderr.trim() || undefined
+  })
+}
+
+async function output(command: string, args: string[], env = process.env) {
+  for (const executable of await executables(command)) {
+    const result = await run(executable, args, env)
+    if (result) return result.stdout.trim() || result.stderr.trim() || undefined
   }
 }
 
 export async function executable(command: string, args = ["--version"]) {
   for (const candidate of await executables(command)) {
-    const process = Bun.spawn([candidate, ...args], {
-      stdin: "ignore",
-      stdout: "ignore",
-      stderr: "ignore",
-      timeout: 3000,
-    })
-    if ((await process.exited) === 0) return candidate
+    if (await run(candidate, args)) return candidate
   }
+}
+
+// CLI subscription access must not silently use an inherited, separately billed API key.
+export function claudeEnvironment() {
+  return Object.fromEntries(
+    Object.entries(process.env).filter(([key]) => !["ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN"].includes(key)),
+  )
 }
 
 async function executables(command: string) {
   const candidates = [
-    Bun.which(command),
+    which(command),
     ...(process.env.PATH ?? "").split(path.delimiter).map((directory) => path.join(directory, command)),
   ].filter((item): item is string => Boolean(item))
   const unique = [...new Set(candidates)]
-  const exists = await Promise.all(unique.map((item) => Bun.file(item).exists()))
+  const exists = await Promise.all(
+    unique.map((item) =>
+      access(item, constants.X_OK).then(
+        () => true,
+        () => false,
+      ),
+    ),
+  )
   return unique.filter((_, index) => exists[index])
 }
 
 export async function commandCodeKey() {
   if (process.env.COMMAND_CODE_API_KEY) return process.env.COMMAND_CODE_API_KEY
-  const value = await Bun.file(`${homedir()}/.commandcode/auth.json`)
-    .json()
+  const value = await readFile(`${homedir()}/.commandcode/auth.json`, "utf8")
+    .then((text) => JSON.parse(text))
     .catch(() => undefined)
   if (!value || typeof value !== "object" || !("apiKey" in value) || typeof value.apiKey !== "string") return
   return value.apiKey
@@ -106,7 +116,7 @@ export async function codexLoggedIn() {
 }
 
 export async function claudeLoggedIn() {
-  const status = await output("claude", ["auth", "status", "--json"])
+  const status = await output("claude", ["auth", "status", "--json"], claudeEnvironment())
   if (!status) return false
   const value = await new Response(status).json().catch(() => undefined)
   return Boolean(value && typeof value === "object" && "loggedIn" in value && value.loggedIn === true)

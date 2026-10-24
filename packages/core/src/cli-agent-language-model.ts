@@ -5,6 +5,9 @@ import type {
   LanguageModelV3StreamPart,
   LanguageModelV3Usage,
 } from "@ai-sdk/provider"
+import { spawn } from "node:child_process"
+import { once } from "node:events"
+import { text } from "node:stream/consumers"
 import { CliAuth } from "./cli-auth"
 
 type Backend = (input: { model: string; prompt: string; abortSignal?: AbortSignal }) => AsyncIterable<string>
@@ -71,9 +74,9 @@ export function createCliAgentProvider(options: { name?: string } = {}) {
 export async function* runClaudeAgent(input: { model: string; prompt: string; abortSignal?: AbortSignal }) {
   const executable = await CliAuth.executable("claude", ["auth", "status", "--json"])
   if (!executable) throw new Error("Claude CLI is not installed")
-  const child = Bun.spawn(
+  const child = spawn(
+    executable,
     [
-      executable,
       "--print",
       "--output-format",
       "stream-json",
@@ -89,11 +92,12 @@ export async function* runClaudeAgent(input: { model: string; prompt: string; ab
       input.model,
       input.prompt,
     ],
-    { stdin: "ignore", stdout: "pipe", stderr: "pipe" },
+    { stdio: ["ignore", "pipe", "pipe"], env: CliAuth.claudeEnvironment() },
   )
   const abort = () => child.kill()
   input.abortSignal?.addEventListener("abort", abort, { once: true })
-  const errors = new Response(child.stderr).text()
+  const exited = once(child, "close")
+  const errors = text(child.stderr)
   try {
     for await (const line of lines(child.stdout)) {
       const event = parse(line)
@@ -104,7 +108,7 @@ export async function* runClaudeAgent(input: { model: string; prompt: string; ab
       if (!("text" in event.event.delta) || typeof event.event.delta.text !== "string") continue
       yield event.event.delta.text
     }
-    const code = await child.exited
+    const [code] = await exited
     if (code !== 0) throw new Error((await errors).trim() || `Claude CLI exited with code ${code}`)
   } finally {
     input.abortSignal?.removeEventListener("abort", abort)
@@ -114,14 +118,14 @@ export async function* runClaudeAgent(input: { model: string; prompt: string; ab
 export async function* runCodexAppServer(input: { model: string; prompt: string; abortSignal?: AbortSignal }) {
   const executable = await CliAuth.executable("codex", ["login", "status"])
   if (!executable) throw new Error("Codex CLI is not installed")
-  const child = Bun.spawn([executable, "app-server"], { stdin: "pipe", stdout: "pipe", stderr: "pipe" })
+  const child = spawn(executable, ["app-server"], { stdio: ["pipe", "pipe", "pipe"] })
   const abort = () => child.kill()
   input.abortSignal?.addEventListener("abort", abort, { once: true })
-  const errors = new Response(child.stderr).text()
+  const exited = once(child, "close")
+  const errors = text(child.stderr)
   const stream = lines(child.stdout)[Symbol.asyncIterator]()
   const send = (message: unknown) => {
     child.stdin.write(`${JSON.stringify(message)}\n`)
-    child.stdin.flush()
   }
   try {
     send({
@@ -162,7 +166,7 @@ export async function* runCodexAppServer(input: { model: string; prompt: string;
         send({ id: event.id, error: { code: -32601, message: "OpenCode Rig does not handle this request" } })
       }
     }
-    const code = await child.exited
+    const [code] = await exited
     if (code !== 0) throw new Error((await errors).trim() || `Codex app-server exited with code ${code}`)
     throw new Error("Codex app-server ended before the turn completed")
   } finally {
@@ -196,14 +200,11 @@ function serializePrompt(prompt: LanguageModelV3Prompt) {
     .join("\n\n")
 }
 
-async function* lines(stream: ReadableStream<Uint8Array>) {
-  const reader = stream.getReader()
+async function* lines(stream: AsyncIterable<Uint8Array>) {
   const decoder = new TextDecoder()
   let pending = ""
-  while (true) {
-    const part = await reader.read()
-    if (part.done) break
-    pending += decoder.decode(part.value, { stream: true })
+  for await (const chunk of stream) {
+    pending += decoder.decode(chunk, { stream: true })
     const split = pending.split("\n")
     pending = split.pop() ?? ""
     for (const line of split) if (line.trim()) yield line
