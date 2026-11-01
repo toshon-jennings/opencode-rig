@@ -31,6 +31,8 @@ import goal from "./goal"
 import goalRenderer from "./goal/renderer"
 import usage from "./usage"
 import usageRenderer from "./usage/renderer"
+import health from "./health"
+import healthRenderer from "./health/renderer"
 import rig from "./rig"
 import rigRenderer from "./rig/renderer"
 
@@ -57,5 +59,6 @@ export const builtins = compose({
   sources: { ...sources, windowEntry: eager(sourcesRenderer) },
   goal: { ...goal, windowEntry: eager(goalRenderer) },
   usage: { ...usage, windowEntry: eager(usageRenderer) },
+  health: { ...health, windowEntry: eager(healthRenderer) },
   rig: { ...rig, windowEntry: eager(rigRenderer) },
 })

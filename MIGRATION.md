@@ -59,6 +59,15 @@ The fork's artwork (`build/background.{png,svg}`, `make-background.py`, `DMG-ART
 - **Not done:** the release workflows still do not run the fix after `--publish`; none are ported yet.
 - **Regression test:** `electron-builder.config.test.ts` asserts a single PNG at the window size and no `@2x` beside it.
 
+## Feature: provider health (built; tests and typecheck pass, the pill not yet seen on screen)
+The built-in plugin `gui-plugins/src/health` adds a composer pill that appears only when the provider behind the session's latest answer is struggling (nothing is shown while it is healthy). It replaces the fork's status dots in settings and the status popover, which 2.x does not let a plugin extend.
+- **Data:** none stored. The status is folded from the session's own finished assistant messages for that provider (last 30; failure = `message.error`; latency = streamed or completed minus created). The fork fed a global per-server store from `message.updated` events and had no probe in use either.
+- **Rules** (`status.ts`, ported from the fork's `provider-health.ts`): one failure is degraded, two in a row are unreachable, latency over 2.5× the usual is degraded. The usual (EWMA) lives outside the 5-sample window and ignores degraded samples, so a sustained slowdown stays degraded. The fork's `source` field, dot classes and `formatProviderLatency` were dropped (the formatter is `Intl` units).
+- **Tone:** warning for degraded, danger for unreachable; the popover rows show the last response, what is usual, or how many requests failed in a row.
+- **Limits:** health is per session, so a new session shows nothing until it has failures. A long answer is slower than the usual and can read as degraded, as in the fork.
+- **Not ported:** the fork's "provider health" palette command (2.x's settings search already reaches the provider list) and the settings/status-popover dots.
+- **Also:** `gui-plugins/src/main.ts` now lists `health` and `rig` so their ids stay reserved (`rig` was missing).
+
 ## Test notes
 - Run app tests with `bun run test:unit` (a bare `bun test` skips the solid conditions and fails to load). `bootstrap.test.ts` "recovers project metadata after the connection to the server is dropped" fails on the untouched baseline too.
 

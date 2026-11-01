@@ -15,6 +15,8 @@ import microsoftOffice from "./microsoft-office"
 import sources from "./sources"
 import goal from "./goal"
 import usage from "./usage"
+import health from "./health"
+import rig from "./rig"
 
 /** Built-in plugins with their main entries, by id. Lists every built-in so their ids stay reserved. */
 export const builtins = compose({
@@ -34,4 +36,6 @@ export const builtins = compose({
   sources,
   goal,
   usage: { ...usage, mainEntry: () => import("./usage/main") },
+  health,
+  rig,
 })
