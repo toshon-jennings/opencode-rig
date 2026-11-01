@@ -204,6 +204,7 @@ export const dict = {
   "command.session.unshare": "Отменить публикацию",
   "command.session.unshare.description": "Прекратить публикацию сессии",
 
+
   "palette.search.placeholder": "Поиск файлов, команд и сессий",
   "palette.search.placeholder.home": "Поиск команд и сессий",
   "palette.empty": "Ничего не найдено",
@@ -579,6 +580,8 @@ export const dict = {
   "dialog.project.edit.worktree.startup.description":
     "Запускается после создания нового рабочего пространства (worktree).",
   "dialog.project.edit.worktree.startup.placeholder": "например, bun install",
+  "dialog.usageExceeded.dontShowAgain": "Больше не показывать",
+
   "context.breakdown.title": "Разбивка контекста",
   "context.breakdown.note":
     'Приблизительная разбивка входных токенов. "Другое" включает определения инструментов и накладные расходы.',
@@ -590,6 +593,7 @@ export const dict = {
 
   "context.systemPrompt.title": "Системный промпт",
   "context.rawMessages.title": "Исходные сообщения",
+
 
   "context.stats.session": "Сессия",
   "context.stats.messages": "Сообщения",
@@ -667,6 +671,7 @@ export const dict = {
   "toast.session.unshare.success.description": "Публикация успешно отменена!",
   "toast.session.unshare.failed.title": "Не удалось отменить публикацию",
   "toast.session.unshare.failed.description": "Произошла ошибка при отмене публикации",
+
 
   "toast.session.listFailed.title": "Не удалось загрузить сессии для {{project}}",
 

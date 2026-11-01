@@ -198,6 +198,7 @@ export const dict = {
   "command.session.share.description": "Compartilhar esta sessão e copiar a URL para a área de transferência",
   "command.session.unshare": "Parar de compartilhar sessão",
   "command.session.unshare.description": "Parar de compartilhar esta sessão",
+
   "palette.search.placeholder": "Buscar arquivos, comandos e sessões",
   "palette.search.placeholder.home": "Buscar comandos e sessões",
   "palette.empty": "Nenhum resultado encontrado",
@@ -549,6 +550,8 @@ export const dict = {
   "dialog.project.edit.worktree.startup": "Script de inicialização do espaço de trabalho",
   "dialog.project.edit.worktree.startup.description": "Executa após criar um novo espaço de trabalho (worktree).",
   "dialog.project.edit.worktree.startup.placeholder": "Ex.: bun install",
+  "dialog.usageExceeded.dontShowAgain": "Não mostrar novamente",
+
   "context.breakdown.title": "Detalhamento do contexto",
   "context.breakdown.note":
     'Detalhamento aproximado dos tokens de entrada. "Outros" inclui definições de ferramentas e sobrecarga.',
@@ -559,6 +562,7 @@ export const dict = {
   "context.breakdown.other": "Outros",
   "context.systemPrompt.title": "Prompt do sistema",
   "context.rawMessages.title": "Mensagens brutas",
+
   "context.stats.session": "Sessão",
   "context.stats.messages": "Mensagens",
   "context.stats.provider": "Provedor",
@@ -625,6 +629,7 @@ export const dict = {
   "toast.session.unshare.success.description": "Sessão deixou de ser compartilhada com sucesso!",
   "toast.session.unshare.failed.title": "Falha ao parar de compartilhar sessão",
   "toast.session.unshare.failed.description": "Ocorreu um erro ao parar de compartilhar a sessão",
+
   "toast.session.listFailed.title": "Falha ao carregar sessões para {{project}}",
   "toast.update.title": "Atualização disponível",
   "toast.update.description": "Uma nova versão do OpenCode ({{version}}) está disponível para instalação.",

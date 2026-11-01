@@ -205,6 +205,7 @@ export const dict = {
   "command.session.unshare": "Припинити поширення сесії",
   "command.session.unshare.description": "Припинити поширення цієї сесії",
 
+
   "palette.search.placeholder": "Пошук файлів, команд і сесій",
   "palette.search.placeholder.home": "Пошук команд і сесій",
   "palette.empty": "Результатів не знайдено",
@@ -593,6 +594,8 @@ export const dict = {
   "dialog.releaseNotes.action.hideFuture": "Не показувати це в майбутньому",
   "dialog.releaseNotes.media.alt": "Попередній перегляд релізу",
 
+  "dialog.usageExceeded.dontShowAgain": "Більше не показувати",
+
   "context.breakdown.title": "Розподіл контексту",
   "context.breakdown.note":
     'Приблизний розподіл вхідних токенів. "Інше" включає визначення інструментів і накладні витрати.',
@@ -604,6 +607,7 @@ export const dict = {
 
   "context.systemPrompt.title": "Системний запит",
   "context.rawMessages.title": "Необроблені повідомлення",
+
 
   "context.stats.session": "Сесія",
   "context.stats.messages": "Повідомлення",
@@ -682,6 +686,7 @@ export const dict = {
   "toast.session.unshare.success.description": "Поширення сесії успішно припинено!",
   "toast.session.unshare.failed.title": "Не вдалося припинити поширення сесії",
   "toast.session.unshare.failed.description": "Під час припинення поширення сесії сталася помилка",
+
 
   "toast.session.listFailed.title": "Не вдалося завантажити сесії для {{project}}",
   "toast.project.reloadFailed.title": "Не вдалося перезавантажити {{project}}",

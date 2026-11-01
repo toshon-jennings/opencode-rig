@@ -19,7 +19,6 @@ import type {
 import { UI } from "../ui"
 import { ModelsDev } from "@opencode-ai/core/models-dev"
 import { InstanceRef } from "@/effect/instance-ref"
-import { SessionShare } from "@/share/session"
 import { Session } from "@/session/session"
 import type { SessionID } from "../../session/schema"
 import { MessageID, PartID } from "../../session/schema"
@@ -380,7 +379,6 @@ export const githubRun = Effect.fn("Cli.github.run")(function* (args: { event?: 
   if (!ctx) return yield* Effect.die("InstanceRef not provided")
   const gitSvc = yield* Git.Service
   const sessionSvc = yield* Session.Service
-  const sessionShare = yield* SessionShare.Service
   const sessionPrompt = yield* SessionPrompt.Service
   const events = yield* EventV2Bridge.Service
   const runLocalEffect = <A, E>(effect: Effect.Effect<A, E>) =>
@@ -407,7 +405,6 @@ export const githubRun = Effect.fn("Cli.github.run")(function* (args: { event?: 
     const { providerID, modelID } = normalizeModel()
     const variant = process.env["VARIANT"] || undefined
     const runId = normalizeRunId()
-    const share = normalizeShare()
     const oidcBaseUrl = normalizeOidcBaseUrl()
     const { owner, repo } = context.repo
     // For repo events (schedule, workflow_dispatch), payload has no issue/comment data
@@ -428,15 +425,14 @@ export const githubRun = Effect.fn("Cli.github.run")(function* (args: { event?: 
         ? (payload as IssueCommentEvent | IssuesEvent).issue.number
         : (payload as PullRequestEvent | PullRequestReviewCommentEvent).pull_request.number
     const runUrl = `/${owner}/${repo}/actions/runs/${runId}`
-    const shareBaseUrl = isMock ? "https://dev.opencode.ai" : "https://opencode.ai"
 
     let appToken: string
     let octoRest: Octokit
     let octoGraph: typeof graphql
     let gitConfig: string
     let session: { id: SessionID; title: string; version: string }
-    let shareId: string | undefined
     let exitCode = 0
+    let githubClientReady = false
     type PromptFiles = Awaited<ReturnType<typeof getUserPrompt>>["promptFiles"]
     const triggerCommentId = isCommentEvent
       ? (payload as IssueCommentEvent | PullRequestReviewCommentEvent).comment.id
@@ -485,6 +481,7 @@ export const githubRun = Effect.fn("Cli.github.run")(function* (args: { event?: 
       octoGraph = graphql.defaults({
         headers: { authorization: `token ${appToken}` },
       })
+      githubClientReady = true
 
       const { userPrompt, promptFiles } = await getUserPrompt()
       if (!useGithubToken) {
@@ -510,12 +507,6 @@ export const githubRun = Effect.fn("Cli.github.run")(function* (args: { event?: 
         }),
       )
       await subscribeSessionEvents()
-      shareId = await (async () => {
-        if (share === false) return
-        if (!share && repoData.data.private) return
-        await runLocalEffect(sessionShare.share(session.id))
-        return session.id.slice(-8)
-      })()
       console.log("opencode session", session.id)
 
       // Handle event types:
@@ -545,7 +536,7 @@ export const githubRun = Effect.fn("Cli.github.run")(function* (args: { event?: 
             repoData.data.default_branch,
             branch,
             summary,
-            `${response}\n\nTriggered by ${triggerType}${footer({ image: true })}`,
+            `${response}\n\nTriggered by ${triggerType}${footer()}`,
           )
           if (pr) {
             console.log(`Created PR #${pr}`)
@@ -574,8 +565,7 @@ export const githubRun = Effect.fn("Cli.github.run")(function* (args: { event?: 
             const summary = await summarize(response)
             await pushToLocalBranch(summary, uncommittedChanges)
           }
-          const hasShared = prData.comments.nodes.some((c) => c.body.includes(`${shareBaseUrl}/s/${shareId}`))
-          await createComment(`${response}${footer({ image: !hasShared })}`)
+          await createComment(`${response}${footer()}`)
           await removeReaction(commentType)
         }
         // Fork PR
@@ -592,8 +582,7 @@ export const githubRun = Effect.fn("Cli.github.run")(function* (args: { event?: 
             const summary = await summarize(response)
             await pushToForkBranch(summary, prData, uncommittedChanges)
           }
-          const hasShared = prData.comments.nodes.some((c) => c.body.includes(`${shareBaseUrl}/s/${shareId}`))
-          await createComment(`${response}${footer({ image: !hasShared })}`)
+          await createComment(`${response}${footer()}`)
           await removeReaction(commentType)
         }
       }
@@ -608,7 +597,7 @@ export const githubRun = Effect.fn("Cli.github.run")(function* (args: { event?: 
         if (switched) {
           // Agent switched branches (likely created its own branch/PR).
           // Don't push the stale infrastructure branch — just comment.
-          await createComment(`${response}${footer({ image: true })}`)
+          await createComment(`${response}${footer()}`)
           await removeReaction(commentType)
         } else if (dirty) {
           const summary = await summarize(response)
@@ -617,16 +606,16 @@ export const githubRun = Effect.fn("Cli.github.run")(function* (args: { event?: 
             repoData.data.default_branch,
             branch,
             summary,
-            `${response}\n\nCloses #${issueId}${footer({ image: true })}`,
+            `${response}\n\nCloses #${issueId}${footer()}`,
           )
           if (pr) {
-            await createComment(`Created PR #${pr}${footer({ image: true })}`)
+            await createComment(`Created PR #${pr}${footer()}`)
           } else {
-            await createComment(`${response}${footer({ image: true })}`)
+            await createComment(`${response}${footer()}`)
           }
           await removeReaction(commentType)
         } else {
-          await createComment(`${response}${footer({ image: true })}`)
+          await createComment(`${response}${footer()}`)
           await removeReaction(commentType)
         }
       }
@@ -639,9 +628,13 @@ export const githubRun = Effect.fn("Cli.github.run")(function* (args: { event?: 
       } else if (e instanceof Error) {
         msg = e.message
       }
-      if (isUserEvent) {
-        await createComment(`${msg}${footer()}`)
-        await removeReaction(commentType)
+      if (isUserEvent && githubClientReady) {
+        try {
+          await createComment(`${msg}${footer()}`)
+          await removeReaction(commentType)
+        } catch (error) {
+          console.error("Failed to report error on GitHub:", error)
+        }
       }
       core.setFailed(msg)
       // Also output the clean error message for the action to capture
@@ -669,14 +662,6 @@ export const githubRun = Effect.fn("Cli.github.run")(function* (args: { event?: 
       const value = process.env["GITHUB_RUN_ID"]
       if (!value) throw new Error(`Environment variable "GITHUB_RUN_ID" is not set`)
       return value
-    }
-
-    function normalizeShare() {
-      const value = process.env["SHARE"]
-      if (!value) return undefined
-      if (value === "true") return true
-      if (value === "false") return false
-      throw new Error(`Invalid share value: ${value}. Share must be a boolean.`)
     }
 
     function normalizeUseGithubToken() {
@@ -1014,8 +999,9 @@ export const githubRun = Effect.fn("Cli.github.run")(function* (args: { event?: 
           })
 
       if (!response.ok) {
-        const responseJson = (await response.json()) as { error?: string }
-        throw new Error(`App token exchange failed: ${response.status} ${response.statusText} - ${responseJson.error}`)
+        throw new Error(
+          `App token exchange failed: ${response.status} ${response.statusText} - ${await response.text()}`,
+        )
       }
 
       const responseJson = (await response.json()) as { token: string }
@@ -1354,18 +1340,8 @@ export const githubRun = Effect.fn("Cli.github.run")(function* (args: { event?: 
       }
     }
 
-    function footer(opts?: { image?: boolean }) {
-      const image = (() => {
-        if (!shareId) return ""
-        if (!opts?.image) return ""
-
-        const titleAlt = encodeURIComponent(session.title.substring(0, 50))
-        const title64 = Buffer.from(session.title.substring(0, 700), "utf8").toString("base64")
-
-        return `<a href="${shareBaseUrl}/s/${shareId}"><img width="200" alt="${titleAlt}" src="https://social-cards.sst.dev/opencode-share/${title64}.png?model=${providerID}/${modelID}&version=${session.version}&id=${shareId}" /></a>\n`
-      })()
-      const shareUrl = shareId ? `[opencode session](${shareBaseUrl}/s/${shareId})&nbsp;&nbsp;|&nbsp;&nbsp;` : ""
-      return `\n\n${image}${shareUrl}[github run](${runUrl})`
+    function footer() {
+      return `\n\n[github run](${runUrl})`
     }
 
     async function fetchRepo() {

@@ -196,6 +196,7 @@ export const dict = {
   "command.session.share.description": "このセッションを共有しURLをクリップボードにコピー",
   "command.session.unshare": "セッションの共有を停止",
   "command.session.unshare.description": "このセッションの共有を停止",
+
   "palette.search.placeholder": "ファイル、コマンド、セッションを検索",
   "palette.search.placeholder.home": "コマンドとセッションを検索",
   "palette.empty": "結果が見つかりません",
@@ -548,6 +549,8 @@ export const dict = {
   "dialog.project.edit.worktree.startup.description":
     "新しいワークスペース (ワークツリー) を作成した後に実行されます。",
   "dialog.project.edit.worktree.startup.placeholder": "例: bun install",
+  "dialog.usageExceeded.dontShowAgain": "今後表示しない",
+
   "context.breakdown.title": "コンテキストの内訳",
   "context.breakdown.note": '入力トークンのおおよその内訳です。"その他"にはツールの定義やオーバーヘッドが含まれます。',
   "context.breakdown.system": "システム",
@@ -557,6 +560,7 @@ export const dict = {
   "context.breakdown.other": "その他",
   "context.systemPrompt.title": "システムプロンプト",
   "context.rawMessages.title": "生のメッセージ",
+
   "context.stats.session": "セッション",
   "context.stats.messages": "メッセージ",
   "context.stats.provider": "プロバイダー",
@@ -623,6 +627,7 @@ export const dict = {
   "toast.session.unshare.success.description": "セッションの共有解除に成功しました！",
   "toast.session.unshare.failed.title": "セッションの共有解除に失敗しました",
   "toast.session.unshare.failed.description": "セッションの共有解除中にエラーが発生しました",
+
   "toast.session.listFailed.title": "{{project}}のセッション読み込みに失敗しました",
   "toast.update.title": "アップデートが利用可能です",
   "toast.update.description": "OpenCodeの新しいバージョン ({{version}}) がインストール可能です。",

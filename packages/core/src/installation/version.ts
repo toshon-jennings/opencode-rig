@@ -13,4 +13,4 @@ export const InstallationLocal = InstallationChannel === "local"
 // fork's independent version reads as ancient to it; report the base we actually ship instead.
 // Keep the fallback in sync with `upstreamBase` for unbundled dev runs.
 export const InstallationUpstreamVersion =
-  typeof OPENCODE_UPSTREAM_VERSION === "string" ? OPENCODE_UPSTREAM_VERSION : "1.18.14"
+  typeof OPENCODE_UPSTREAM_VERSION === "string" ? OPENCODE_UPSTREAM_VERSION : "1.19.5"

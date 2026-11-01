@@ -196,6 +196,7 @@ export const dict = {
   "command.session.share.description": "اس سیشن نو شیئر کرو تے URL نو کلپ بورڈ تے کاپی کرو",
   "command.session.unshare": "سیشن شیئر کرنا بند کرو",
   "command.session.unshare.description": "اس سیشن نو شیئر کرنا بند کرو",
+
   "palette.search.placeholder": "فائلاں، کمانڈز، تے سیشنز تلاش کرو",
   "palette.search.placeholder.home": "سرچ کمانڈز تے سیشنز",
   "palette.empty": "کوئی نتیجہ نئیں ملیا",
@@ -559,6 +560,8 @@ export const dict = {
   "dialog.releaseNotes.action.next": "اگلا",
   "dialog.releaseNotes.action.hideFuture": "ایہہ اگوں نہ وکھاؤ",
   "dialog.releaseNotes.media.alt": "ریلیز پیش نظارہ",
+  "dialog.usageExceeded.dontShowAgain": "دوبارہ نہ وکھاؤ",
+
   "context.breakdown.title": "کانٹیکسٹ دی ونڈ",
   "context.breakdown.note": 'ان پٹ ٹوکناں دی لگ بھگ ونڈ۔ "ہور" وچ ٹول دیاں تعریفاں تے وادھو خرچ شامل نیں۔',
   "context.breakdown.system": "نظام",
@@ -568,6 +571,7 @@ export const dict = {
   "context.breakdown.other": "ہور",
   "context.systemPrompt.title": "سسٹم پرامپٹ",
   "context.rawMessages.title": "خام سنیہے",
+
   "context.stats.session": "سیشن",
   "context.stats.messages": "سنیہے",
   "context.stats.provider": "پرووائیڈر",
@@ -634,6 +638,7 @@ export const dict = {
   "toast.session.unshare.success.description": "سیشن دا شیئر کامیابی نال بند ہو گیا!",
   "toast.session.unshare.failed.title": "سیشن ان شیئر کرن چ ناکام رہیا",
   "toast.session.unshare.failed.description": "سیشن ان شیئر کردے ویلے کوئی غلطی ہو گئی",
+
   "toast.session.listFailed.title": "{{project}} لئی سیشن لوڈ کرن چ ناکام رہیا",
   "toast.project.reloadFailed.title": "{{project}} دوبارہ لوڈ نئیں ہو سکیا",
   "toast.update.title": "اپ ڈیٹ دستیاب اے",

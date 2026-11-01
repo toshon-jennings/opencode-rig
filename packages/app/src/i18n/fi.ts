@@ -97,6 +97,7 @@ export const dict = {
   "command.session.share.description": "Jaa tämä istunto ja kopioi URL-osoite leikepöydälle",
   "command.session.unshare": "Peru istunnon jakaminen",
   "command.session.unshare.description": "Lopeta tämän istunnon jakaminen",
+
   "palette.search.placeholder": "Hae tiedostoja, komentoja ja istuntoja",
   "palette.search.placeholder.home": "Hae komentoja ja istuntoja",
   "palette.empty": "Tuloksia ei löytynyt",
@@ -444,6 +445,8 @@ export const dict = {
   "dialog.releaseNotes.action.next": "Seuraava",
   "dialog.releaseNotes.action.hideFuture": "Älä näytä näitä jatkossa",
   "dialog.releaseNotes.media.alt": "Julkaisun esikatselu",
+  "dialog.usageExceeded.dontShowAgain": "Älä näytä uudelleen",
+
   "context.breakdown.title": "Kontekstin erittely",
   "context.breakdown.note":
     'Syötetokenien arvioitu jakautuminen. "Muut" sisältää työkalumäärittelyt ja muun oheissisällön.',
@@ -454,6 +457,7 @@ export const dict = {
   "context.breakdown.other": "Muut",
   "context.systemPrompt.title": "Järjestelmäkehote",
   "context.rawMessages.title": "Raakaviestit",
+
   "context.stats.session": "Istunto",
   "context.stats.messages": "Viestit",
   "context.stats.provider": "Palveluntarjoaja",
@@ -520,6 +524,7 @@ export const dict = {
   "toast.session.unshare.success.description": "Istunnon jakaminen peruutettu onnistuneesti!",
   "toast.session.unshare.failed.title": "Istunnon jakamisen peruuttaminen epäonnistui",
   "toast.session.unshare.failed.description": "Virhe peruttaessa istunnon jakamista",
+
   "toast.session.listFailed.title": "Projektin {{project}} istuntojen lataaminen epäonnistui",
   "toast.project.reloadFailed.title": "Projektin {{project}} lataaminen uudelleen epäonnistui",
   "toast.update.title": "Päivitys saatavilla",

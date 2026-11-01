@@ -198,6 +198,7 @@ export const dict = {
   "command.session.share.description": "اس سیشن کا اشتراک کریں اور URL کو کلپ بورڈ میں کاپی کریں۔",
   "command.session.unshare": "سیشن کا اشتراک ختم کریں۔",
   "command.session.unshare.description": "اس سیشن کا اشتراک کرنا بند کریں۔",
+
   "palette.search.placeholder": "فائلیں، کمانڈز اور سیشنز تلاش کریں۔",
   "palette.search.placeholder.home": "کمانڈز اور سیشن تلاش کریں۔",
   "palette.empty": "کوئی نتیجہ نہیں ملا",
@@ -561,6 +562,8 @@ export const dict = {
   "dialog.releaseNotes.action.next": "اگلا",
   "dialog.releaseNotes.action.hideFuture": "مستقبل میں یہ نہ دکھائیں۔",
   "dialog.releaseNotes.media.alt": "ریلیز کا پیش منظر",
+  "dialog.usageExceeded.dontShowAgain": "دوبارہ نہ دکھائیں",
+
   "context.breakdown.title": "سیاق و سباق کی تفصیل",
   "context.breakdown.note": 'ان پٹ ٹوکنز کی تخمینی تقسیم۔ "دیگر" میں ٹول کی تعریفیں اور اضافی بوجھ شامل ہیں۔',
   "context.breakdown.system": "سسٹم",
@@ -570,6 +573,7 @@ export const dict = {
   "context.breakdown.other": "دیگر",
   "context.systemPrompt.title": "سسٹم پرامپٹ",
   "context.rawMessages.title": "خام پیغامات",
+
   "context.stats.session": "سیشن",
   "context.stats.messages": "پیغامات",
   "context.stats.provider": "فراہم کنندہ",
@@ -636,6 +640,7 @@ export const dict = {
   "toast.session.unshare.success.description": "سیشن کا اشتراک کامیابی سے ختم ہو گیا!",
   "toast.session.unshare.failed.title": "سیشن کا اشتراک ختم کرنے میں ناکام",
   "toast.session.unshare.failed.description": "سیشن کا اشتراک ختم کرتے وقت ایک خرابی پیش آگئی",
+
   "toast.session.listFailed.title": "{{project}} کے لیے سیشن لوڈ کرنے میں ناکام",
   "toast.project.reloadFailed.title": "{{project}} کو دوبارہ لوڈ کرنے میں ناکام",
   "toast.update.title": "اپ ڈیٹ دستیاب ہے۔",

@@ -192,6 +192,7 @@ export const dict = {
   "command.session.share.description": "Bu sessiyanı paylaş və URL-ni buferə kopyala",
   "command.session.unshare": "Sessiyanın paylaşımını dayandır",
   "command.session.unshare.description": "Bu sessiyanın paylaşımını dayandır",
+
   "palette.search.placeholder": "Fayl, əmr və sessiya axtar",
   "palette.search.placeholder.home": "Əmr və sessiyaları axtar",
   "palette.empty": "Nəticə tapılmadı",
@@ -556,6 +557,8 @@ export const dict = {
   "dialog.releaseNotes.action.next": "Növbəti",
   "dialog.releaseNotes.action.hideFuture": "Gələcəkdə göstərmə",
   "dialog.releaseNotes.media.alt": "Buraxılış önbaxışı",
+  "dialog.usageExceeded.dontShowAgain": "Bir daha göstərmə",
+
   "context.breakdown.title": "Kontekst bölgüsü",
   "context.breakdown.note": 'Giriş tokenlərinin təxmini bölgüsü. "Digər" alət təriflərini və əlavə yükü əhatə edir.',
   "context.breakdown.system": "Sistem",
@@ -565,6 +568,7 @@ export const dict = {
   "context.breakdown.other": "Digər",
   "context.systemPrompt.title": "Sistem promptu",
   "context.rawMessages.title": "Xam mesajlar",
+
   "context.stats.session": "Sessiya",
   "context.stats.messages": "Mesajlar",
   "context.stats.provider": "Provayder",
@@ -631,6 +635,7 @@ export const dict = {
   "toast.session.unshare.success.description": "Sessiyanın paylaşımı uğurla dayandırıldı!",
   "toast.session.unshare.failed.title": "Sessiyanın paylaşımı dayandırıla bilmədi",
   "toast.session.unshare.failed.description": "Sessiyanın paylaşımını dayandırarkən xəta baş verdi",
+
   "toast.session.listFailed.title": "{{project}} üçün sessiyalar yüklənə bilmədi",
   "toast.project.reloadFailed.title": "{{project}} yenidən yüklənə bilmədi",
   "toast.update.title": "Yeniləmə mövcuddur",

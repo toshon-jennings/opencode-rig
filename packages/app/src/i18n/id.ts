@@ -205,6 +205,7 @@ export const dict = {
   "command.session.unshare": "Hentikan berbagi",
   "command.session.unshare.description": "Hentikan berbagi sesi ini",
 
+
   "palette.search.placeholder": "Cari berkas, perintah, dan sesi",
   "palette.search.placeholder.home": "Cari perintah dan sesi",
   "palette.empty": "Hasil tidak ditemukan",
@@ -591,6 +592,8 @@ export const dict = {
   "dialog.releaseNotes.action.hideFuture": "Jangan tampilkan ini di masa depan",
   "dialog.releaseNotes.media.alt": "Pratinjau rilis",
 
+  "dialog.usageExceeded.dontShowAgain": "Jangan tampilkan lagi",
+
   "context.breakdown.title": "Rincian Konteks",
   "context.breakdown.note": 'Perkiraan rincian token masukan. "Lainnya" mencakup definisi alat dan beban tambahan.',
   "context.breakdown.system": "Sistem",
@@ -601,6 +604,7 @@ export const dict = {
 
   "context.systemPrompt.title": "Prompt Sistem",
   "context.rawMessages.title": "Pesan mentah",
+
 
   "context.stats.session": "Sesi",
   "context.stats.messages": "Pesan",
@@ -678,6 +682,7 @@ export const dict = {
   "toast.session.unshare.success.description": "Berbagi sesi berhasil dihentikan!",
   "toast.session.unshare.failed.title": "Gagal menghentikan berbagi sesi",
   "toast.session.unshare.failed.description": "Terjadi kesalahan saat menghentikan berbagi sesi",
+
 
   "toast.session.listFailed.title": "Gagal memuat sesi untuk {{project}}",
   "toast.project.reloadFailed.title": "Gagal memuat ulang {{project}}",

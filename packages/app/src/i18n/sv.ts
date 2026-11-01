@@ -191,6 +191,7 @@ export const dict = {
   "command.session.share.description": "Dela den här sessionen och kopiera URL:en till urklipp",
   "command.session.unshare": "Sluta dela session",
   "command.session.unshare.description": "Sluta dela den här sessionen",
+
   "palette.search.placeholder": "Sök efter filer, kommandon och sessioner",
   "palette.search.placeholder.home": "Sök bland kommandon och sessioner",
   "palette.empty": "Inga resultat hittades",
@@ -553,6 +554,8 @@ export const dict = {
   "dialog.releaseNotes.action.next": "Nästa",
   "dialog.releaseNotes.action.hideFuture": "Visa inte dessa i framtiden",
   "dialog.releaseNotes.media.alt": "Förhandsvisning av version",
+  "dialog.usageExceeded.dontShowAgain": "Visa inte igen",
+
   "context.breakdown.title": "Kontextfördelning",
   "context.breakdown.note":
     'Ungefärlig uppdelning av inmatningstokens. "Övrigt" inkluderar verktygsdefinitioner och overhead.',
@@ -563,6 +566,7 @@ export const dict = {
   "context.breakdown.other": "Övrigt",
   "context.systemPrompt.title": "Systemprompt",
   "context.rawMessages.title": "Råmeddelanden",
+
   "context.stats.session": "Session",
   "context.stats.messages": "Meddelanden",
   "context.stats.provider": "Leverantör",
@@ -629,6 +633,7 @@ export const dict = {
   "toast.session.unshare.success.description": "Delningen av sessionen har avslutats!",
   "toast.session.unshare.failed.title": "Det gick inte att avsluta delningen",
   "toast.session.unshare.failed.description": "Ett fel uppstod när delningen skulle avslutas",
+
   "toast.session.listFailed.title": "Det gick inte att läsa in sessioner för {{project}}",
   "toast.project.reloadFailed.title": "Det gick inte att ladda om {{project}}",
   "toast.update.title": "Uppdatering tillgänglig",

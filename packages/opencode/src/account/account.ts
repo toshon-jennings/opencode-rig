@@ -2,13 +2,7 @@ import { LayerNode } from "@opencode-ai/core/effect/layer-node"
 import { httpClient } from "@opencode-ai/core/effect/app-node-platform"
 import { Cache, Clock, Duration, Effect, Layer, Option, Schema, SchemaGetter, Context } from "effect"
 import { serviceUse } from "@opencode-ai/core/effect/service-use"
-import {
-  FetchHttpClient,
-  HttpClient,
-  HttpClientError,
-  HttpClientRequest,
-  HttpClientResponse,
-} from "effect/unstable/http"
+import { HttpClient, HttpClientError, HttpClientRequest, HttpClientResponse } from "effect/unstable/http"
 
 import { withTransientReadRetry } from "@/util/effect-http-client"
 import { AccountRepo, type AccountRow } from "./repo"
@@ -396,10 +390,18 @@ const layer: Layer.Layer<Service, never, AccountRepo.Service | HttpClient.HttpCl
       const parsed = yield* HttpClientResponse.schemaBodyJson(DeviceAuth)(response).pipe(
         mapAccountServiceError("Failed to decode response"),
       )
+      const verification = yield* Effect.try({
+        try: () => {
+          const url = new URL(parsed.verification_uri_complete, `${normalizedServer}/`)
+          if (url.protocol !== "http:" && url.protocol !== "https:") throw new Error("expected HTTP(S)")
+          return url.href
+        },
+        catch: (cause) => new AccountServiceError({ message: "Invalid device verification URL", cause }),
+      })
       return new Login({
         code: parsed.device_code,
         user: parsed.user_code,
-        url: `${normalizedServer}${parsed.verification_uri_complete}`,
+        url: verification,
         server: normalizedServer,
         expiry: parsed.expires_in,
         interval: parsed.interval,

@@ -190,6 +190,7 @@ export const dict = {
   "command.session.share.description": "Deel deze sessie en kopieer de URL naar het klembord",
   "command.session.unshare": "Sessie niet meer delen",
   "command.session.unshare.description": "Stop met het delen van deze sessie",
+
   "palette.search.placeholder": "Zoek naar bestanden, opdrachten en sessies",
   "palette.search.placeholder.home": "Opdrachten en sessies zoeken",
   "palette.empty": "Geen resultaten gevonden",
@@ -554,6 +555,8 @@ export const dict = {
   "dialog.releaseNotes.action.next": "Volgende",
   "dialog.releaseNotes.action.hideFuture": "Laat deze in de toekomst niet zien",
   "dialog.releaseNotes.media.alt": "Releasevoorbeeld",
+  "dialog.usageExceeded.dontShowAgain": "Niet meer weergeven",
+
   "context.breakdown.title": "Contextanalyse",
   "context.breakdown.note":
     'Geschatte uitsplitsing van invoertokens. "Overig" omvat gereedschapsdefinities en overhead.',
@@ -564,6 +567,7 @@ export const dict = {
   "context.breakdown.other": "Overig",
   "context.systemPrompt.title": "Systeemprompt",
   "context.rawMessages.title": "Ruwe berichten",
+
   "context.stats.session": "Sessie",
   "context.stats.messages": "Berichten",
   "context.stats.provider": "Aanbieder",
@@ -631,6 +635,7 @@ export const dict = {
   "toast.session.unshare.failed.title": "Kan het delen van de sessie niet ongedaan maken",
   "toast.session.unshare.failed.description":
     "Er is een fout opgetreden bij het ongedaan maken van het delen van de sessie",
+
   "toast.session.listFailed.title": "Kan sessies voor {{project}} niet laden",
   "toast.project.reloadFailed.title": "Kan {{project}} niet opnieuw laden",
   "toast.update.title": "Update beschikbaar",

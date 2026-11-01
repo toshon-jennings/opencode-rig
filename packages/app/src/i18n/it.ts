@@ -98,6 +98,7 @@ export const dict = {
   "command.session.share.description": "Condividi questa sessione e copia l'URL negli appunti",
   "command.session.unshare": "Annulla condivisione sessione",
   "command.session.unshare.description": "Interrompi la condivisione di questa sessione",
+
   "palette.search.placeholder": "Cerca file, comandi e sessioni",
   "palette.search.placeholder.home": "Cerca comandi e sessioni",
   "palette.empty": "Nessun risultato trovato",
@@ -462,6 +463,8 @@ export const dict = {
   "dialog.releaseNotes.action.next": "Avanti",
   "dialog.releaseNotes.action.hideFuture": "Non mostrarli in futuro",
   "dialog.releaseNotes.media.alt": "Anteprima delle novità",
+  "dialog.usageExceeded.dontShowAgain": "Non mostrare più",
+
   "context.breakdown.title": "Ripartizione del contesto",
   "context.breakdown.note":
     'Ripartizione approssimativa dei token di input. "Altro" include le definizioni degli strumenti e i dati aggiuntivi.',
@@ -472,6 +475,7 @@ export const dict = {
   "context.breakdown.other": "Altro",
   "context.systemPrompt.title": "Prompt di sistema",
   "context.rawMessages.title": "Messaggi non elaborati",
+
   "context.stats.session": "Sessione",
   "context.stats.messages": "Messaggi",
   "context.stats.provider": "Provider",
@@ -539,6 +543,7 @@ export const dict = {
   "toast.session.unshare.failed.title": "Impossibile annullare la condivisione della sessione",
   "toast.session.unshare.failed.description":
     "Si è verificato un errore durante l'annullamento della condivisione della sessione",
+
   "toast.session.listFailed.title": "Impossibile caricare le sessioni per {{project}}",
   "toast.project.reloadFailed.title": "Impossibile ricaricare {{project}}",
   "toast.update.title": "Aggiornamento disponibile",

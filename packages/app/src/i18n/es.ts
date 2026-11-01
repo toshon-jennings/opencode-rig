@@ -205,6 +205,7 @@ export const dict = {
   "command.session.unshare": "Dejar de compartir sesión",
   "command.session.unshare.description": "Dejar de compartir esta sesión",
 
+
   "palette.search.placeholder": "Buscar archivos, comandos y sesiones",
   "palette.search.placeholder.home": "Buscar comandos y sesiones",
   "palette.empty": "No se encontraron resultados",
@@ -582,6 +583,8 @@ export const dict = {
     "Se ejecuta después de crear un nuevo espacio de trabajo (árbol de trabajo).",
   "dialog.project.edit.worktree.startup.placeholder": "p. ej. bun install",
 
+  "dialog.usageExceeded.dontShowAgain": "No volver a mostrar",
+
   "context.breakdown.title": "Desglose del contexto",
   "context.breakdown.note":
     'Desglose aproximado de tokens de entrada. "Otro" incluye definiciones de herramientas y sobrecarga.',
@@ -593,6 +596,7 @@ export const dict = {
 
   "context.systemPrompt.title": "Prompt del sistema",
   "context.rawMessages.title": "Mensajes en bruto",
+
 
   "context.stats.session": "Sesión",
   "context.stats.messages": "Mensajes",
@@ -671,6 +675,7 @@ export const dict = {
   "toast.session.unshare.success.description": "La sesión dejó de compartirse correctamente.",
   "toast.session.unshare.failed.title": "Fallo al dejar de compartir sesión",
   "toast.session.unshare.failed.description": "Ocurrió un error al dejar de compartir la sesión",
+
 
   "toast.session.listFailed.title": "Fallo al cargar sesiones para {{project}}",
 

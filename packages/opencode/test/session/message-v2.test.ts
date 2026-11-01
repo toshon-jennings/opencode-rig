@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test"
 import { SessionV1 } from "@opencode-ai/core/v1/session"
-import { APICallError } from "ai"
+import { createXai } from "@ai-sdk/xai"
+import { APICallError, generateText } from "ai"
 import { MessageV2 } from "../../src/session/message-v2"
 import { ProviderTransform } from "@/provider/transform"
 import type { Provider } from "@/provider/provider"
@@ -492,6 +493,195 @@ describe("session.message-v2.toModelMessage", () => {
         ],
       },
     })
+  })
+
+  test("sends tool-result images to xai responses as input_image", async () => {
+    const xaiModel: Provider.Model = {
+      ...model,
+      id: ModelV2.ID.make("grok-4.7"),
+      providerID: ProviderV2.ID.make("xai"),
+      api: {
+        id: "grok-4.7",
+        url: "https://api.x.ai/v1",
+        npm: "@ai-sdk/xai",
+      },
+      capabilities: {
+        ...model.capabilities,
+        attachment: true,
+        input: {
+          ...model.capabilities.input,
+          image: true,
+        },
+      },
+    }
+    const png = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]).toString("base64")
+    const userID = "m-user-xai"
+    const assistantID = "m-assistant-xai"
+    const input: SessionV1.WithParts[] = [
+      {
+        info: userInfo(userID),
+        parts: [
+          {
+            ...basePart(userID, "u1-xai"),
+            type: "text",
+            text: "describe the diagram",
+          },
+        ] as SessionV1.Part[],
+      },
+      {
+        info: assistantInfo(assistantID, userID),
+        parts: [
+          {
+            ...basePart(assistantID, "a1-xai"),
+            type: "tool",
+            callID: "call-xai-1",
+            tool: "read",
+            state: {
+              status: "completed",
+              input: { filePath: "/tmp/diagram.png" },
+              output: "Image read successfully",
+              title: "Read",
+              metadata: {},
+              time: { start: 0, end: 1 },
+              attachments: [
+                {
+                  ...basePart(assistantID, "file-xai-1"),
+                  type: "file",
+                  mime: "image/png",
+                  filename: "diagram.png",
+                  url: `data:image/png;base64,${png}`,
+                },
+              ],
+            },
+          },
+        ] as SessionV1.Part[],
+      },
+    ]
+
+    const bodies: Record<string, unknown>[] = []
+    const xai = createXai({
+      apiKey: "test",
+      fetch: Object.assign(
+        async (url: RequestInfo | URL, init?: RequestInit) => {
+          bodies.push(await new Request(url, init).json())
+          return new Response("{}", { status: 400 })
+        },
+        { preconnect: globalThis.fetch.preconnect },
+      ),
+    })
+    await generateText({
+      model: xai.responses(xaiModel.api.id),
+      messages: ProviderTransform.message(await MessageV2.toModelMessages(input, xaiModel), xaiModel, {}),
+      providerOptions: { xai: { promptCacheKey: "session", reasoningEffort: "xhigh" } },
+      maxRetries: 0,
+    }).catch(() => undefined)
+
+    expect(bodies).toHaveLength(1)
+    expect(bodies[0].prompt_cache_key).toBe("session")
+    expect(bodies[0].reasoning).toEqual({ effort: "xhigh" })
+    expect(bodies[0].input).toContainEqual({
+      type: "function_call_output",
+      call_id: "call-xai-1",
+      output: [
+        { type: "input_text", text: "Image read successfully" },
+        { type: "input_image", image_url: `data:image/png;base64,${png}` },
+      ],
+    })
+  })
+
+  test("drops tool-result images xai rejects but keeps png and webp", async () => {
+    const xaiModel: Provider.Model = {
+      ...model,
+      id: ModelV2.ID.make("grok-4.7"),
+      providerID: ProviderV2.ID.make("xai"),
+      api: {
+        id: "grok-4.7",
+        url: "https://api.x.ai/v1",
+        npm: "@ai-sdk/xai",
+      },
+      capabilities: {
+        ...model.capabilities,
+        attachment: true,
+        input: {
+          ...model.capabilities.input,
+          image: true,
+        },
+      },
+    }
+    const images = [
+      { mime: "image/png", data: Buffer.from([0x89, 0x50, 0x4e, 0x47]).toString("base64") },
+      { mime: "image/gif", data: Buffer.from("GIF89a").toString("base64") },
+      { mime: "image/webp", data: Buffer.from("RIFFWEBP").toString("base64") },
+    ]
+    const userID = "m-user-xai-gif"
+    const assistantID = "m-assistant-xai-gif"
+    const input: SessionV1.WithParts[] = [
+      {
+        info: userInfo(userID),
+        parts: [
+          {
+            ...basePart(userID, "u1-xai-gif"),
+            type: "text",
+            text: "describe the images",
+          },
+        ] as SessionV1.Part[],
+      },
+      {
+        info: assistantInfo(assistantID, userID),
+        parts: [
+          {
+            ...basePart(assistantID, "a1-xai-gif"),
+            type: "tool",
+            callID: "call-xai-gif",
+            tool: "read",
+            state: {
+              status: "completed",
+              input: { filePath: "/tmp/images" },
+              output: "Images read successfully",
+              title: "Read",
+              metadata: {},
+              time: { start: 0, end: 1 },
+              attachments: images.map((image, index) => ({
+                ...basePart(assistantID, `file-xai-gif-${index}`),
+                type: "file" as const,
+                mime: image.mime,
+                filename: `image-${index}`,
+                url: `data:${image.mime};base64,${image.data}`,
+              })),
+            },
+          },
+        ] as SessionV1.Part[],
+      },
+    ]
+
+    const bodies: Record<string, unknown>[] = []
+    const xai = createXai({
+      apiKey: "test",
+      fetch: Object.assign(
+        async (url: RequestInfo | URL, init?: RequestInit) => {
+          bodies.push(await new Request(url, init).json())
+          return new Response("{}", { status: 400 })
+        },
+        { preconnect: globalThis.fetch.preconnect },
+      ),
+    })
+    await generateText({
+      model: xai.responses(xaiModel.api.id),
+      messages: ProviderTransform.message(await MessageV2.toModelMessages(input, xaiModel), xaiModel, {}),
+      maxRetries: 0,
+    }).catch(() => undefined)
+
+    expect(bodies).toHaveLength(1)
+    expect(bodies[0].input).toContainEqual({
+      type: "function_call_output",
+      call_id: "call-xai-gif",
+      output: [
+        { type: "input_text", text: "Images read successfully" },
+        { type: "input_image", image_url: `data:image/png;base64,${images[0].data}` },
+        { type: "input_image", image_url: `data:image/webp;base64,${images[2].data}` },
+      ],
+    })
+    expect(JSON.stringify(bodies[0])).not.toContain("image/gif")
   })
 
   test("moves bedrock pdf tool-result media into a separate user message", async () => {
@@ -1611,6 +1801,44 @@ describe("session.message-v2.latest", () => {
     ] as SessionV1.Part[],
   }
 
+  test("selects latest messages by creation time when IDs are nonmonotonic", () => {
+    const oldUser = { ...userInfo("msg_z_user"), time: { created: 100 } }
+    const newUser = { ...userInfo("msg_a_user"), time: { created: 200 } }
+    const oldAssistant = {
+      ...assistantInfo("msg_z_assistant", oldUser.id),
+      time: { created: 300 },
+      finish: "stop",
+    } as SessionV1.Assistant
+    const newAssistant = {
+      ...assistantInfo("msg_a_assistant", newUser.id),
+      time: { created: 400 },
+      finish: "stop",
+    } as SessionV1.Assistant
+
+    const state = MessageV2.latest([
+      { info: newAssistant, parts: [] },
+      { info: oldUser, parts: [] },
+      { info: oldAssistant, parts: [] },
+      { info: newUser, parts: [] },
+    ])
+
+    expect(state.user?.id).toBe(newUser.id)
+    expect(state.assistant?.id).toBe(newAssistant.id)
+    expect(state.finished?.id).toBe(newAssistant.id)
+  })
+
+  test("uses ID as a deterministic tie-breaker for equal creation times", () => {
+    const lower = { ...userInfo("msg_a_user"), time: { created: 100 } }
+    const higher = { ...userInfo("msg_z_user"), time: { created: 100 } }
+
+    const state = MessageV2.latest([
+      { info: higher, parts: [] },
+      { info: lower, parts: [] },
+    ])
+
+    expect(state.user?.id).toBe(higher.id)
+  })
+
   // Regression for double auto-compaction. The reorder in filterCompacted
   // (#27145) returns [compaction-user, summary, ...tail..., continue-user],
   // so picking lastFinished by array position landed on the pre-compaction
@@ -1658,5 +1886,34 @@ describe("session.message-v2.latest", () => {
     expect(state.user?.id).toBe(NEW_COMPACTION_USER)
     expect(state.tasks).toHaveLength(1)
     expect(state.tasks[0]).toMatchObject({ type: "compaction", auto: true })
+  })
+
+  test("selects compaction and subtask work after the finished boundary by creation time", () => {
+    const finished = {
+      ...assistantInfo("msg_z_finished", "msg_parent"),
+      time: { created: 200 },
+      finish: "stop",
+    } as SessionV1.Assistant
+    const oldTask: SessionV1.WithParts = {
+      info: { ...userInfo("msg_z_old"), time: { created: 100 } },
+      parts: [{ ...basePart("msg_z_old", "old"), type: "compaction", auto: true }] as SessionV1.Part[],
+    }
+    const newTask: SessionV1.WithParts = {
+      info: { ...userInfo("msg_a_new"), time: { created: 300 } },
+      parts: [
+        {
+          ...basePart("msg_a_new", "new"),
+          type: "subtask",
+          prompt: "inspect",
+          description: "inspect ordering",
+          agent: "general",
+        },
+      ] as SessionV1.Part[],
+    }
+
+    const state = MessageV2.latest([newTask, { info: finished, parts: [] }, oldTask])
+
+    expect(state.tasks).toHaveLength(1)
+    expect(state.tasks[0]).toMatchObject({ type: "subtask", prompt: "inspect" })
   })
 })

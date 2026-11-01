@@ -205,6 +205,7 @@ export const dict = {
   "command.session.unshare": "Ukini dijeljenje sesije",
   "command.session.unshare.description": "Zaustavi dijeljenje ove sesije",
 
+
   "palette.search.placeholder": "Pretraži datoteke, komande i sesije",
   "palette.search.placeholder.home": "Pretraži komande i sesije",
   "palette.empty": "Nema rezultata",
@@ -580,6 +581,8 @@ export const dict = {
   "dialog.project.edit.worktree.startup.description": "Pokreće se nakon kreiranja novog radnog prostora (worktree).",
   "dialog.project.edit.worktree.startup.placeholder": "npr. bun install",
 
+  "dialog.usageExceeded.dontShowAgain": "Nemoj više prikazivati",
+
   "context.breakdown.title": "Razlaganje konteksta",
   "context.breakdown.note":
     'Približna raspodjela ulaznih tokena. "Ostalo" uključuje definicije alata i dodatno opterećenje.',
@@ -591,6 +594,7 @@ export const dict = {
 
   "context.systemPrompt.title": "Sistemski prompt",
   "context.rawMessages.title": "Sirove poruke",
+
 
   "context.stats.session": "Sesija",
   "context.stats.messages": "Poruke",
@@ -669,6 +673,7 @@ export const dict = {
   "toast.session.unshare.success.description": "Dijeljenje sesije je uspješno ukinuto!",
   "toast.session.unshare.failed.title": "Neuspjelo ukidanje dijeljenja",
   "toast.session.unshare.failed.description": "Došlo je do greške prilikom ukidanja dijeljenja",
+
 
   "toast.session.listFailed.title": "Neuspjelo učitavanje sesija za {{project}}",
 

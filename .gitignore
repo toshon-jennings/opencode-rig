@@ -37,3 +37,4 @@ logs/
 tsconfig.tsbuildinfo
 __pycache__/
 *.pyc
+/artifacts/
