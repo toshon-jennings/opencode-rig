@@ -614,6 +614,9 @@ export function createComposerEditor(input: {
     async searchPaths(query: string) {
       return (await input.searchContextFiles(query)).flatMap((item) => (item.path ? [item.path] : []))
     },
+    togglePinned(id: string) {
+      draft.togglePinned(id)
+    },
     removeContext(id: string) {
       resetCycle()
       const item = draft.state.context.items.find((entry) => entry.key === id)

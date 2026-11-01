@@ -170,8 +170,11 @@ export function createComposerSubmit(input: ComposerSubmitInput) {
         await started.cleanupReady
         await started.complete?.()
         input.adapter.submitted()
-        // Like the TUI, sent context goes with the prompt rather than riding along on the next one.
-        submission.context.forEach((item) => submission.target().context.remove(item.key))
+        // Like the TUI, sent context goes with the prompt rather than riding along on the next one, except what
+        // the user pinned.
+        submission.context.forEach((item) => {
+          if (item.type !== "file" || !item.pinned) submission.target().context.remove(item.key)
+        })
         input.comments.clear()
         clearSubmission(input, submission)
         void dispatch.sending.then((result) => dispatch.settle(result, restore))

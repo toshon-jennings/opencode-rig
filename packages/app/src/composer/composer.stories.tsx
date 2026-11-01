@@ -443,6 +443,18 @@ export const MixedAttachments = {
   ),
 }
 
+export const PinnedContextFiles = {
+  render: () => (
+    <ComposerStory
+      prompt={text("Use the notes in both files")}
+      comments={[
+        { type: "file", key: "file:docs/notes.md", path: "docs/notes.md", pinned: true },
+        { type: "file", key: "file:src/retry.ts", path: "src/retry.ts" },
+      ]}
+    />
+  ),
+}
+
 export const BrowserElementComment = {
   render: () => (
     <ComposerStory

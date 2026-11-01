@@ -265,6 +265,9 @@ export function ComposerEditor(props: ComposerEditorProps) {
               onCommentClick={(comment) => props.controller.toggleContext(comment.key)}
               onCommentRemove={(comment) => props.controller.removeContext(comment.key)}
               onFileRemove={(file) => props.controller.removeContext(file.key)}
+              onFilePin={(file) => props.controller.togglePinned(file.key)}
+              pinLabel={i18n.t("ui.promptInput.pinFile")}
+              unpinLabel={i18n.t("ui.promptInput.unpinFile")}
               editingQuote={props.controller.editingQuote()}
               quoteAnchor={props.controller.quoteAnchor()}
               onQuoteFocus={props.controller.focusQuotePrompt}
@@ -682,6 +685,9 @@ function ComposerAttachments(props: {
   onCommentClick?: (comment: ComposerComment) => void
   onCommentRemove?: (comment: ComposerComment) => void
   onFileRemove?: (file: Extract<ComposerComment, { type: "file" }>) => void
+  onFilePin?: (file: Extract<ComposerComment, { type: "file" }>) => void
+  pinLabel?: string
+  unpinLabel?: string
   editingQuote?: string
   quoteAnchor?: ReturnType<ComposerEditorModel["quoteAnchor"]>
   onQuoteFocus?: () => void
@@ -783,6 +789,25 @@ function ComposerAttachments(props: {
                     </span>
                   </AttachmentCard>
                 </Tooltip>
+                <button
+                  type="button"
+                  onClick={() => props.onFilePin?.(file)}
+                  class="absolute -top-1 -start-1 size-4 rounded-full outline-solid outline-1 outline-v2-icon-icon-contrast flex items-center justify-center"
+                  classList={{
+                    "bg-v2-icon-icon-muted hover-reveal group-hover:opacity-100": !file.pinned,
+                    "bg-v2-icon-icon-base": file.pinned,
+                  }}
+                  aria-label={file.pinned ? props.unpinLabel : props.pinLabel}
+                  aria-pressed={file.pinned === true}
+                >
+                  <Icon
+                    name="outline-pin"
+                    classList={{
+                      "text-v2-icon-icon-contrast": !file.pinned,
+                      "text-v2-icon-icon-inverse": file.pinned,
+                    }}
+                  />
+                </button>
                 <button
                   type="button"
                   onClick={() => props.onFileRemove?.(file)}

@@ -112,6 +112,7 @@ export type IconName =
   | "outline-magnifier-minus"
   | "outline-magnifier-plus"
   | "outline-photo"
+  | "outline-pin"
   | "outline-quote"
   | "outline-reset"
   | "outline-rotate-clockwise"

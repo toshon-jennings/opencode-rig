@@ -76,6 +76,14 @@ export function createComposerEditorActions(input: ComposerStateStoreInput) {
       setStore()("context", "items", (items) => items.filter((item) => item.key !== key))
       clearRetry()
     },
+    togglePinned(key: string) {
+      setStore()("context", "items", (items) =>
+        items.map((item) =>
+          item.key === key && item.type === "file" ? { ...item, pinned: item.pinned ? undefined : true } : item,
+        ),
+      )
+      clearRetry()
+    },
     addMention(
       mention: ComposerFilePart | ComposerAgentPart | ComposerSkillPart | ComposerSessionPart,
       range?: { start: number; end: number },

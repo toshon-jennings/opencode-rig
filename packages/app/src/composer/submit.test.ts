@@ -352,6 +352,25 @@ describe("Composer submission", () => {
     expect(state.context.items()).toEqual([])
   })
 
+  test("keeps a pinned file after a send and clears the rest", async () => {
+    const state = createMemoryComposerState({ prompt: "ship it" }).capture()
+    state.context.add({ type: "file", path: "notes.md", pinned: true })
+    state.context.add({ type: "file", path: "scratch.md" })
+    const admitted = Promise.withResolvers<Parameters<ComposerSession["data"]["session"]["prompt"]>[0]>()
+    const target = session({
+      calls: [],
+      current: () => ({ agent: "build", model: { providerID: "provider-1", id: "model-1", variant: "balanced" } }),
+      prompt: async (value) => admitted.resolve(value),
+    })
+
+    await submitInput(active(state, target)).submit(new Event("submit"))
+    const request = await admitted.promise
+
+    // Both go with this prompt; only the pinned one is still in the composer for the next.
+    expect(request.files?.map((file) => file.name)).toEqual(["notes.md", "scratch.md"])
+    expect(state.context.items()).toMatchObject([{ type: "file", path: "notes.md", pinned: true }])
+  })
+
   test.each(["", "Align these targets"])("hands off and admits uncommented notes with instruction %j", async (text) => {
     const draft = createMemoryComposerState({ prompt: text }).capture()
 

@@ -160,6 +160,8 @@ export const FileContextItem = Persistence.struct({
   // A file restored from a sent prompt keeps the name and description it was sent with.
   name: Persistence.optional(Schema.String),
   description: Persistence.optional(Schema.String),
+  // A pinned file stays in the composer after a send and goes with every later prompt.
+  pinned: Persistence.optional(Schema.Boolean),
 })
 
 export type FileContextItem = typeof FileContextItem.Type
