@@ -4,8 +4,15 @@ Branch `migrate-v2`, based on upstream `v2.2.5`. Replaces the 1.x-based line (`m
 Zen rejects the 1.19.5-based Rig client for free models ("This version of OpenCode Desktop no longer supports free models"). Official Desktop 2.2.5 works with the same models, so the fork moves to 2.x.
 ## Method
 Port the fork's changes onto 2.2.5 rather than merging ~5,900 upstream commits. Worklist = `git diff v1.19.5 HEAD` on `main` (fork-only changes), excluding `bun.lock` and i18n. i18n locale additions are handled last.
+## Experiment result (verified)
+A Desktop built from this branch (clean port applied) with the bundled CLI built as `OPENCODE_VERSION=2.2.5 OPENCODE_CHANNEL=latest` (User-Agent `opencode/latest/2.2.5/desktop`) gets free models. It was run as `OpenCode Beta` (`OPENCODE_CHANNEL=beta` for the desktop build) so it shared nothing with the official app. A first attempt under the prod channel was invalid: it shared bundle ID `ai.opencode.desktop` and the cached CLI folder with the official app.
+
+## Decisions needed
+- **Rig's User-Agent.** The CLI must be built with `OPENCODE_VERSION` = the upstream version (use `upstreamBase` from root `package.json`) and `OPENCODE_CHANNEL=latest`; a default Rig build sends `0.0.0-prod-<timestamp>`, which is rejected. `app.version` also feeds the updater and UI, so check whether to override the version only in the User-Agent.
+- **Rig's bundle ID.** The fork's prod `appId` is still `ai.opencode.desktop`, shared with the official app (data folder, cached 2.x CLI, background service). Give Rig its own ID when porting `electron-builder.config.ts`.
+- **Update feed.** `app-update.yml` of an unported build points at opencode.ai; Rig must keep pointing at its own releases (`FORK_OWNER`/`FORK_REPO`).
+
 ## Open questions
-- What `channel`/`version`/`name` should Rig put into 2.x's `App.useragent` (`opencode/<channel>/<version>/<name>`)? Zen reads it; see `packages/core/src/plugin/provider/opencode.ts`. The 1.x fork pinned `ZEN_USER_AGENT` to the upstream version via `upstreamBase`; that mechanism needs a 2.x equivalent.
 - Which of the 152 `gone-in-v2` files are fork features vs. upstream code the fork merely touched?
 ## Findings so far
 - `packages/opencode` no longer exists in 2.2.5; its code moved into `packages/core` / `packages/cli`. Its 25 fork-touched files (e.g. `session/llm/request.ts`, which held `ZEN_USER_AGENT`) must be re-found in the new layout.
