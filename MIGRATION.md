@@ -32,6 +32,21 @@ A "No project" row in the new-session location dialog (`new-session/location/dia
 - **Strings:** `session.new.project.none` and `.none.hint` in `en.ts` only; other locales fall back to English.
 - **Not ported:** the fork's `scratch-project.ts` label registry and `core/src/global.ts` scratch path.
 
+## Feature: model selector (built and installed in the prod Rig build; the RIG mark confirmed by the user, the rest not yet checked on screen)
+2.x already had collapsible provider groups (`ProviderModelGroup`), always-listed free models (`freeSet`) and a capability flyout (`details.tsx`), so only three things were ported.
+- **Capability chips:** `providers/models/capabilities.ts` (pure tags) and `capability-badges.tsx` add a compact context size plus Reasoning, Vision and Tools badges to both picker row renderers in `select-dialog.tsx`. Strings `model.tag.{reasoning,vision,tools}` are in `en.ts` only. The fork's width change and `formatContextLimit` were not needed.
+- **Default model:** `fallbackModels` in `providers/models/models.tsx` replaces the two "first model of first connected provider" fallbacks (`composer/selection.ts`, `providers/models/selection.tsx`). It prefers `opencode/deepseek-v4.1-flash-free`, then `glm-5.3-flash-free`. The fork's LongCat default was dropped: LongCat no longer works. It only applies with no configured or recent model, so existing history still wins.
+- **Manage Models starts collapsed:** `providers/models/manage.tsx` keeps an `open` store; the Console group starts open.
+- **Not ported:** the fork's `core/src/model-default.ts` (the app must not depend on Core), the tooltip changes, the `.every`/`.some` switch change, stories and the e2e spec.
+- **Lesson:** the preferred model ids rot (LongCat did); missing ids are skipped, so a retired model degrades to the old fallback.
+
+## Feature: Rig wordmark (done, confirmed by the user in the prod Rig build)
+The fork put pixel "RIG" glyphs and a cursor in `wordmark-v2.tsx`, which 2.x no longer has. The new-session wordmark is a pinboard with geometry fixed to the 234×42 logo, so `new-session/rig-mark.tsx` draws the glyphs as a separate mark under its right edge, mounted in `new-session/wordmark.tsx`.
+- **Not ported:** the About page's animated wordmark still reads "opencode". The fork's settings footer ("OpenCode Desktop") has no 2.x counterpart.
+
+## Test notes
+- Run app tests with `bun run test:unit` (a bare `bun test` skips the solid conditions and fails to load). `bootstrap.test.ts` "recovers project metadata after the connection to the server is dropped" fails on the untouched baseline too.
+
 ## Open questions
 - Which of the 152 `gone-in-v2` files are fork features vs. upstream code the fork merely touched?
 ## Findings so far
@@ -235,7 +250,7 @@ New fork file; path is free in v2.2.5. Copy, then fix imports against 2.x.
 - [ ] `packages/app/src/components/dialog-select-mcp.stories.tsx`
 - [ ] `packages/app/src/components/model-capability-chips.stories.tsx`
 - [ ] `packages/app/src/components/model-capability-tags.test.ts`
-- [ ] `packages/app/src/components/model-capability-tags.ts`
+- [x] `packages/app/src/components/model-capability-tags.ts` — ported as `providers/models/capabilities.ts`
 - [ ] `packages/app/src/components/prompt-input/context-items.stories.tsx`
 - [ ] `packages/app/src/components/settings-v2/parts/models-group-trigger.stories.tsx`
 - [ ] `packages/app/src/components/settings-v2/parts/models-group-trigger.tsx`
