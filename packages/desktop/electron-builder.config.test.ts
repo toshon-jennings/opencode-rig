@@ -110,6 +110,19 @@ test.each(channels)("macOS bundle for $channel", ({ channel }) => {
     expect(config.mac?.extendInfo?.[key], key).toMatch(/\S/)
 })
 
+test.each(channels)("ships a single PNG dmg background at the window size for $channel", async ({ channel }) => {
+  const config = load(channel)
+  expect(config.dmg?.background).toBe("build/background.png")
+  expect(config.dmg?.window).toEqual({ width: 540, height: 380 })
+
+  const png = Bun.file(path.join(import.meta.dirname, "build/background.png"))
+  // IHDR: width and height are big-endian uint32 at byte 16 and 20.
+  const header = new DataView(await png.slice(0, 24).arrayBuffer())
+  expect([header.getUint32(16), header.getUint32(20)]).toEqual([540, 380])
+  // A @2x beside the PNG in buildResources would make electron-builder emit a .tiff Finder cannot render.
+  expect(await Bun.file(path.join(import.meta.dirname, "resources/background@2x.png")).exists()).toBe(false)
+})
+
 test("the production Icon Composer package references its bundled artwork", async () => {
   const icon = await Bun.file(path.join(import.meta.dirname, "icons/prod/icon.icon/icon.json")).json()
   expect(icon["supported-platforms"]).toEqual({ squares: ["macOS"] })

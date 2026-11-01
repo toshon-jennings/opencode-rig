@@ -226,6 +226,19 @@ const getBase = (appId: string): Configuration => {
       identity: signed ? undefined : null,
       target: ["dmg", "zip"],
     },
+    // House DMG convention: ~/.config/agent-rules/DMG.md. The background lives in build/, not buildResources:
+    // electron-builder silently turns a background.png beside a background@2x.png into a .tiff, which
+    // Finder does not render. The @2x source stays in build/retina-src/. On Apple Silicon the finished DMG
+    // also needs build/fix-dmg-background.sh, or Finder shows a plain grey window.
+    dmg: {
+      background: "build/background.png",
+      window: { width: 540, height: 380 },
+      iconSize: 100,
+      contents: [
+        { x: 140, y: 225, type: "file" },
+        { x: 400, y: 225, type: "link", path: "/Applications" },
+      ],
+    },
     protocols: {
       name: "OpenCode",
       schemes: ["opencode"],
@@ -307,7 +320,7 @@ export function getConfig() {
         // (Dock, Finder, system dialogs and the system icon styles). Older macOS keeps using the ICNS.
         mac: { ...base.mac, icon: "resources/icons/icon.icon" },
         // The DMG volume icon would otherwise use the same actool-generated ICNS.
-        dmg: { icon: "resources/icons/icon.icns" },
+        dmg: { ...base.dmg, icon: "resources/icons/icon.icns" },
         // Draft until every artifact has landed, so the updater never sees a release with files missing.
         publish: { provider: "github", owner: FORK_OWNER, repo: FORK_REPO, channel: "latest", releaseType: "draft" },
         deb: { fpm: [metainfoFpm(PROD_METAINFO_ID), legacyDesktopEntryFpm] },

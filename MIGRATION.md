@@ -14,7 +14,7 @@ A Desktop built from this branch (clean port applied) with the bundled CLI built
 - **Update feed:** all channels use GitHub releases of `FORK_OWNER/FORK_REPO` (`packages/desktop/fork.ts`); prod is a draft until artifacts land. `script/pack.ts` now writes every publish field into `app-update.yml`.
 - **CLI self-update:** the desktop sets `OPENCODE_DISABLE_AUTOUPDATE=true`, since a CLI reporting 2.2.5 would otherwise replace itself with the official release.
 - **Signing:** opt-in; without Apple credentials the bundle is ad-hoc signed (`adhocSign`, run after anything that modifies the bundle). Verified with `codesign --verify --deep --strict`.
-- **Not yet ported:** the fork's DMG settings and background, `resources/opencode-usage`, the updater's notify mode (`UPDATER_MODE`, `releasesUrl`), release workflows.
+- **Not yet ported:** the updater's notify mode (`UPDATER_MODE`, `releasesUrl`), release workflows. (`resources/opencode-usage` is superseded by the usage plugin; the DMG is ported, see below.)
 
 ## Feature: usage panel (done, verified running in the prod Rig build)
 `packages/gui-plugins/src/usage` is a built-in plugin: a typed contract, a main-process reader, a lazy side panel and an "Open usage" command. It replaces the fork's session-page panel, the `opencode-usage` shell script and its IPC/HTTP plumbing.
@@ -50,6 +50,14 @@ A separate settings page below About, so upstream's About files stay untouched: 
 - **RIG mark:** moved to `@opencode/ui/rig-mark` (`ui/src/typography/rig-mark`) so the plugin and the new-session wordmark share it.
 - **Direction:** the pixel mark is the one bold element; a ruled list, no cards, no new accent hue, host theme tokens only. The differences list is hand-written: update it when a feature lands.
 - **Lesson:** the About page itself stays OpenCode's (credits, license, trademark, copyright); never brand it.
+
+## Feature: styled DMG (built and mounted; the result of `bun run dmg` was inspected, not yet shipped)
+The fork's artwork (`build/background.{png,svg}`, `make-background.py`, `DMG-ARTWORK-BRIEF.md`, `fix-dmg-background.sh`) is copied unchanged: it is already derived from the Rig brand ("the prompt is the arrow"). A shared `dmg` block in `electron-builder.config.ts` (540×380, icons at 140/400,225) is kept by the prod override.
+- **Command:** `OPENCODE_CHANNEL=prod bun run dmg` in `packages/desktop` builds `dist/*.dmg` and runs the Finder fix. 2.x's `pack` only tars the `.app`, so the DMG is a separate step.
+- **Verified:** the mounted volume is HFS+ with a 728-byte Finder-written alias, `.background/background.png` is a 540×380 PNG, the window bounds are 540×380, and the background renders (not grey). Label luminance 0.611 / 0.627. Light/Dark was checked in the mockup only; the system appearance was not toggled on the live window.
+- **Needs Finder automation permission** for the fix script.
+- **Not done:** the release workflows still do not run the fix after `--publish`; none are ported yet.
+- **Regression test:** `electron-builder.config.test.ts` asserts a single PNG at the window size and no `@2x` beside it.
 
 ## Test notes
 - Run app tests with `bun run test:unit` (a bare `bun test` skips the solid conditions and fails to load). `bootstrap.test.ts` "recovers project metadata after the connection to the server is dropped" fails on the untouched baseline too.
