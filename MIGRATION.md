@@ -16,6 +16,13 @@ A Desktop built from this branch (clean port applied) with the bundled CLI built
 - **Signing:** opt-in; without Apple credentials the bundle is ad-hoc signed (`adhocSign`, run after anything that modifies the bundle). Verified with `codesign --verify --deep --strict`.
 - **Not yet ported:** the fork's DMG settings and background, `resources/opencode-usage`, the updater's notify mode (`UPDATER_MODE`, `releasesUrl`), release workflows.
 
+## Feature: usage panel (done)
+`packages/gui-plugins/src/usage` is a built-in plugin: a typed contract, a main-process reader, a lazy side panel and an "Open usage" command. It replaces the fork's session-page panel, the `opencode-usage` shell script and its IPC/HTTP plumbing.
+- **Data:** assistant messages live in two tables. 2.x copies the old `message` rows into `session_message` under the same ids, and 419 old messages exist only in the old table, so the query reads both and counts each id once (verified on this machine: 10,354 distinct ids, equal to the report's message total).
+- **Per-channel databases:** like the fork, it sums every `opencode*.db` beside the main one.
+- **Not ported:** the browser-client `/usage` HTTP route (the 2.x web client has no equivalent plugin host call yet); the fork's text-table parsing (the query returns JSON).
+- **Needs the `sqlite3` binary** on PATH (present on macOS).
+
 ## Open questions
 - Which of the 152 `gone-in-v2` files are fork features vs. upstream code the fork merely touched?
 ## Findings so far
@@ -230,7 +237,7 @@ New fork file; path is free in v2.2.5. Copy, then fix imports against 2.x.
 - [ ] `packages/app/src/pages/session/terminal-mount.ts`
 - [ ] `packages/app/src/pages/session/timeline/steer-chip.stories.tsx`
 - [ ] `packages/app/src/pages/session/timeline/steer-chip.tsx`
-- [ ] `packages/app/src/pages/session/usage-panel.tsx`
+- [x] `packages/app/src/pages/session/usage-panel.tsx` — ported as `packages/gui-plugins/src/usage/panel.tsx`
 - [ ] `packages/app/src/utils/scratch-project.ts`
 - [ ] `packages/app/src/utils/terminal-modes.test.ts`
 - [ ] `packages/app/src/utils/terminal-modes.ts`
@@ -255,7 +262,7 @@ New fork file; path is free in v2.2.5. Copy, then fix imports against 2.x.
 - [ ] `packages/desktop/build/make-background.py`
 - [ ] `packages/desktop/build/refresh-update-feed.py`
 - [ ] `packages/desktop/fork.ts`
-- [ ] `packages/desktop/resources/opencode-usage`
+- [x] `packages/desktop/resources/opencode-usage` — superseded: the query lives in `gui-plugins/src/usage/query.ts`
 - [ ] `packages/llm/test/protocols/shared.test.ts`
 - [ ] `packages/opencode/src/plugin/cli-providers.ts`
 - [ ] `packages/opencode/src/plugin/deepinfra.ts`
@@ -323,9 +330,9 @@ Both sides changed it. Many are only version bumps in package.json (trivial); th
 - [ ] `packages/desktop/src/main/constants.ts`
 - [ ] `packages/desktop/src/main/env.d.ts`
 - [ ] `packages/desktop/src/main/index.ts`
-- [ ] `packages/desktop/src/main/ipc.ts`
-- [ ] `packages/desktop/src/preload/index.ts`
-- [ ] `packages/desktop/src/preload/types.ts`
+- [x] `packages/desktop/src/main/ipc.ts` — usage-only change, superseded by the `usage` plugin contract
+- [x] `packages/desktop/src/preload/index.ts` — usage-only change, superseded
+- [x] `packages/desktop/src/preload/types.ts` — usage-only change, superseded
 - [ ] `packages/desktop/src/renderer/index.html`
 - [ ] `packages/desktop/src/renderer/index.tsx`
 - [ ] `packages/function/package.json`
@@ -397,7 +404,7 @@ File no longer exists in 2.2.5 (moved/rewritten). Decide per file: re-implement,
 - [ ] `packages/app/src/context/layout-tabs.ts`
 - [ ] `packages/app/src/context/layout.tsx`
 - [ ] `packages/app/src/context/models.tsx`
-- [ ] `packages/app/src/context/platform.tsx`
+- [x] `packages/app/src/context/platform.tsx` — usage-only change, superseded
 - [ ] `packages/app/src/context/prompt-state.test.ts`
 - [ ] `packages/app/src/context/prompt-state.ts`
 - [ ] `packages/app/src/context/prompt.tsx`
@@ -478,7 +485,7 @@ File no longer exists in 2.2.5 (moved/rewritten). Decide per file: re-implement,
 - [ ] `packages/opencode/src/provider/provider.ts`
 - [ ] `packages/opencode/src/server/routes/instance/httpapi/groups/instance.ts`
 - [ ] `packages/opencode/src/server/routes/instance/httpapi/handlers/instance.ts`
-- [ ] `packages/opencode/src/server/routes/instance/httpapi/server.ts`
+- [x] `packages/opencode/src/server/routes/instance/httpapi/server.ts` — usage-only change (`/usage` route), superseded
 - [ ] `packages/opencode/src/session/llm/request.ts`
 - [ ] `packages/opencode/src/util/archive.ts`
 - [ ] `packages/opencode/test/acp/tool.test.ts`
