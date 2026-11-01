@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/package.json",
   "name": "opencode",
   "description": "AI-powered development tool",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "// upstreamBase": "The anomalyco/opencode release this fork is based on. Builds report it to Zen, which gates free models on the client version.",
   "upstreamBase": "2.2.5",
   "private": true,

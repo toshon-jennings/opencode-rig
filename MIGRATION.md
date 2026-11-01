@@ -9,7 +9,7 @@ A Desktop built from this branch (clean port applied) with the bundled CLI built
 
 ## Identity (done, verified in a prod build)
 - **User-Agent / version:** `packages/cli/script/build.ts` bakes `upstreamBase` (root `package.json`, via `Script.upstreamVersion`) as the CLI's version and `latest` as its channel, in the executable, the `package.json` the desktop reads, and the binary's default User-Agent. No env vars needed. The bundled CLI prints `opencode v2.2.5`; `opencode-cli.version` matches.
-- **Rig version:** root and desktop `package.json` are `0.3.0` (above the 1.x-based 0.2.32, for the updater).
+- **Rig version:** root and desktop `package.json` are `0.3.1` (above the 1.x-based 0.2.32, for the updater).
 - **Bundle ID / name:** prod is `ai.opencode.desktop.rig` / "OpenCode Rig" (`electron-builder.config.ts`, `src/main/constants.ts`); dev and beta are "OpenCode Rig Dev/Beta". Linux metainfo files keep the upstream prod id. **Data moves:** Rig no longer shares `~/Library/Application Support/ai.opencode.desktop` with the official app, so Electron-side settings do not carry over (CLI data in `~/.local/share/opencode` is unaffected).
 - **Update feed:** all channels use GitHub releases of `FORK_OWNER/FORK_REPO` (`packages/desktop/fork.ts`); prod is a draft until artifacts land. `script/pack.ts` now writes every publish field into `app-update.yml`.
 - **CLI self-update:** the desktop sets `OPENCODE_DISABLE_AUTOUPDATE=true`, since a CLI reporting 2.2.5 would otherwise replace itself with the official release.
@@ -42,7 +42,7 @@ A "No project" row in the new-session location dialog (`new-session/location/dia
 
 ## Feature: Rig wordmark (done, confirmed by the user in the prod Rig build)
 The fork put pixel "RIG" glyphs and a cursor in `wordmark-v2.tsx`, which 2.x no longer has. The new-session wordmark is a pinboard with geometry fixed to the 234×42 logo, so `new-session/rig-mark.tsx` draws the glyphs as a separate mark under its right edge, mounted in `new-session/wordmark.tsx`.
-- **Not ported:** the About page's animated wordmark still reads "opencode". The fork's settings footer ("OpenCode Desktop") has no 2.x counterpart.
+- **Not ported:** the About page keeps the upstream "opencode" wordmark and its copyright line, which stay OpenCode's. The fork's settings footer ("OpenCode Desktop") has no 2.x counterpart.
 
 ## Test notes
 - Run app tests with `bun run test:unit` (a bare `bun test` skips the solid conditions and fails to load). `bootstrap.test.ts` "recovers project metadata after the connection to the server is dropped" fails on the untouched baseline too.
