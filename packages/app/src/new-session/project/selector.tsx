@@ -38,6 +38,8 @@ export type PromptProjectControls = {
   /** Moves the draft to a project; `workspace` is "main", "create", or a worktree directory. */
   select: (directory: string, server?: string, workspace?: string) => void
   add: (title: string, server?: string) => void
+  /** Moves the draft to the folder for sessions that belong to no project. */
+  none: () => void
 }
 
 export function createPromptProjectController(input: { controls: Accessor<PromptProjectControls> }) {
@@ -79,7 +81,10 @@ export function createPromptProjectController(input: { controls: Accessor<Prompt
     labels: {
       add: () => language.t("session.new.project.add"),
       new: () => language.t("session.new.project.new"),
+      none: () => language.t("session.new.project.none"),
+      noneHint: () => language.t("session.new.project.none.hint"),
     },
+    none: () => input.controls().none(),
     add(server?: string) {
       input.controls().add(language.t("command.project.open"), server)
     },

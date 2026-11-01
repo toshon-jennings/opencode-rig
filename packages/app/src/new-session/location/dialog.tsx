@@ -32,6 +32,7 @@ import "./dialog.css"
 type LocationEntry =
   | { id: string; type: "project"; project: PromptProject }
   | { id: string; type: "add" }
+  | { id: string; type: "none" }
   | { id: string; type: "other" }
   | { id: string; type: "server"; server: PromptServer }
   | { id: string; type: "workspace"; value: string; directory: string }
@@ -150,6 +151,7 @@ function NewSessionLocationDialog(props: {
       ...(!store.others
         ? [
             ...(!store.query.trim() && otherCount() ? [{ id: "other", type: "other" as const }] : []),
+            ...(matches(props.project.labels.none()) ? [{ id: "none", type: "none" as const }] : []),
             { id: "add", type: "add" as const },
           ]
         : []),
@@ -299,6 +301,13 @@ function NewSessionLocationDialog(props: {
     if (entry.type === "other") {
       setStore({ others: true, query: "" })
       inputRef?.focus()
+
+      return
+    }
+
+    if (entry.type === "none") {
+      props.project.none()
+      dialog.close()
 
       return
     }
@@ -464,7 +473,8 @@ function NewSessionLocationDialog(props: {
                       <Show
                         when={
                           index() > 0 &&
-                          (entry.type === "add" ||
+                          (entry.type === "none" ||
+                            (entry.type === "add" && entries()[index() - 1]!.type !== "none") ||
                             (entry.type === "workspace" &&
                               entry.value !== "main" &&
                               entry.value !== "create" &&
@@ -517,6 +527,17 @@ function NewSessionLocationDialog(props: {
                               label={language.t("session.new.location.otherProjects")}
                               onDrill={() => choose(entry)}
                             />
+                          </Match>
+                          <Match when={entry.type === "none"}>
+                            <div class="command-palette-row-main">
+                              <Icon name="folder" class="command-palette-row-icon" />
+                              <div class="command-palette-row-text">
+                                <span class="command-palette-title palette-menu-title">
+                                  {props.project.labels.none()}
+                                </span>
+                                <span class="command-palette-description">{props.project.labels.noneHint()}</span>
+                              </div>
+                            </div>
                           </Match>
                           <Match when={entry.type === "add"}>
                             <div class="command-palette-row-main">

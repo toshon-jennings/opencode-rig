@@ -93,6 +93,18 @@ export function createComposerProjectControls(props: { draftId: string; worktree
     })
   }
 
+  // Sessions without a project run in one folder under the home directory. The server groups a folder that is not a
+  // repository under its shared "global" project, so these sessions list together.
+  const selectNone = () => {
+    const home = projectServerCtx().sync.data.path.home
+
+    if (!home) return
+    const directory = `${home}${home.includes("\\") ? "\\" : "/"}no-project-chats`
+
+    void projectServerCtx().projects.add(directory)
+    selectProject(directory)
+  }
+
   return createMemo<PromptProjectControls>(() => ({
     available: projects(),
     servers: servers.list.length > 1 ? ready().map(promptServer) : undefined,
@@ -101,5 +113,6 @@ export function createComposerProjectControls(props: { draftId: string; worktree
     server: servers.list.length > 1 ? ServerConnection.key(projectServer()) : undefined,
     select: selectProject,
     add: addProject,
+    none: selectNone,
   }))
 }

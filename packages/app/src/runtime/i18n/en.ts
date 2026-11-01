@@ -678,6 +678,8 @@ export const dict = {
   "session.new.project.new": "New project",
   "session.new.project.search": "Search projects",
   "session.new.project.add": "Add project",
+  "session.new.project.none": "No project",
+  "session.new.project.none.hint": "Start a session without a project",
   "session.new.project.trigger.tooltip": "Choose project",
   "session.new.worktree.creating": "Creating worktree",
   "session.new.workspace.runIn": "Run session in",

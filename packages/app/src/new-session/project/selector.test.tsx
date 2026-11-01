@@ -23,6 +23,7 @@ describe("new session project selection", () => {
       projectID: "current",
       select() {},
       add() {},
+      none() {},
     }
 
     createRoot((dispose) => {
@@ -51,6 +52,7 @@ describe("new session project selection", () => {
       server: "sidecar",
       select() {},
       add() {},
+      none() {},
     }
 
     createRoot((dispose) => {
@@ -84,6 +86,7 @@ describe("new session project selection", () => {
       server: "sidecar",
       select() {},
       add() {},
+      none() {},
     }
 
     createRoot((dispose) => {
@@ -95,6 +98,24 @@ describe("new session project selection", () => {
         "hailmary:local-unused",
         "apollo:apollo-unused",
       ])
+      dispose()
+    })
+  })
+
+  test("opens the no-project folder through the controls", () => {
+    let opened = 0
+    const controls: PromptProjectControls = {
+      available: [],
+      directory: "/elsewhere",
+      select() {},
+      add() {},
+      none: () => opened++,
+    }
+
+    createRoot((dispose) => {
+      const controller = createPromptProjectController({ controls: () => controls })
+      controller.none()
+      expect(opened).toBe(1)
       dispose()
     })
   })

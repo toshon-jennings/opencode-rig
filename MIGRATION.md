@@ -24,6 +24,14 @@ A Desktop built from this branch (clean port applied) with the bundled CLI built
 - **Lesson:** `ctx.use(contract)()` is `pending` until main is up; read it reactively, never once at mount.
 - **Needs the `sqlite3` binary** on PATH (present on macOS).
 
+## Feature: projectless sessions (built, awaiting a check in the running app)
+A "No project" row in the new-session location dialog (`new-session/location/dialog.tsx`, `new-session/project/{controller,selector}.tsx`) opens `~/no-project-chats` through the same `projects.add` + `selectProject` path as "Add project".
+- **Why that folder:** it is where all 31 of the user's projectless sessions already ran (server project `global`). The fork's scratch folder (`~/.local/share/opencode/scratch`) was empty, and following it would need a protocol change plus a client regeneration.
+- **Home directory:** read from the server's path info (`sync.data.path.home`), so it follows a remote server's home.
+- **Folder must exist:** the renderer has no mkdir API. If the folder is missing, the add shows the server's error toast. It exists on this machine.
+- **Strings:** `session.new.project.none` and `.none.hint` in `en.ts` only; other locales fall back to English.
+- **Not ported:** the fork's `scratch-project.ts` label registry and `core/src/global.ts` scratch path.
+
 ## Open questions
 - Which of the 152 `gone-in-v2` files are fork features vs. upstream code the fork merely touched?
 ## Findings so far
@@ -239,7 +247,7 @@ New fork file; path is free in v2.2.5. Copy, then fix imports against 2.x.
 - [ ] `packages/app/src/pages/session/timeline/steer-chip.stories.tsx`
 - [ ] `packages/app/src/pages/session/timeline/steer-chip.tsx`
 - [x] `packages/app/src/pages/session/usage-panel.tsx` — ported as `packages/gui-plugins/src/usage/panel.tsx`
-- [ ] `packages/app/src/utils/scratch-project.ts`
+- [x] `packages/app/src/utils/scratch-project.ts` (superseded: see "projectless sessions")
 - [ ] `packages/app/src/utils/terminal-modes.test.ts`
 - [ ] `packages/app/src/utils/terminal-modes.ts`
 - [ ] `packages/app/test-browser/terminal-mode-restore.test.ts`
