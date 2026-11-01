@@ -32,7 +32,7 @@ A "No project" row in the new-session location dialog (`new-session/location/dia
 - **Strings:** `session.new.project.none` and `.none.hint` in `en.ts` only; other locales fall back to English.
 - **Not ported:** the fork's `scratch-project.ts` label registry and `core/src/global.ts` scratch path.
 
-## Feature: model selector (built and installed in the prod Rig build; the RIG mark confirmed by the user, the rest not yet checked on screen)
+## Feature: model selector (built and installed in the prod Rig build; confirmed on screen by the user)
 2.x already had collapsible provider groups (`ProviderModelGroup`), always-listed free models (`freeSet`) and a capability flyout (`details.tsx`), so only three things were ported.
 - **Capability chips:** `providers/models/capabilities.ts` (pure tags) and `capability-badges.tsx` add a compact context size plus Reasoning, Vision and Tools badges to both picker row renderers in `select-dialog.tsx`. Strings `model.tag.{reasoning,vision,tools}` are in `en.ts` only. The fork's width change and `formatContextLimit` were not needed.
 - **Default model:** `fallbackModels` in `providers/models/models.tsx` replaces the two "first model of first connected provider" fallbacks (`composer/selection.ts`, `providers/models/selection.tsx`). It prefers `opencode/deepseek-v4.1-flash-free`, then `glm-5.3-flash-free`. The fork's LongCat default was dropped: LongCat no longer works. It only applies with no configured or recent model, so existing history still wins.
@@ -59,7 +59,7 @@ The fork's artwork (`build/background.{png,svg}`, `make-background.py`, `DMG-ART
 - **Not done:** the release workflows still do not run the fix after `--publish`; none are ported yet.
 - **Regression test:** `electron-builder.config.test.ts` asserts a single PNG at the window size and no `@2x` beside it.
 
-## Feature: provider health (built; tests and typecheck pass, the pill not yet seen on screen)
+## Feature: provider health (built and installed; tests and typecheck pass; the build was confirmed by the user, but the pill itself has not been seen because it shows only on a failing provider)
 The built-in plugin `gui-plugins/src/health` adds a composer pill that appears only when the provider behind the session's latest answer is struggling (nothing is shown while it is healthy). It replaces the fork's status dots in settings and the status popover, which 2.x does not let a plugin extend.
 - **Data:** none stored. The status is folded from the session's own finished assistant messages for that provider (last 30; failure = `message.error`; latency = streamed or completed minus created). The fork fed a global per-server store from `message.updated` events and had no probe in use either.
 - **Rules** (`status.ts`, ported from the fork's `provider-health.ts`): one failure is degraded, two in a row are unreachable, latency over 2.5× the usual is degraded. The usual (EWMA) lives outside the 5-sample window and ignores degraded samples, so a sustained slowdown stays degraded. The fork's `source` field, dot classes and `formatProviderLatency` were dropped (the formatter is `Intl` units).
