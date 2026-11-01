@@ -16,11 +16,12 @@ A Desktop built from this branch (clean port applied) with the bundled CLI built
 - **Signing:** opt-in; without Apple credentials the bundle is ad-hoc signed (`adhocSign`, run after anything that modifies the bundle). Verified with `codesign --verify --deep --strict`.
 - **Not yet ported:** the fork's DMG settings and background, `resources/opencode-usage`, the updater's notify mode (`UPDATER_MODE`, `releasesUrl`), release workflows.
 
-## Feature: usage panel (done)
+## Feature: usage panel (done, verified running in the prod Rig build)
 `packages/gui-plugins/src/usage` is a built-in plugin: a typed contract, a main-process reader, a lazy side panel and an "Open usage" command. It replaces the fork's session-page panel, the `opencode-usage` shell script and its IPC/HTTP plumbing.
 - **Data:** assistant messages live in two tables. 2.x copies the old `message` rows into `session_message` under the same ids, and 419 old messages exist only in the old table, so the query reads both and counts each id once (verified on this machine: 10,354 distinct ids, equal to the report's message total).
 - **Per-channel databases:** like the fork, it sums every `opencode*.db` beside the main one.
 - **Not ported:** the browser-client `/usage` HTTP route (the 2.x web client has no equivalent plugin host call yet); the fork's text-table parsing (the query returns JSON).
+- **Lesson:** `ctx.use(contract)()` is `pending` until main is up; read it reactively, never once at mount.
 - **Needs the `sqlite3` binary** on PATH (present on macOS).
 
 ## Open questions
