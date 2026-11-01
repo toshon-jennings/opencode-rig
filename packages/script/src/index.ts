@@ -47,6 +47,10 @@ function previewBuildNumber() {
   return runNumber
 }
 
+const upstreamVersion = await Bun.file(path.resolve(import.meta.dir, "../../../package.json"))
+  .json()
+  .then((data: { upstreamBase: string }) => data.upstreamBase)
+
 const bot = ["actions-user", "opencode", "opencode-agent[bot]"]
 const teamPath = path.resolve(import.meta.dir, "../../../.github/TEAM_MEMBERS")
 const team = [
@@ -69,6 +73,11 @@ export const Script = {
   },
   get team() {
     return team
+  },
+  // The upstream release this fork is based on. Zen rejects free models for clients that report an old
+  // or 0.0.0 version, so the CLI reports this instead of the fork's own version.
+  get upstreamVersion() {
+    return upstreamVersion
   },
 }
 console.log(`opencode script`, JSON.stringify(Script, null, 2))

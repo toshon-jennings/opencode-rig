@@ -35,6 +35,9 @@ export const preferApplicationEnvironment = Effect.gen(function* () {
       OPENCODE_EXPERIMENTAL_ICON_DISCOVERY: "true",
       OPENCODE_EXPERIMENTAL_FILEWATCHER: "true",
       OPENCODE_CLIENT: "desktop",
+      // The bundled CLI reports the upstream version, so its own updater would replace it with the official
+      // release. Rig updates the whole app through its own feed instead.
+      OPENCODE_DISABLE_AUTOUPDATE: "true",
     })
   })
 })

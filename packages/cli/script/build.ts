@@ -33,6 +33,10 @@ const requestedTarget = process.env.OPENCODE_TARGET
 const skipInstall = process.argv.includes("--skip-install")
 const skipWebUi = process.argv.includes("--skip-web-ui")
 const solidPlugin = createSolidTransformPlugin()
+// Zen gates free models on the client version, so Rig reports the upstream release it is built from. The
+// package.json version must match: the desktop reads it as the bundled CLI's version.
+const REPORTED = { version: Script.upstreamVersion, channel: "latest" }
+
 const highlights = Script.preview ? undefined : embed(process.env.OPENCODE_RELEASE_NOTES)
 const releaseAssets = new Map<string, Promise<Map<string, string>>>()
 const modelsSnapshot = modelsSnapshotPlugin(await bundledModelsSnapshot())
@@ -185,7 +189,7 @@ export default { path: file, version: ${JSON.stringify(opencodePty.version)}, sh
       outfile: path.join(outdir, name, "bin", binary),
       execArgv: [
         "--smol",
-        `--user-agent=opencode/${Script.channel}/${Script.version}/cli`,
+        `--user-agent=opencode/${REPORTED.channel}/${REPORTED.version}/cli`,
         "--use-system-ca",
         "--no-warnings",
         "--",
@@ -193,9 +197,9 @@ export default { path: file, version: ${JSON.stringify(opencodePty.version)}, sh
       windows: {},
     },
     define: {
-      OPENCODE_VERSION: `'${Script.version}'`,
+      OPENCODE_VERSION: `'${REPORTED.version}'`,
       OPENCODE_CLI_NAME: "'opencode'",
-      OPENCODE_CHANNEL: `'${Script.channel}'`,
+      OPENCODE_CHANNEL: `'${REPORTED.channel}'`,
       OPENCODE_ARTIFACT: `'cli'`,
       ...(highlights ? { OPENCODE_RELEASE_HIGHLIGHTS: JSON.stringify(highlights) } : {}),
       OPENCODE_LIBC: item.os === "linux" ? `'${item.abi ?? "glibc"}'` : "undefined",
@@ -217,7 +221,7 @@ export default { path: file, version: ${JSON.stringify(opencodePty.version)}, sh
     JSON.stringify(
       {
         name: `@opencode/${name}`,
-        version: Script.version,
+        version: REPORTED.version,
         license: "MIT",
         repository: { type: "git", url: "git+https://github.com/anomalyco/opencode.git" },
         os: [item.os],

@@ -7,10 +7,14 @@ Port the fork's changes onto 2.2.5 rather than merging ~5,900 upstream commits. 
 ## Experiment result (verified)
 A Desktop built from this branch (clean port applied) with the bundled CLI built as `OPENCODE_VERSION=2.2.5 OPENCODE_CHANNEL=latest` (User-Agent `opencode/latest/2.2.5/desktop`) gets free models. It was run as `OpenCode Beta` (`OPENCODE_CHANNEL=beta` for the desktop build) so it shared nothing with the official app. A first attempt under the prod channel was invalid: it shared bundle ID `ai.opencode.desktop` and the cached CLI folder with the official app.
 
-## Decisions needed
-- **Rig's User-Agent.** The CLI must be built with `OPENCODE_VERSION` = the upstream version (use `upstreamBase` from root `package.json`) and `OPENCODE_CHANNEL=latest`; a default Rig build sends `0.0.0-prod-<timestamp>`, which is rejected. `app.version` also feeds the updater and UI, so check whether to override the version only in the User-Agent.
-- **Rig's bundle ID.** The fork's prod `appId` is still `ai.opencode.desktop`, shared with the official app (data folder, cached 2.x CLI, background service). Give Rig its own ID when porting `electron-builder.config.ts`.
-- **Update feed.** `app-update.yml` of an unported build points at opencode.ai; Rig must keep pointing at its own releases (`FORK_OWNER`/`FORK_REPO`).
+## Identity (done, verified in a prod build)
+- **User-Agent / version:** `packages/cli/script/build.ts` bakes `upstreamBase` (root `package.json`, via `Script.upstreamVersion`) as the CLI's version and `latest` as its channel, in the executable, the `package.json` the desktop reads, and the binary's default User-Agent. No env vars needed. The bundled CLI prints `opencode v2.2.5`; `opencode-cli.version` matches.
+- **Rig version:** root and desktop `package.json` are `0.3.0` (above the 1.x-based 0.2.32, for the updater).
+- **Bundle ID / name:** prod is `ai.opencode.desktop.rig` / "OpenCode Rig" (`electron-builder.config.ts`, `src/main/constants.ts`); dev and beta are "OpenCode Rig Dev/Beta". Linux metainfo files keep the upstream prod id. **Data moves:** Rig no longer shares `~/Library/Application Support/ai.opencode.desktop` with the official app, so Electron-side settings do not carry over (CLI data in `~/.local/share/opencode` is unaffected).
+- **Update feed:** all channels use GitHub releases of `FORK_OWNER/FORK_REPO` (`packages/desktop/fork.ts`); prod is a draft until artifacts land. `script/pack.ts` now writes every publish field into `app-update.yml`.
+- **CLI self-update:** the desktop sets `OPENCODE_DISABLE_AUTOUPDATE=true`, since a CLI reporting 2.2.5 would otherwise replace itself with the official release.
+- **Signing:** opt-in; without Apple credentials the bundle is ad-hoc signed (`adhocSign`, run after anything that modifies the bundle). Verified with `codesign --verify --deep --strict`.
+- **Not yet ported:** the fork's DMG settings and background, `resources/opencode-usage`, the updater's notify mode (`UPDATER_MODE`, `releasesUrl`), release workflows.
 
 ## Open questions
 - Which of the 152 `gone-in-v2` files are fork features vs. upstream code the fork merely touched?

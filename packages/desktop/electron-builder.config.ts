@@ -2,10 +2,16 @@ import { copyFile, readdir, stat } from "node:fs/promises"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 
+import { execFile } from "node:child_process"
+import { promisify } from "node:util"
+
 import { Arch, type Configuration } from "electron-builder"
 import { NativeArch } from "../../script/native-arch"
 import { DESKTOP_NATIVE_ENGLISH } from "@opencode/app/i18n/desktop-native"
+import { FORK_OWNER, FORK_REPO } from "./fork"
 import { CLI_BINARIES, getCurrentCli, nodePtyPackage } from "./script/utils"
+
+const execFileAsync = promisify(execFile)
 
 const packageDir = path.dirname(fileURLToPath(import.meta.url))
 
@@ -40,11 +46,29 @@ function resolveChannel() {
   return "dev"
 }
 
+// Signing is opt-in: a fork without Apple credentials still produces a working app,
+// it just cannot be notarized.
+const signed = Boolean(process.env.CSC_LINK || process.env.CSC_KEYCHAIN || process.env.APPLE_API_KEY)
+
+// Without a Developer ID, electron-builder ships the stock Electron linker signature with no
+// sealed resources, which macOS rejects as "damaged" with no Gatekeeper override. Ad-hoc signing
+// seals the bundle, so an unsigned build is merely unidentified rather than corrupt.
+export async function adhocSign(app: string) {
+  if (signed) return
+  await execFileAsync("codesign", ["--force", "--deep", "--sign", "-", app])
+  await execFileAsync("codesign", ["--verify", "--deep", "--strict", app])
+}
+
+// Rig must not share a bundle ID with the official app: the ID names the data folder, the cached
+// CLI and the background service, so sharing it makes Rig reuse the official app's CLI.
 const APP_IDS = {
   dev: "ai.opencode.desktop.dev",
   beta: "ai.opencode.desktop.beta",
-  prod: "ai.opencode.desktop",
+  prod: "ai.opencode.desktop.rig",
 } as const
+
+// Linux metainfo files are still named after the upstream prod app id.
+const PROD_METAINFO_ID = "ai.opencode.desktop"
 
 // libappimage (used by AppImageLauncher) resolves the .desktop entry inside an
 // AppImage by globbing `*.desktop` at the squashfs root. If the main
@@ -131,6 +155,10 @@ const getBase = (appId: string): Configuration => {
       if (context.electronPlatformName === "darwin")
         await copyFile(path.join(packageDir, "resources/icons/icon.icns"), path.join(resources, "icon.icns"))
 
+      // Seal last: any change to the bundle after signing invalidates the signature.
+      if (context.electronPlatformName === "darwin")
+        await adhocSign(path.join(context.appOutDir, `${context.packager.appInfo.productFilename}.app`))
+
       if (context.electronPlatformName !== "win32") return
 
       const prebuilds = path.join(
@@ -170,6 +198,9 @@ const getBase = (appId: string): Configuration => {
         NSRemovableVolumesUsageDescription: DESKTOP_NATIVE_ENGLISH["desktop.removableVolumesUsage"],
         NSAutoFillRequiresTextContentTypeForOneTimeCodeOnMac: true,
       },
+      hardenedRuntime: signed,
+      notarize: signed,
+      identity: signed ? undefined : null,
       target: ["dmg", "zip"],
     },
     protocols: {
@@ -218,12 +249,8 @@ export function getConfig() {
       return {
         ...base,
         appId,
-        productName: "OpenCode Dev",
-        publish: {
-          provider: "generic",
-          url: "https://opencode.ai/update/api/dev/desktop/opencode/",
-          channel: "latest",
-        },
+        productName: "OpenCode Rig Dev",
+        publish: { provider: "github", owner: FORK_OWNER, repo: FORK_REPO, channel: "latest", releaseType: "release" },
         deb: { fpm: [...previewCompressionFpm("deb"), metainfoFpm(appId)] },
         rpm: {
           packageName: "opencode-dev",
@@ -236,13 +263,9 @@ export function getConfig() {
       return {
         ...base,
         appId,
-        productName: "OpenCode Beta",
-        protocols: { name: "OpenCode Beta", schemes: ["opencode"] },
-        publish: {
-          provider: "generic",
-          url: "https://opencode.ai/update/api/beta/desktop/opencode/",
-          channel: "latest",
-        },
+        productName: "OpenCode Rig Beta",
+        protocols: { name: "OpenCode Rig Beta", schemes: ["opencode"] },
+        publish: { provider: "github", owner: FORK_OWNER, repo: FORK_REPO, channel: "latest", releaseType: "release" },
         deb: { fpm: [...previewCompressionFpm("deb"), metainfoFpm(appId)] },
         rpm: {
           packageName: "opencode-beta",
@@ -255,20 +278,20 @@ export function getConfig() {
       return {
         ...base,
         appId,
-        productName: "OpenCode",
-        protocols: { name: "OpenCode", schemes: ["opencode"] },
+        productName: "OpenCode Rig",
+        protocols: { name: "OpenCode Rig", schemes: ["opencode"] },
         // An Icon Composer package compiles to Assets.car, which macOS 26 and later draw the app icon from
         // (Dock, Finder, system dialogs and the system icon styles). Older macOS keeps using the ICNS.
         mac: { ...base.mac, icon: "resources/icons/icon.icon" },
         // The DMG volume icon would otherwise use the same actool-generated ICNS.
         dmg: { icon: "resources/icons/icon.icns" },
-        publish: {
-          provider: "generic",
-          url: "https://opencode.ai/update/api/latest/desktop/opencode/",
-          channel: "latest",
+        // Draft until every artifact has landed, so the updater never sees a release with files missing.
+        publish: { provider: "github", owner: FORK_OWNER, repo: FORK_REPO, channel: "latest", releaseType: "draft" },
+        deb: { fpm: [metainfoFpm(PROD_METAINFO_ID), legacyDesktopEntryFpm] },
+        rpm: {
+          packageName: "opencode",
+          fpm: [rpmNoBuildIdLinksFpm, metainfoFpm(PROD_METAINFO_ID), legacyDesktopEntryFpm],
         },
-        deb: { fpm: [metainfoFpm(appId), legacyDesktopEntryFpm] },
-        rpm: { packageName: "opencode", fpm: [rpmNoBuildIdLinksFpm, metainfoFpm(appId), legacyDesktopEntryFpm] },
       }
     }
   }

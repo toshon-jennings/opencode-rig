@@ -7,15 +7,17 @@ import path from "node:path"
 import { fileURLToPath, pathToFileURL } from "node:url"
 import type { Configuration } from "electron-builder"
 import { getConfig } from "./electron-builder.config"
+import { FORK_OWNER, FORK_REPO } from "./fork"
 import { CLI_BINARIES, nodePtyPackage } from "./script/utils"
 
 // Use electron-builder's matcher so the tests also cover its glob and directory traversal semantics.
 const { FileMatcher } = createRequire(import.meta.resolve("electron-builder"))("app-builder-lib/out/fileMatcher")
 
 const channels = [
-  { channel: "dev", appId: "ai.opencode.desktop.dev", feed: "dev" },
-  { channel: "beta", appId: "ai.opencode.desktop.beta", feed: "beta" },
-  { channel: "prod", appId: "ai.opencode.desktop", feed: "latest" },
+  { channel: "dev", appId: "ai.opencode.desktop.dev", releaseType: "release", metainfoId: "ai.opencode.desktop.dev" },
+  { channel: "beta", appId: "ai.opencode.desktop.beta", releaseType: "release", metainfoId: "ai.opencode.desktop.beta" },
+  // Rig's prod bundle ID differs from the official app's, but the Linux metainfo file keeps the upstream name.
+  { channel: "prod", appId: "ai.opencode.desktop.rig", releaseType: "draft", metainfoId: "ai.opencode.desktop" },
 ] as const
 
 function load(channel: string, target?: string): Configuration {
@@ -47,14 +49,16 @@ function trimFilter(dir: string, config: Configuration) {
   ]).createFilter()
 }
 
-test.each(channels)("channel identity for $channel", ({ channel, appId, feed }) => {
+test.each(channels)("channel identity for $channel", ({ channel, appId, releaseType, metainfoId }) => {
   const config = load(channel)
   expect(config.appId).toBe(appId)
-  // Every published channel updates from its own feed on the update service.
+  // Rig updates from its own GitHub releases, never from the official update service.
   expect(config.publish).toEqual({
-    provider: "generic",
-    url: `https://opencode.ai/update/api/${feed}/desktop/opencode/`,
+    provider: "github",
+    owner: FORK_OWNER,
+    repo: FORK_REPO,
     channel: "latest",
+    releaseType,
   })
   expect(config.extraMetadata?.desktopName).toBe(`${appId}.desktop`)
   // The executable must never end in `.desktop`: libappimage resolves the
@@ -68,7 +72,7 @@ test.each(channels)("channel identity for $channel", ({ channel, appId, feed }) 
   expect(config.linux?.desktop?.entry?.StartupWMClass).toBe(appId)
 
   for (const fpm of [config.deb?.fpm, config.rpm?.fpm]) {
-    expect(fpm).toContainEqual(expect.stringContaining(`/usr/share/metainfo/${appId}.metainfo.xml`))
+    expect(fpm).toContainEqual(expect.stringContaining(`/usr/share/metainfo/${metainfoId}.metainfo.xml`))
     expect(
       fpm?.some((entry) => entry.endsWith("opencode-desktop.desktop=/usr/share/applications/opencode-desktop.desktop")),
     ).toBe(channel === "prod")
@@ -117,7 +121,8 @@ test("shared packaging defaults", async () => {
   const config = load("dev")
   // Packaging runs in secretless build jobs; the release workflow signs and notarizes afterwards.
   expect(config.mac?.sign).toBeUndefined()
-  expect(config.mac?.notarize).toBeUndefined()
+  // Signing is opt-in: without credentials, notarization is off and the bundle is ad-hoc signed.
+  expect(config.mac?.notarize).toBe(false)
   expect(config.win?.signtoolOptions).toBeUndefined()
   expect(config.dmg?.sign).not.toBe(true)
   expect(config.mac?.extendInfo?.NSAutoFillRequiresTextContentTypeForOneTimeCodeOnMac).toBe(true)

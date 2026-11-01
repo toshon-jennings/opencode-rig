@@ -2,7 +2,7 @@
 import { $ } from "bun"
 import { cp, mkdir, readdir, rm } from "node:fs/promises"
 import path from "node:path"
-import { getConfig } from "../electron-builder.config"
+import { adhocSign, getConfig } from "../electron-builder.config"
 import { getCurrentCli, resolveChannel } from "./utils"
 
 // Packages the built app (out/) for OPENCODE_TARGET into dist/desktop at the repository root, unsigned:
@@ -52,6 +52,8 @@ if (!app && os === "mac") {
 
   if (bundles.length !== 1) throw new Error(`Expected one .app bundle in ${parent}, found ${bundles.join(", ")}`)
   await writeUpdateConfig(path.join(parent, bundles[0], "Contents", "Resources"))
+  // The update config changed the bundle after electron-builder sealed it.
+  await adhocSign(path.join(parent, bundles[0]))
   await $`tar -cf ${path.join(out, `opencode-desktop-mac-${cli.cpu}.app.tar`)} -C ${parent} ${bundles[0]}`
 }
 
@@ -70,9 +72,7 @@ async function writeUpdateConfig(resources: string) {
   await Bun.write(
     path.join(resources, "app-update.yml"),
     [
-      `provider: ${publish.provider}`,
-      `url: ${publish.url}`,
-      `channel: ${publish.channel}`,
+      ...Object.entries(publish).map(([key, value]) => `${key}: ${value}`),
       `updaterCacheDirName: '${name.replace(/[/\\:*?"<>|]/g, "").toLowerCase()}-updater'`,
     ].join("\n") + "\n",
   )
