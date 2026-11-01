@@ -75,6 +75,7 @@
     "./text-input.css": "./src/forms/text-input/text-input.css",
     "./textarea": "./src/forms/textarea/textarea.tsx",
     "./typeahead": "./src/forms/typeahead/typeahead.tsx",
+    "./rig-mark": "./src/typography/rig-mark/rig-mark.tsx",
     "./slash": "./src/typography/slash/slash.tsx",
     "./text-shimmer": "./src/typography/text-shimmer/text-shimmer.tsx",
     "./toast": "./src/feedback/toast/toast.tsx",

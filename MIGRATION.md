@@ -41,8 +41,15 @@ A "No project" row in the new-session location dialog (`new-session/location/dia
 - **Lesson:** the preferred model ids rot (LongCat did); missing ids are skipped, so a retired model degrades to the old fallback.
 
 ## Feature: Rig wordmark (done, confirmed by the user in the prod Rig build)
-The fork put pixel "RIG" glyphs and a cursor in `wordmark-v2.tsx`, which 2.x no longer has. The new-session wordmark is a pinboard with geometry fixed to the 234×42 logo, so `new-session/rig-mark.tsx` draws the glyphs as a separate mark under its right edge, mounted in `new-session/wordmark.tsx`.
+The fork put pixel "RIG" glyphs and a cursor in `wordmark-v2.tsx`, which 2.x no longer has. The new-session wordmark is a pinboard with geometry fixed to the 234×42 logo, so `RigMark` (now `@opencode/ui/rig-mark`) draws the glyphs as a separate mark under its right edge, mounted in `new-session/wordmark.tsx`.
 - **Not ported:** the About page keeps the upstream "opencode" wordmark and its copyright line, which stay OpenCode's. The fork's settings footer ("OpenCode Desktop") has no 2.x counterpart.
+
+## Feature: About OpenCode Rig page (done, viewed running in the prod Rig build)
+A separate settings page below About, so upstream's About files stay untouched: the built-in plugin `gui-plugins/src/rig` adds a `SettingsPage` in the `about` group (`renderer.tsx`, `page.tsx`, `i18n/en.ts`) and is listed in `gui-plugins/src/renderer.ts`. It shows the Rig version, "Based on OpenCode <upstreamBase>", and a diff-style ledger of what differs (`+` added, `~` changed).
+- **Upstream version:** `electron.vite.config.ts` defines `import.meta.env.OPENCODE_UPSTREAM_VERSION` from the root `package.json` `upstreamBase` (typed in `gui-plugins/src/env.d.ts`).
+- **RIG mark:** moved to `@opencode/ui/rig-mark` (`ui/src/typography/rig-mark`) so the plugin and the new-session wordmark share it.
+- **Direction:** the pixel mark is the one bold element; a ruled list, no cards, no new accent hue, host theme tokens only. The differences list is hand-written: update it when a feature lands.
+- **Lesson:** the About page itself stays OpenCode's (credits, license, trademark, copyright); never brand it.
 
 ## Test notes
 - Run app tests with `bun run test:unit` (a bare `bun test` skips the solid conditions and fails to load). `bootstrap.test.ts` "recovers project metadata after the connection to the server is dropped" fails on the untouched baseline too.

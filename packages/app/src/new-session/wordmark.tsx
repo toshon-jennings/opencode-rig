@@ -1,8 +1,8 @@
 import { Logo } from "@opencode/ui/logo"
 import { prefersReducedMotion } from "@opencode/ui/motion"
+import { RigMark } from "@opencode/ui/rig-mark"
 import { For, onCleanup, onMount, Show } from "solid-js"
 import { PinSound } from "./pin-sound"
-import { RigMark } from "./rig-mark"
 import "./wordmark.css"
 
 // Each letter in the 234×42 logo viewBox, with its counter shadow, stem, and bottom-centre pivot.

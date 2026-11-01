@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs"
 import { defineConfig } from "electron-vite"
 import type { Plugin } from "vite"
 import { BetaNotes } from "./script/beta-notes"
@@ -118,6 +119,9 @@ export default defineConfig(async ({ command }) => {
       define: {
         "import.meta.env.OPENCODE_VERSION": JSON.stringify(process.env.OPENCODE_VERSION),
         "import.meta.env.VITE_OPENCODE_CHANNEL": JSON.stringify(channel),
+        "import.meta.env.OPENCODE_UPSTREAM_VERSION": JSON.stringify(
+          JSON.parse(readFileSync(new URL("../../package.json", import.meta.url), "utf8")).upstreamBase,
+        ),
         "import.meta.env.OPENCODE_COMMIT": betaNotes ? JSON.stringify(betaNotes.sha) : "undefined",
         "import.meta.env.OPENCODE_BETA_NOTES": betaNotes ? JSON.stringify(JSON.stringify(betaNotes)) : "undefined",
         "import.meta.env.OPENCODE_TEST_ONBOARDING": JSON.stringify(

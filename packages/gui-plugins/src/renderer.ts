@@ -31,6 +31,8 @@ import goal from "./goal"
 import goalRenderer from "./goal/renderer"
 import usage from "./usage"
 import usageRenderer from "./usage/renderer"
+import rig from "./rig"
+import rigRenderer from "./rig/renderer"
 
 // The window renders once every built-in is active, so the small renderer entries load with the app, like the
 // features they replaced. Heavy UI stays behind `lazy()` inside them.
@@ -55,4 +57,5 @@ export const builtins = compose({
   sources: { ...sources, windowEntry: eager(sourcesRenderer) },
   goal: { ...goal, windowEntry: eager(goalRenderer) },
   usage: { ...usage, windowEntry: eager(usageRenderer) },
+  rig: { ...rig, windowEntry: eager(rigRenderer) },
 })
