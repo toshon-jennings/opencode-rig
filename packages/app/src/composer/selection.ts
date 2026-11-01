@@ -6,7 +6,7 @@ import { useWorkspaceLocation } from "@/workspaces/location"
 import { useProviders } from "@/providers/catalog/providers"
 import { useData } from "@/runtime/server/current"
 import { normalizeAgentList, normalizeProviderList } from "@/runtime/server/global-sync/utils"
-import { useModels } from "@/providers/models/models"
+import { fallbackModels, useModels } from "@/providers/models/models"
 import { cycleModelVariant, getConfiguredAgentVariant, resolveModelVariant } from "@/providers/models/variant"
 import { useComposerState } from "./persistence"
 import { useConfiguredModel } from "@/providers/models/configured"
@@ -154,12 +154,7 @@ export function createComposerModelSelection(input: {
 
   const recent = () => models.recent.list().find(valid)
 
-  const fallback = () =>
-    providers.connected().flatMap((provider) => {
-      const modelID = Object.values(provider.models)[0]?.id
-
-      return modelID ? [{ providerID: provider.id, modelID }] : []
-    })[0]
+  const fallback = () => fallbackModels(providers.connected())[0]
 
   const key = () => {
     if (!configuredModel.ready()) return

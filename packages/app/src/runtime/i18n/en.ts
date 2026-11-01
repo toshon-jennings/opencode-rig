@@ -284,6 +284,9 @@ export const dict = {
 
   "model.tag.free": "Free",
   "model.tag.latest": "Latest",
+  "model.tag.reasoning": "Reasoning",
+  "model.tag.vision": "Vision",
+  "model.tag.tools": "Tools",
   "model.provider.anthropic": "Anthropic",
   "model.provider.openai": "OpenAI",
   "model.provider.google": "Google",

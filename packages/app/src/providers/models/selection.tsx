@@ -4,7 +4,7 @@ import { useParams } from "@solidjs/router"
 import { batch, createEffect, createMemo, onCleanup } from "solid-js"
 import { createStore } from "solid-js/store"
 import { Schema, SchemaGetter } from "effect"
-import { useModels } from "@/providers/models/models"
+import { fallbackModels, useModels } from "@/providers/models/models"
 import { useSettings } from "@/settings/model"
 import { syncWhileBooting, useProviders } from "@/providers/catalog/providers"
 import { Persist, persisted } from "@/runtime/persistence/storage"
@@ -193,16 +193,7 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
       }
     }
 
-    const defaultModel = () => {
-      for (const provider of providers.connected()) {
-        const first = Object.values(provider.models)[0]
-
-        if (!first) continue
-        const model = { providerID: provider.id, modelID: first.id }
-
-        if (validModel(model)) return model
-      }
-    }
+    const defaultModel = () => fallbackModels(providers.connected()).find(validModel)
 
     const fallback = createMemo(() => firstModel(configuredModel, recentModel, defaultModel))
 

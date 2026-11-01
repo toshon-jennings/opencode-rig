@@ -28,6 +28,7 @@ import { Tooltip } from "@opencode/ui/tooltip"
 import { TextInput } from "@opencode/ui/text-input"
 import { ModelTooltip } from "./tooltip"
 import { ModelDetails } from "./details"
+import { ModelCapabilityBadges } from "./capability-badges"
 import { useLanguage } from "@/runtime/i18n/language"
 import { ExternalLink } from "@/runtime/platform/external-link"
 import { useData } from "@/runtime/server/current"
@@ -190,8 +191,9 @@ const ModelList: Component<{
                     openDelay={0}
                     value={<ModelTooltip model={item} latest={item.latest} free={isFreeModel(item)} v2 />}
                   >
-                    <span class="min-w-0 truncate">{item.name}</span>
+                    <span class="min-w-[8rem] flex-1 truncate">{item.name}</span>
                   </Tooltip>
+                  <ModelCapabilityBadges model={item} />
                   <Show when={isFreeModel(item)}>
                     <Badge class="shrink-0">{language.t("model.tag.free")}</Badge>
                   </Show>
@@ -925,9 +927,10 @@ export function DialogSelectModel(props: { provider?: string; model?: ModelState
           </Show>
         </span>
         <span data-slot="model-dialog-name">
-          <span class="min-w-0 truncate">
+          <span class="min-w-[8rem] flex-1 truncate">
             <SearchHighlight text={item().name} />
           </span>
+          <ModelCapabilityBadges model={item()} />
           {/* Favorites and Recent mix providers, so their rows name one, with its workspace when its header has one. */}
           <Show when={row.model.group.title}>
             <span class="min-w-0 shrink-[999] truncate text-v2-text-text-faint">{labels.name(item().provider)}</span>

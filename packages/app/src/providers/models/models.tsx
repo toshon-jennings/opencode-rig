@@ -19,6 +19,24 @@ function modelKey(model: ModelKey) {
 export const isFreeModel = (model: { provider: { id: string }; cost?: { input: number } }) =>
   model.provider.id === "opencode" && (!model.cost || model.cost.input === 0)
 
+// Models to fall back on when nothing is configured or recent: OpenCode's preferred free models first, so a new user
+// starts on a model that costs nothing, then the first model of each connected provider. A preferred id the catalog no
+// longer lists is skipped, so retired models stop mattering on their own.
+const preferredFreeModels = ["deepseek-v4.1-flash-free", "glm-5.3-flash-free"]
+
+export function fallbackModels(connected: { id: string; models: Record<string, { id: string }> }[]) {
+  const opencode = connected.find((x) => x.id === "opencode")
+
+  return [
+    ...preferredFreeModels.flatMap((modelID) => (opencode?.models[modelID] ? [{ providerID: "opencode", modelID }] : [])),
+    ...connected.flatMap((provider) => {
+      const modelID = Object.values(provider.models)[0]?.id
+
+      return modelID ? [{ providerID: provider.id, modelID }] : []
+    }),
+  ]
+}
+
 // The newest release of each family per provider. A free model shares its family and release date with its paid twin,
 // so the two are grouped apart. A tie keeps the first model listed.
 export function latestModels<T extends { id: string; provider: { id: string }; family?: string; release_date: string }>(

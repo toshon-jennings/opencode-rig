@@ -12,7 +12,7 @@ import { useLanguage } from "@/runtime/i18n/language"
 import { useDialog } from "@opencode/ui/context/dialog"
 import { DialogConnectProvider } from "@/providers/connect/dialog"
 import { decode64 } from "@/runtime/persistence/base64"
-import { consoleModelGroup, ProviderModelSections } from "@/providers/models/provider-group"
+import { CONSOLE_GROUP_KEY, consoleModelGroup, ProviderModelSections } from "@/providers/models/provider-group"
 import "@/settings/settings.css"
 import "@/shell/search-list.css"
 import "./manage.css"
@@ -23,7 +23,9 @@ export const DialogManageModels: Component = () => {
   const local = useLocal()
   const language = useLanguage()
   const dialog = useDialog()
-  const [store, setStore] = createStore<{ collapsed: Record<string, boolean> }>({ collapsed: {} })
+  // Providers start collapsed: this dialog lists every model of every provider. The Console group stays open so its
+  // providers show.
+  const [store, setStore] = createStore<{ open: Record<string, boolean> }>({ open: { [CONSOLE_GROUP_KEY]: true } })
   const directory = () => decode64(local.slug())
 
   const handleConnectProvider = () => {
@@ -69,7 +71,7 @@ export const DialogManageModels: Component = () => {
 
   const managed = createMemo(() => consoleModelGroup(local.model.list()))
   const searching = () => list.filter().length > 0
-  const expanded = (key: string) => searching() || !store.collapsed[key]
+  const expanded = (key: string) => searching() || !!store.open[key]
 
   function ModelRows(props: { items: ModelItem[] }) {
     const visible = (item: ModelItem) => local.model.visible({ modelID: item.id, providerID: item.provider.id })
@@ -158,7 +160,7 @@ export const DialogManageModels: Component = () => {
                   managed={managed()}
                   expanded={expanded}
                   disabled={searching()}
-                  onExpandedChange={(key, value) => setStore("collapsed", key, !value)}
+                  onExpandedChange={(key, value) => setStore("open", key, value)}
                   onSetVisibility={setProviderVisibility}
                   action={(group) => (
                     <Switch

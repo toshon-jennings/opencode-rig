@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test"
-import { latestModels, uniqueModels } from "./models"
+import { fallbackModels, latestModels, uniqueModels } from "./models"
 
 const model = (provider: string, id: string, release_date: string, family?: string) => ({
   id,
@@ -52,4 +52,21 @@ test("uniqueModels keeps the first of each model in order", () => {
     { providerID: "b", modelID: "1" },
     { providerID: "a", modelID: "2" },
   ])
+})
+
+test("fallback models put the preferred free models first, then each provider's first model", () => {
+  const provider = (id: string, ...models: string[]) => ({
+    id,
+    models: Object.fromEntries(models.map((model) => [model, { id: model }])),
+  })
+
+  expect(
+    fallbackModels([provider("a", "x"), provider("opencode", "big-pickle", "glm-5.3-flash-free", "deepseek-v4.1-flash-free")]),
+  ).toEqual([
+    { providerID: "opencode", modelID: "deepseek-v4.1-flash-free" },
+    { providerID: "opencode", modelID: "glm-5.3-flash-free" },
+    { providerID: "a", modelID: "x" },
+    { providerID: "opencode", modelID: "big-pickle" },
+  ])
+  expect(fallbackModels([provider("a", "x"), provider("b")])).toEqual([{ providerID: "a", modelID: "x" }])
 })
