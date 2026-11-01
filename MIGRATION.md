@@ -24,7 +24,7 @@ A Desktop built from this branch (clean port applied) with the bundled CLI built
 - **Lesson:** `ctx.use(contract)()` is `pending` until main is up; read it reactively, never once at mount.
 - **Needs the `sqlite3` binary** on PATH (present on macOS).
 
-## Feature: projectless sessions (built, awaiting a check in the running app)
+## Feature: projectless sessions (done, verified running in the prod Rig build)
 A "No project" row in the new-session location dialog (`new-session/location/dialog.tsx`, `new-session/project/{controller,selector}.tsx`) opens `~/no-project-chats` through the same `projects.add` + `selectProject` path as "Add project".
 - **Why that folder:** it is where all 31 of the user's projectless sessions already ran (server project `global`). The fork's scratch folder (`~/.local/share/opencode/scratch`) was empty, and following it would need a protocol change plus a client regeneration.
 - **Home directory:** read from the server's path info (`sync.data.path.home`), so it follows a remote server's home.
