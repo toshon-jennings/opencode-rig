@@ -9,6 +9,7 @@ export default {
   refresh: "Refresh",
   loading: "Loading…",
   failed: "The usage report failed.",
+  unavailable: "The usage report is unavailable ({{reason}}).",
   total: "TOTAL",
   "total.filtered": "TOTAL ({{count}})",
   "column.model": "Model",

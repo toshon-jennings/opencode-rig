@@ -1,4 +1,4 @@
-import { createMemo, For, onCleanup, onMount, Show } from "solid-js"
+import { createEffect, createMemo, For, onCleanup, onMount, Show } from "solid-js"
 import { createStore } from "solid-js/store"
 import { usePlugin } from "@opencode/plugin/gui"
 import { UsageReport, type UsageRow } from "./contract"
@@ -78,7 +78,8 @@ export default function UsageTab() {
   const refresh = async () => {
     const live = report()
 
-    if (live.status !== "active") return setState({ error: ctx.t("failed"), loading: false })
+    // Pending until main is up; the effect below reads again once it is active.
+    if (live.status !== "active") return
 
     await live.value.read({ signal: ctx.signal }).then(
       (result) => setState({ rows: result.rows, error: undefined, updatedAt: new Date().toLocaleTimeString() }),
@@ -87,8 +88,16 @@ export default function UsageTab() {
     setState("loading", false)
   }
 
+  // Reads when the provider activates, and again when it restarts. A provider that is gone says why.
+  createEffect(() => {
+    const live = report()
+
+    if (live.status === "inactive") setState({ error: ctx.t("unavailable", { reason: live.reason }), loading: false })
+
+    if (live.status === "active") void refresh()
+  })
+
   onMount(() => {
-    void refresh()
     const timer = setInterval(() => void refresh(), REFRESH_MS)
     onCleanup(() => clearInterval(timer))
   })
