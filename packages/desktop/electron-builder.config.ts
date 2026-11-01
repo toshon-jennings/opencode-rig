@@ -1,4 +1,5 @@
-import { copyFile, readdir, stat } from "node:fs/promises"
+import { copyFile, mkdtemp, readdir, stat } from "node:fs/promises"
+import { tmpdir } from "node:os"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 
@@ -53,9 +54,31 @@ const signed = Boolean(process.env.CSC_LINK || process.env.CSC_KEYCHAIN || proce
 // Without a Developer ID, electron-builder ships the stock Electron linker signature with no
 // sealed resources, which macOS rejects as "damaged" with no Gatekeeper override. Ad-hoc signing
 // seals the bundle, so an unsigned build is merely unidentified rather than corrupt.
+// Follows the release workflow's dry run (.github/release/sign-desktop-macos.sh): hardened runtime with the
+// release entitlements, and the bundled CLI under its own entitlements. Library validation has to be off:
+// ad-hoc signatures carry no Team ID, so macOS would refuse to load Electron's own framework.
 export async function adhocSign(app: string) {
   if (signed) return
-  await execFileAsync("codesign", ["--force", "--deep", "--sign", "-", app])
+  const entitlements = path.resolve(packageDir, "../../.github/release/entitlements")
+  const desktop = path.join(await mkdtemp(path.join(tmpdir(), "adhoc-")), "desktop.plist")
+  await copyFile(path.join(entitlements, "desktop.plist"), desktop)
+  await execFileAsync("/usr/libexec/PlistBuddy", ["-c", "Add :com.apple.security.cs.disable-library-validation bool true", desktop])
+  const sign = (target: string, plist: string, deep = false) =>
+    execFileAsync("codesign", [
+      "--force",
+      ...(deep ? ["--deep"] : []),
+      "--options",
+      "runtime",
+      "--entitlements",
+      plist,
+      "--sign",
+      "-",
+      target,
+    ])
+  await sign(app, desktop, true)
+  await sign(path.join(app, "Contents/Resources/opencode-cli"), path.join(entitlements, "desktop-cli.plist"))
+  // Sealing the app again records the CLI's new signature.
+  await sign(app, desktop)
   await execFileAsync("codesign", ["--verify", "--deep", "--strict", app])
 }
 
@@ -198,7 +221,7 @@ const getBase = (appId: string): Configuration => {
         NSRemovableVolumesUsageDescription: DESKTOP_NATIVE_ENGLISH["desktop.removableVolumesUsage"],
         NSAutoFillRequiresTextContentTypeForOneTimeCodeOnMac: true,
       },
-      hardenedRuntime: signed,
+      hardenedRuntime: true,
       notarize: signed,
       identity: signed ? undefined : null,
       target: ["dmg", "zip"],
