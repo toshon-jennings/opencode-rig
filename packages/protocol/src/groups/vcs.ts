@@ -1,5 +1,6 @@
 import { FileDiff } from "@opencode/schema/file-diff"
 import { Location } from "@opencode/schema/location"
+import { Review } from "@opencode/schema/review"
 import { NonNegativeInt, PositiveInt, optional } from "@opencode/schema/schema"
 import { Vcs } from "@opencode/schema/vcs"
 import { Schema } from "effect"
@@ -120,6 +121,39 @@ export const VcsGroup = HttpApiGroup.make("server.vcs")
           summary: "VCS diff",
           description:
             "Diff HEAD to the working copy (working), the base merge-base to the working copy (branch), or the base merge-base to HEAD (committed). Omitting base preserves repository-default comparison; supplying it overrides the comparison without saving it.",
+        }),
+      ),
+  )
+  .add(
+    HttpApiEndpoint.post("vcs.review.capture", "/api/vcs/review", {
+      query: LocationQuery,
+      success: Location.response(Review.Revision),
+      error: [ConflictError, ServiceUnavailableError],
+    })
+      .annotateMerge(locationQueryOpenApi)
+      .annotateMerge(
+        OpenApi.annotations({
+          identifier: "vcs.review.capture",
+          summary: "Capture working tree review",
+          description: "Capture server-issued file and hunk identifiers for the current working-tree diff.",
+        }),
+      ),
+  )
+  .add(
+    HttpApiEndpoint.post("vcs.review.mutate", "/api/vcs/review/:revisionID", {
+      params: { revisionID: Review.RevisionID },
+      query: LocationQuery,
+      payload: Review.Mutation,
+      success: Location.response(Review.Revision),
+      error: [ConflictError, ServiceUnavailableError],
+    })
+      .annotateMerge(locationQueryOpenApi)
+      .annotateMerge(
+        OpenApi.annotations({
+          identifier: "vcs.review.mutate",
+          summary: "Accept or reject captured review hunks",
+          description:
+            "Reject reverse-applies the selected hunks. Accept keeps them and reverse-applies the other hunks of the same files. Fails with a conflict when the working tree changed since the capture.",
         }),
       ),
   )

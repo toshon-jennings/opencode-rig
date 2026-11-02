@@ -35,7 +35,7 @@ export interface VcsDefinition {
   readonly diff: (input: VcsDiffInput) => Effect.Effect<readonly FileDiff.Info[], unknown>
 }
 
-export interface VcsDomain extends Omit<VcsApi<unknown>, "init"> {
+export interface VcsDomain extends Omit<VcsApi<unknown>, "init" | "review"> {
   readonly transform: Transform<VcsEditor>
   readonly reload: () => Effect.Effect<void>
 }

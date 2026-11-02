@@ -10,6 +10,7 @@ import {
   type SessionReviewExpandMode,
 } from "@opencode/session-ui/v2/session-review-v2"
 import { SessionReviewFilePreviewV2 } from "@opencode/session-ui/v2/session-review-file-preview-v2"
+import type { SessionReviewHunkApply, SessionReviewHunkFile } from "@opencode/session-ui/v2/session-review-hunk-bar-v2"
 import { DiffChanges } from "@opencode/ui/diff-changes"
 import type {
   SessionReviewComment,
@@ -70,6 +71,11 @@ type ReviewPanelProps = {
   comments?: SessionReviewComment[]
   focusedComment?: SessionReviewFocus | null
   onFocusedCommentChange?: (focus: SessionReviewFocus | null) => void
+  /** Hunk accept/reject, offered only where the changes are the live working tree. */
+  hunks?: {
+    file: (path: string) => SessionReviewHunkFile | undefined
+    apply: SessionReviewHunkApply
+  }
 }
 
 /** The desktop review panel. */
@@ -114,6 +120,7 @@ export default function ReviewPanelContent(props: {
       comments={props.review.comments.all()}
       focusedComment={props.review.comments.focus()}
       onFocusedCommentChange={props.review.comments.changeFocus}
+      hunks={props.review.hunks}
     />
   )
 }
@@ -257,6 +264,8 @@ function ReviewPanel(props: ReviewPanelProps) {
                   comments={props.comments}
                   focusedComment={props.focusedComment}
                   onFocusedCommentChange={props.onFocusedCommentChange}
+                  hunks={props.hunks?.file(file)}
+                  onHunks={props.hunks?.apply}
                 />
               )}
             </Show>

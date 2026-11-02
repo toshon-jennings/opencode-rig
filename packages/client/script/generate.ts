@@ -37,6 +37,7 @@ import { Pty } from "@opencode/schema/pty"
 import { PtyTicket } from "@opencode/schema/pty-ticket"
 import { Question } from "@opencode/schema/question"
 import { Reference } from "@opencode/schema/reference"
+import { Review } from "@opencode/schema/review"
 import { AbsolutePath, RelativePath } from "@opencode/schema/schema"
 import { Schedule } from "@opencode/schema/schedule"
 import { Session } from "@opencode/schema/session"
@@ -95,6 +96,7 @@ const effectTypeReferences = [
   ...namespaceTypes("PtyTicket", "@opencode/schema/pty-ticket", PtyTicket),
   ...namespaceTypes("Question", "@opencode/schema/question", Question),
   ...namespaceTypes("Reference", "@opencode/schema/reference", Reference),
+  ...namespaceTypes("Review", "@opencode/schema/review", Review),
   ...namespaceTypes("Schedule", "@opencode/schema/schedule", Schedule),
   ...namespaceTypes("Session", "@opencode/schema/session", Session),
   ...namespaceTypes("SessionMessage", "@opencode/schema/session-message", SessionMessage),

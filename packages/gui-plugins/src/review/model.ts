@@ -200,6 +200,44 @@ export function createReviewModel(input: {
     void queryClient.invalidateQueries({ queryKey: detailsKey() })
   }, 100)
 
+  // Hunk accept/reject acts on the live working tree only; branch and turn views are fixed snapshots. The revision
+  // sits under the vcs key, so a file change recaptures it alongside the diffs.
+  const revisionKey = () => [...vcsKey(), "review-revision"] as const
+
+  const revisionQuery = createQuery(() => ({
+    queryKey: revisionKey(),
+    enabled: mode() === "git" && !!stored() && view().server.connected && wantsReview() && !!view().project?.vcs,
+    retry: false,
+    queryFn: () =>
+      view()
+        .server.client.vcs.review.capture({ location: { directory: directory() } })
+        .then((result) => result.data),
+  }))
+
+  const reviewHunks = async (operation: "accept" | "reject", hunkIDs: [string, ...string[]]) => {
+    const revision = revisionQuery.data
+
+    if (!revision) return
+
+    await view()
+      .server.client.vcs.review.mutate({
+        revisionID: revision.id,
+        location: { directory: directory() },
+        operation,
+        hunkIDs,
+      })
+      .then((result) => queryClient.setQueryData(revisionKey(), result.data))
+      .catch((error) =>
+        showToast({
+          variant: "error",
+          title: ctx.t("hunk.failed"),
+          description: error instanceof Error ? error.message : undefined,
+        }),
+      )
+    // A conflict means the tree moved on; refetching shows what is there now.
+    refresh()
+  }
+
   // The server reports file changes in the directory; its event stream follows a restarted server. Routing another
   // session of the same directory and server keeps the listener.
   createKeyed(
@@ -671,6 +709,10 @@ export function createReviewModel(input: {
     kinds,
     focusFile,
     hasChanges,
+    hunks: {
+      file: (path: string) => revisionQuery.data?.files.find((file) => file.path === path),
+      apply: reviewHunks,
+    },
     initializeGit,
     initializingGit: () => !!state.initializingGit[view().key],
     loadDiff,

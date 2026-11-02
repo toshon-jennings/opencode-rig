@@ -3,6 +3,7 @@ import { Project } from "@opencode/core/project"
 import { Worktree } from "@opencode/core/worktree"
 import { Bus } from "@opencode/core/bus"
 import { Plugin } from "@opencode/core/plugin"
+import { Review } from "@opencode/core/review"
 import { Location } from "@opencode/core/location"
 import { LocationServiceMap } from "@opencode/core/location-services"
 import { ConflictError, InvalidRequestError, ServiceUnavailableError } from "@opencode/protocol/errors"
@@ -102,5 +103,35 @@ export const VcsHandler = HttpApiBuilder.group(Api, "server.vcs", (handlers) =>
           }),
         ),
       )
+      .handle("vcs.review.capture", () =>
+        response(
+          Effect.gen(function* () {
+            const review = yield* Review.Service
+            return yield* review.capture().pipe(Effect.mapError(reviewError))
+          }),
+        ),
+      )
+      .handle("vcs.review.mutate", (ctx) =>
+        response(
+          Effect.gen(function* () {
+            const review = yield* Review.Service
+            return yield* review
+              .mutate({ revisionID: ctx.params.revisionID, ...ctx.payload })
+              .pipe(Effect.mapError(reviewError))
+          }),
+        ),
+      )
   }),
 )
+
+function reviewError(
+  error: Review.RevisionNotFoundError | Review.ConflictError | Review.RepositoryNotFoundError | Review.GitError,
+) {
+  if (error instanceof Review.ConflictError)
+    return new ConflictError({ message: error.message, resource: error.reason })
+  if (error instanceof Review.RevisionNotFoundError)
+    return new ConflictError({ message: "This review is no longer available", resource: error.revisionID })
+  if (error instanceof Review.RepositoryNotFoundError)
+    return new ServiceUnavailableError({ service: "vcs", message: "This project is not a Git repository" })
+  return new ServiceUnavailableError({ service: "vcs", message: error.message })
+}

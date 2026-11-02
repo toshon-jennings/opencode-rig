@@ -76,11 +76,23 @@ A pinned file chip stays in the composer after a send and goes with every later 
 - **Test:** `submit.test.ts` "keeps a pinned file after a send and clears the rest".
 - **Merge risk:** `editor.tsx`, `submit.ts` and `schema.ts` are upstream's most edited composer files.
 
+## Feature: review hunk staging (built; tests, typecheck and the story viewed; confirmed in the installed app)
+In the Review panel's live working-tree view, a row of "Line N" chips under the file header lets you pick hunks and then "Keep selected" or "Undo selected". Keep leaves the picked hunks in the file and undoes the file's other hunks; Undo reverse-applies the picked hunks. Neither touches the git index. Both rewrite the file with no way back, so each asks once first. Confirmed by the user in the installed app against a throwaway repo (`~/projects/hunk-test`): Undo and Keep both behaved.
+- **Server:** `core/src/review.ts` (`Review.Service`, registered in `core/src/instance.ts`) captures `git diff --binary HEAD` plus untracked files into revisions with server-issued file and hunk ids. The client sends only ids and `accept` or `reject`. It locks the worktree, refuses if HEAD or the diff moved since capture (`stale`) or ids repeat (`overlap`), and dry-runs `git apply --check --reverse` before writing. Schemas in `schema/src/review.ts`; endpoints `vcs.review.capture` and `vcs.review.mutate` in the existing `vcs` group (location goes in the query string as `location[directory]`).
+- **UI:** `session-review-hunk-bar-v2.tsx` (+ story), rendered by `session-review-file-preview-v2.tsx`; `gui-plugins/src/review/model.ts` owns the revision query and `panel.tsx` passes it down. Chips are labelled by line because the panel's diff shows the whole file, so "Hunk N" would match nothing visible. Selection is kept by line, because the revision is recaptured (new ids) on every file change. Nothing is selected by default; the fork pre-selected every hunk.
+- **Not covered:** only the live working-tree mode gets the bar (not branch or turn views, not the mobile review). Plugins do not get review (`VcsDomain` omits it, like `init`).
+- **Tests:** `core/test/review.test.ts` (6, real temp git repos). Server, plugin and client suites show failures (OAuth ports, timeouts, plugin entrypoints, MCP sockets) that touch nothing here, but they were not baseline-compared against an untouched checkout.
+- **Merge risk:** one-line registrations (`instance.ts`, `schema/src/index.ts`, `client/script/generate.ts`) plus the `vcs` protocol and handler files, the preview component, `session-review-v2.css`, the two plugin `vcs.ts` files and the review panel.
+
 ## Issues to resolve: not yet checked in the installed app
 Free models are rate limited, so anything that can only be seen with one has to wait. If a feature cannot be checked with a paid model either, it stays on this list until someone has seen it work.
 - **Provider health pill:** shows only when a provider fails, and has not been seen on screen. Needs a failing provider (a free model out of quota, or a paid model with a bad key). Tests and typecheck pass.
 
 ## Test notes
+- **Server changes need the whole install flow.** `packages/desktop` `bun run build` does not compile the server: it copies `packages/cli/dist`, which goes stale. After any change under core, protocol or server, run `bun run build --single` in `packages/cli` first (needs bun 1.4.4; the repo checks the version), then the desktop `build` and `pack`.
+- **Same-version staging hides a new server.** Rig stages its bundled CLI to `~/Library/Application Support/ai.opencode.desktop.rig/cli/<version>-<arch>/` and reuses it whenever that folder exists, and the version stays 2.2.5. Move that `cli` folder aside (it is only a copy) before launching a rebuilt Rig.
+- **Rig adopts any running 2.2.5 background server.** One server runs per machine (`~/.local/state/opencode/service.json`). An older one, such as the official OpenCode app's, is adopted instead of Rig's new one, so stop it first (SIGTERM) or the new endpoints answer 404. Open question: whether the fork should keep its own service file so Rig and the official app cannot swap servers.
+- **A running window caches failed requests.** After the server changes, reload (View → Reload) or relaunch Rig; otherwise a result cached from the old server stays on screen.
 - Run app tests with `bun run test:unit` (a bare `bun test` skips the solid conditions and fails to load). `bootstrap.test.ts` "recovers project metadata after the connection to the server is dropped" fails on the untouched baseline too.
 
 ## Open questions

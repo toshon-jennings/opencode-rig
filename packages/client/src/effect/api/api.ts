@@ -42,6 +42,7 @@ import type { Artifact } from "@opencode/schema/artifact"
 import type { Reference } from "@opencode/schema/reference"
 import type { Worktree } from "@opencode/schema/worktree"
 import type { Vcs } from "@opencode/schema/vcs"
+import type { Review } from "@opencode/schema/review"
 import type { WebSearch } from "@opencode/schema/websearch"
 import type { UsageLimits } from "@opencode/schema/usage-limits"
 import type { Config } from "@opencode/schema/config"
@@ -2659,6 +2660,23 @@ export type VcsDiffInput = {
 export type VcsDiffOutput = { readonly location: Location.PublicRef; readonly data: ReadonlyArray<FileDiff.Info> }
 export type VcsDiffOperation<E = never> = (input: VcsDiffInput) => Effect.Effect<VcsDiffOutput, E>
 
+export type VcsReviewCaptureInput = { readonly location?: { readonly directory?: string | undefined } | undefined }
+export type VcsReviewCaptureOutput = { readonly location: Location.PublicRef; readonly data: Review.Revision }
+export type VcsReviewCaptureOperation<E = never> = (
+  input?: VcsReviewCaptureInput,
+) => Effect.Effect<VcsReviewCaptureOutput, E>
+
+export type VcsReviewMutateInput = {
+  readonly revisionID: Review.RevisionID
+  readonly location?: { readonly directory?: string | undefined } | undefined
+  readonly operation: "accept" | "reject"
+  readonly hunkIDs: readonly [Review.HunkID, ...Array<Review.HunkID>]
+}
+export type VcsReviewMutateOutput = { readonly location: Location.PublicRef; readonly data: Review.Revision }
+export type VcsReviewMutateOperation<E = never> = (
+  input: VcsReviewMutateInput,
+) => Effect.Effect<VcsReviewMutateOutput, E>
+
 export interface VcsApi<E = never> {
   readonly init: VcsInitOperation<E>
   readonly get: VcsGetOperation<E>
@@ -2666,6 +2684,7 @@ export interface VcsApi<E = never> {
   readonly status: VcsStatusOperation<E>
   readonly branch: { readonly list: VcsBranchListOperation<E> }
   readonly diff: VcsDiffOperation<E>
+  readonly review: { readonly capture: VcsReviewCaptureOperation<E>; readonly mutate: VcsReviewMutateOperation<E> }
 }
 
 export type DebugHeapDumpInput = { readonly directory?: string | undefined }

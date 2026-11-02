@@ -24,6 +24,11 @@ import type {
 import type { SessionReviewExpandMode } from "./session-review-v2"
 import { createLineCommentControllerV2 } from "./line-comment-annotations-v2"
 import { shouldVirtualizeReviewDiff } from "./session-review-file-preview-v2-virtualize"
+import {
+  SessionReviewHunkBar,
+  type SessionReviewHunkApply,
+  type SessionReviewHunkFile,
+} from "./session-review-hunk-bar-v2"
 import { LineCommentOverflowIcon } from "@opencode/ui/line-comment"
 import { Menu } from "@opencode/ui/menu"
 import "./session-review-v2.css"
@@ -43,6 +48,9 @@ export type SessionReviewFilePreviewV2Props = {
   comments?: SessionReviewComment[]
   focusedComment?: SessionReviewFocus | null
   onFocusedCommentChange?: (focus: SessionReviewFocus | null) => void
+  /** The file's hunks for keep/undo; set only for the live working tree. */
+  hunks?: SessionReviewHunkFile
+  onHunks?: SessionReviewHunkApply
 }
 
 function statusLabel(status: ViewDiff["status"]) {
@@ -284,6 +292,9 @@ export function SessionReviewFilePreviewV2(props: SessionReviewFilePreviewV2Prop
           <DiffChanges changes={view()} />
         </div>
       </div>
+      <Show when={props.hunks?.hunks.length && props.onHunks ? { file: props.hunks, apply: props.onHunks } : undefined}>
+        {(hunks) => <SessionReviewHunkBar file={hunks().file} onApply={hunks().apply} />}
+      </Show>
       <div
         ref={(el) => {
           scrollRef = el

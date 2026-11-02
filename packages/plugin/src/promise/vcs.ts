@@ -33,7 +33,7 @@ export interface VcsDefinition {
   readonly diff: (input: VcsDiffInput, context: { readonly signal: AbortSignal }) => Promise<readonly FileDiff.Info[]>
 }
 
-export interface VcsDomain extends Omit<VcsApi, "init"> {
+export interface VcsDomain extends Omit<VcsApi, "init" | "review"> {
   readonly transform: Transform<VcsEditor>
   readonly reload: () => Promise<void>
 }

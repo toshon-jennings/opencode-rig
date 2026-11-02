@@ -358,6 +358,12 @@ export type VcsFileStatus = {
 
 export type VcsBranchList = Array<string>
 
+export type ReviewRevisionID = string
+
+export type ReviewFileID = string
+
+export type ReviewHunkID = string
+
 export type WebSearchID = string
 
 export type WebSearchResult = { url: string; title?: string; content?: string; time: { published?: number } }
@@ -935,6 +941,8 @@ export type ArtifactInfo = {
 }
 
 export type VcsInfo = { provider?: string; branch: VcsBranch }
+
+export type ReviewHunk = { id: ReviewHunkID; line: number }
 
 export type WebSearchProvider = { id: WebSearchID; name: string }
 
@@ -2191,6 +2199,8 @@ export type ScheduleWhen = ScheduleWhenIn | ScheduleWhenAt | ScheduleWhenEvery |
 
 export type ArtifactContent = { info: ArtifactInfo; files: { [x: string]: string } }
 
+export type ReviewFile = { id: ReviewFileID; path: RelativePath; hunks: Array<ReviewHunk> }
+
 export type SessionInboxMove = {
   id: SessionMessageID
   sessionID: SessionID
@@ -2613,6 +2623,8 @@ export type ScheduleInfo = {
   lastOutput?: string
   time: { created: number; updated: number }
 }
+
+export type ReviewRevision = { id: ReviewRevisionID; files: Array<ReviewFile> }
 
 export type AgentInfo = {
   id: AgentID
@@ -4745,6 +4757,19 @@ export type VcsDiffInput = {
 }
 
 export type VcsDiffOutput = { location: LocationPublicRef; data: Array<FileDiffInfo> }
+
+export type VcsReviewCaptureInput = { readonly location?: { readonly directory?: string | undefined } | undefined }
+
+export type VcsReviewCaptureOutput = { location: LocationPublicRef; data: ReviewRevision }
+
+export type VcsReviewMutateInput = {
+  readonly revisionID: string
+  readonly location?: { readonly directory?: string | undefined } | undefined
+  readonly operation: "accept" | "reject"
+  readonly hunkIDs: readonly [string, ...Array<string>]
+}
+
+export type VcsReviewMutateOutput = { location: LocationPublicRef; data: ReviewRevision }
 
 export type DebugHeapDumpInput = { readonly directory?: string | undefined }
 

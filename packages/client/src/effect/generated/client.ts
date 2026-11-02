@@ -299,6 +299,10 @@ import type {
   VcsBranchListOutput,
   VcsDiffInput,
   VcsDiffOutput,
+  VcsReviewCaptureInput,
+  VcsReviewCaptureOutput,
+  VcsReviewMutateInput,
+  VcsReviewMutateOutput,
   DebugHeapDumpInput,
   DebugHeapDumpOutput,
   DebugLocationListOutput,
@@ -1858,6 +1862,20 @@ const EndpointVcsDiff = (raw: RawClient["server.vcs"]) => (input: VcsDiffInput) 
     }).pipe(Effect.mapError(mapClientError)),
   )
 
+const EndpointVcsReviewCapture = (raw: RawClient["server.vcs"]) => (input?: VcsReviewCaptureInput) =>
+  preserveEffect<VcsReviewCaptureOutput>()(
+    raw["vcs.review.capture"]({ query: { location: input?.["location"] } }).pipe(Effect.mapError(mapClientError)),
+  )
+
+const EndpointVcsReviewMutate = (raw: RawClient["server.vcs"]) => (input: VcsReviewMutateInput) =>
+  preserveEffect<VcsReviewMutateOutput>()(
+    raw["vcs.review.mutate"]({
+      params: { revisionID: input["revisionID"] },
+      query: { location: input["location"] },
+      payload: { operation: input["operation"], hunkIDs: input["hunkIDs"] },
+    }).pipe(Effect.mapError(mapClientError)),
+  )
+
 const adaptGroupVcs = (raw: RawClient["server.vcs"]) => ({
   init: EndpointVcsInit(raw),
   get: EndpointVcsGet(raw),
@@ -1865,6 +1883,7 @@ const adaptGroupVcs = (raw: RawClient["server.vcs"]) => ({
   status: EndpointVcsStatus(raw),
   branch: { list: EndpointVcsBranchList(raw) },
   diff: EndpointVcsDiff(raw),
+  review: { capture: EndpointVcsReviewCapture(raw), mutate: EndpointVcsReviewMutate(raw) },
 })
 
 const EndpointDebugHeapDump = (raw: RawClient["server.debug"]) => (input?: DebugHeapDumpInput) =>

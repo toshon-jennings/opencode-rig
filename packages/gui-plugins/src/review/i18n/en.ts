@@ -12,6 +12,7 @@ export default {
   "empty.branch": "No branch changes yet",
   "git.title": "Create a Git repository",
   "git.description": "Track, review, and undo changes in this project",
+  "hunk.failed": "Could not change those hunks. The files changed, so check the diff and try again.",
   loadingChanges: "Loading changes…",
   noChanges: "No changes",
   "settings.wrapLines.title": "Wrap lines",

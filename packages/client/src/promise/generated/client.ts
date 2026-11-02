@@ -301,6 +301,10 @@ import type {
   VcsBranchListOutput,
   VcsDiffInput,
   VcsDiffOutput,
+  VcsReviewCaptureInput,
+  VcsReviewCaptureOutput,
+  VcsReviewMutateInput,
+  VcsReviewMutateOutput,
   DebugHeapDumpInput,
   DebugHeapDumpOutput,
   DebugLocationListOutput,
@@ -2575,6 +2579,33 @@ export function make(options: ClientOptions) {
           },
           requestOptions,
         ),
+      review: {
+        capture: (input?: VcsReviewCaptureInput, requestOptions?: RequestOptions) =>
+          request<VcsReviewCaptureOutput>(
+            {
+              method: "POST",
+              path: `/api/vcs/review`,
+              query: { location: input?.["location"] },
+              successStatus: 200,
+              declaredStatuses: [400, 401, 404, 409, 503],
+              empty: false,
+            },
+            requestOptions,
+          ),
+        mutate: (input: VcsReviewMutateInput, requestOptions?: RequestOptions) =>
+          request<VcsReviewMutateOutput>(
+            {
+              method: "POST",
+              path: `/api/vcs/review/${encodeURIComponent(input.revisionID)}`,
+              query: { location: input["location"] },
+              body: { operation: input["operation"], hunkIDs: input["hunkIDs"] },
+              successStatus: 200,
+              declaredStatuses: [400, 401, 404, 409, 503],
+              empty: false,
+            },
+            requestOptions,
+          ),
+      },
     },
     debug: {
       heapDump: (input?: DebugHeapDumpInput, requestOptions?: RequestOptions) =>

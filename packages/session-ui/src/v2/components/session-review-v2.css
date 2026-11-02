@@ -343,6 +343,65 @@
   background-color: var(--v2-background-bg-layer-02);
 }
 
+[data-component="session-review-v2"] [data-slot="session-review-v2-hunks"] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--v2-border-border-base);
+  font-family: var(--v2-font-family-sans);
+  font-size: 12px;
+}
+
+[data-component="session-review-v2"] [data-slot="session-review-v2-hunk"] {
+  border: 1px solid var(--v2-border-border-base);
+  border-radius: 4px;
+  padding: 1px 8px;
+  background: transparent;
+  color: var(--v2-text-text-muted);
+  font-family: var(--font-family-mono);
+  font-size: 12px;
+  cursor: pointer;
+
+  &[aria-pressed="true"] {
+    background-color: var(--v2-background-bg-layer-02);
+    color: var(--v2-text-text-base);
+    border-color: var(--v2-text-text-muted);
+  }
+}
+
+[data-component="session-review-v2"] [data-slot="session-review-v2-hunk-confirm"] {
+  display: flex;
+  flex: 1 0 100%;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+  color: var(--v2-text-text-base);
+}
+
+[data-component="session-review-v2"] [data-slot="session-review-v2-hunk-action"] {
+  margin-inline-start: 4px;
+  border: 0;
+  padding: 1px 4px;
+  background: transparent;
+  color: var(--v2-text-text-base);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+
+  &[data-tone="danger"] {
+    color: var(--v2-state-fg-danger);
+  }
+}
+
+[data-component="session-review-v2"] [data-slot="session-review-v2-hunks"] button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 [data-component="session-review-v2"] [data-slot="session-review-v2-file-header"] {
   display: flex;
   align-items: center;
