@@ -76,6 +76,10 @@ A pinned file chip stays in the composer after a send and goes with every later 
 - **Test:** `submit.test.ts` "keeps a pinned file after a send and clears the rest".
 - **Merge risk:** `editor.tsx`, `submit.ts` and `schema.ts` are upstream's most edited composer files.
 
+## Issues to resolve: not yet checked in the installed app
+Free models are rate limited, so anything that can only be seen with one has to wait. If a feature cannot be checked with a paid model either, it stays on this list until someone has seen it work.
+- **Provider health pill:** shows only when a provider fails, and has not been seen on screen. Needs a failing provider (a free model out of quota, or a paid model with a bad key). Tests and typecheck pass.
+
 ## Test notes
 - Run app tests with `bun run test:unit` (a bare `bun test` skips the solid conditions and fails to load). `bootstrap.test.ts` "recovers project metadata after the connection to the server is dropped" fails on the untouched baseline too.
 
