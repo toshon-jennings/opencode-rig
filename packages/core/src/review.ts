@@ -75,10 +75,15 @@ const layer = Layer.effect(
     const revisions = new Map<ReviewSchema.RevisionID, RevisionState>()
     const locks = KeyedMutex.makeUnsafe<string>()
 
+    // Repository config must not change what git runs or prints: no fsmonitor hook, no CRLF rewriting, and (below)
+    // no external diff driver, textconv or color codes in a patch that is applied back to the tree.
+    const config = ["--no-optional-locks", "-c", "core.autocrlf=false", "-c", "core.fsmonitor=false"]
+    const plain = ["--binary", "--no-ext-diff", "--no-textconv", "--no-color"]
+
     const execute = (cwd: string, args: string[], stdin?: string) =>
       proc
         .run(
-          ChildProcess.make(gitExecutable(), args, {
+          ChildProcess.make(gitExecutable(), [...config, ...args], {
             cwd,
             extendEnv: true,
             stdin: stdin === undefined ? "ignore" : Stream.make(new TextEncoder().encode(stdin)),
@@ -109,11 +114,11 @@ const layer = Layer.effect(
     })
 
     const diff = Effect.fn("Review.diff")(function* (worktree: string) {
-      const tracked = yield* succeed(worktree, ["diff", "--binary", "HEAD"])
+      const tracked = yield* succeed(worktree, ["diff", ...plain, "HEAD"])
       const untracked = yield* succeed(worktree, ["ls-files", "--others", "--exclude-standard", "-z"])
       const created = yield* Effect.forEach(untracked.split("\0").filter(Boolean), (file) =>
         // `git diff --no-index` exits 1 when it finds differences.
-        execute(worktree, ["diff", "--binary", "--no-index", "--", "/dev/null", file]).pipe(
+        execute(worktree, ["diff", ...plain, "--no-index", "--", "/dev/null", file]).pipe(
           Effect.flatMap((result) =>
             result.exitCode <= 1
               ? Effect.succeed(result.text)
