@@ -36,6 +36,7 @@ import { Shell } from "./shell.js"
 import { ShellSelect } from "./shell/select.js"
 import { Reference } from "./reference.js"
 import { Review } from "./review.js"
+import { GithubOverview } from "./github-overview.js"
 import { Rpc } from "./rpc.js"
 import { WebSearch } from "./websearch.js"
 import { ReferenceInstructions } from "./reference/instructions.js"
@@ -69,6 +70,7 @@ const nodes = [
   Command.node,
   Reference.node,
   Review.node,
+  GithubOverview.node,
   Rpc.node,
   WebSearch.node,
   Integration.node,

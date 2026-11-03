@@ -370,6 +370,73 @@ export type WebSearchResult = { url: string; title?: string; content?: string; t
 
 export type UsageLimitsMeter = { percent: number; limited: boolean; resetsAt: number }
 
+export type GithubOverviewLocalWork = {
+  branch?: string
+  defaultBranch?: string
+  staged: number
+  unstaged: number
+  untracked: number
+  ahead: number
+  behind: number
+}
+
+export type GithubOverviewCommit = {
+  sha: string
+  message: string
+  author: string
+  committedAt: string
+  htmlUrl?: string
+}
+
+export type GithubOverviewRemote = { owner: string; repo: string; htmlUrl: string }
+
+export type GithubOverviewRepoMeta = {
+  description?: string
+  stars: number
+  forks: number
+  openIssues: number
+  language?: string
+}
+
+export type GithubOverviewRun = {
+  workflowName: string
+  status: string
+  conclusion?: "success" | "failure" | "cancelled" | "skipped" | "timed_out" | "action_required" | "neutral" | "stale"
+  runNumber: number
+  branch: string
+  htmlUrl: string
+  updatedAt: string
+}
+
+export type GithubOverviewIssue = {
+  number: number
+  title: string
+  author: string
+  labels: Array<string>
+  htmlUrl: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type GithubOverviewPullRequest = {
+  number: number
+  title: string
+  author: string
+  draft: boolean
+  htmlUrl: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type GithubOverviewDependencySummary = {
+  critical: number
+  high: number
+  medium: number
+  low: number
+  updatePRs: number
+  alertsAvailable: boolean
+}
+
 export type McpProtocol = "legacy" | "auto" | "2026-07-28"
 
 export type ConfigCompactionPercent = string
@@ -947,6 +1014,15 @@ export type ReviewHunk = { id: ReviewHunkID; line: number }
 export type WebSearchProvider = { id: WebSearchID; name: string }
 
 export type UsageLimitsGo = { rolling: UsageLimitsMeter; weekly: UsageLimitsMeter; monthly: UsageLimitsMeter }
+
+export type GithubOverviewRemoteData = {
+  meta: GithubOverviewRepoMeta
+  commits: Array<GithubOverviewCommit>
+  runs: Array<GithubOverviewRun>
+  issues: Array<GithubOverviewIssue>
+  pulls: Array<GithubOverviewPullRequest>
+  deps: GithubOverviewDependencySummary
+}
 
 export type ConfigModelCapabilities = {
   tools?: boolean
@@ -2200,6 +2276,16 @@ export type ScheduleWhen = ScheduleWhenIn | ScheduleWhenAt | ScheduleWhenEvery |
 export type ArtifactContent = { info: ArtifactInfo; files: { [x: string]: string } }
 
 export type ReviewFile = { id: ReviewFileID; path: RelativePath; hunks: Array<ReviewHunk> }
+
+export type GithubOverviewOverview = {
+  isRepo: boolean
+  local?: GithubOverviewLocalWork
+  commits: Array<GithubOverviewCommit>
+  remote?: GithubOverviewRemote
+  github?: GithubOverviewRemoteData
+  tokenConfigured: boolean
+  error?: string
+}
 
 export type SessionInboxMove = {
   id: SessionMessageID
@@ -4810,6 +4896,10 @@ export type ExperimentalUsageLimitsInput = {
 }
 
 export type ExperimentalUsageLimitsOutput = { location: LocationPublicRef; data: UsageLimitsInfo | null }
+
+export type GithubOverviewInput = { readonly location?: { readonly directory?: string | undefined } | undefined }
+
+export type GithubOverviewOutput = { location: LocationPublicRef; data: GithubOverviewOverview }
 
 export type ConfigGetInput = { readonly location?: { readonly directory?: string | undefined } | undefined }
 

@@ -93,6 +93,18 @@ In the Review panel's live working-tree view, a row of "Line N" chips under the 
 - **Only runs from GitHub's default branch**, which is still the 1.x `main`, so the scheduled job starts once `migrate-v2` lands there. Until then, run it locally; local runs only print.
 - **Verified:** the local report up to date (base 2.2.5) and behind (base temporarily set to 2.2.1). Lint clean.
 
+## Feature: GitHub overview (built; tests, typecheck and the dev web app viewed; confirmed in the installed app)
+A GitHub button at the end of the side tab strip (the `session.panel.end` slot, shown for Git projects) and an "Open GitHub overview" command open a GitHub side tab: repository name, description, stars, forks and language; local work (branch, staged, unstaged, untracked, unpushed, behind); recent commits; workflow runs; Dependabot alert counts and update PRs; open issues; open pull requests. Rows open on GitHub through `ctx.system.openExternal`.
+- **Server route** (so SSH, WSL and web projects work too): `core/src/github-overview.ts` (`GithubOverview.Service`, registered in `core/src/instance.ts`), schemas in `schema/src/github-overview.ts`, endpoint `github.overview` at `GET /api/github/overview` in a new `server.github` group (`protocol/src/groups/github.ts`, `server/src/handlers/github.ts`). Client key `github`, so `client.github.overview(...)`.
+- **Token:** `GITHUB_TOKEN`, then `GH_TOKEN`, then `gh auth token`, all on the server's machine. Without one the public API is used (60 requests an hour) and the tab says "Set GITHUB_TOKEN or log in with gh…". Verified with the `gh` login only (no env token): Dependabot counts came back, so the keyring token carries that scope.
+- **Changes from the fork:** the git status, ahead/behind and log helpers live in the service instead of upstream `git.ts`; `gh auth token` fallback; the location's directory (the session's worktree) instead of the project root; counts are `NonNegativeInt` (the fork's `Schema.Number` encoded as `number | "Infinity" | …`); https remotes with a user (`https://user@github.com/o/r`) are recognised. UI, per `DESIGN.md`: sentence-case headings over a hairline instead of uppercase labels, counts as one dotted line instead of bordered pills, SHAs, branches and issue numbers in monospace. Strings are the fork's, except the no-token note; the unused `view` string is dropped.
+- **Kept from the fork, worth knowing:** when GitHub answers, "Recent commits" lists the GitHub default branch's commits, not the local branch's. Local commits show only without a GitHub remote or when the API fails.
+- **Icon:** 2.x already ships `github` in `ui/src/icons/icon/additional-icons.ts`; nothing added.
+- **Also:** listed in `gui-plugins/src/renderer.ts` and `main.ts`, and a "GitHub overview" line in the About Rig ledger.
+- **Tests:** `schema/test/github-overview.test.ts` (3), `core/test/github-overview.test.ts` (4, real temp repos: local counts and commits, not a repo, remote parsing), `server/test/github.test.ts` (route end to end), `client/test/promise.test.ts` (new `github` key). gui-plugins suite passes.
+- **Viewed:** a dev server (`bun run src/index.ts serve` in `packages/cli`) plus `packages/app` `bun dev`, on this repository: header, local work, commits, 10 checks, dependencies, issues, 2 PRs, in dark and light.
+- **Merge risk:** one-line registrations in `core/src/instance.ts`, `schema/src/index.ts`, `protocol/src/api.ts` (3 lines), `protocol/src/client.ts`, `server/src/handlers.ts`, `client/script/generate.ts`, plus the generated client files.
+
 ## Issues to resolve: not yet checked in the installed app
 Free models are rate limited, so anything that can only be seen with one has to wait. If a feature cannot be checked with a paid model either, it stays on this list until someone has seen it work.
 - **Provider health pill:** shows only when a provider fails, and has not been seen on screen. Needs a failing provider (a free model out of quota, or a paid model with a bad key). Tests and typecheck pass.
@@ -315,7 +327,7 @@ New fork file; path is free in v2.2.5. Copy, then fix imports against 2.x.
 - [ ] `packages/app/src/context/provider-health-sync.ts`
 - [ ] `packages/app/src/context/provider-health.test.ts`
 - [ ] `packages/app/src/context/provider-health.ts`
-- [ ] `packages/app/src/pages/session/github-overview-tab.tsx`
+- [x] `packages/app/src/pages/session/github-overview-tab.tsx` — now the built-in plugin `gui-plugins/src/github`, see "GitHub overview"
 - [ ] `packages/app/src/pages/session/terminal-mount.ts`
 - [ ] `packages/app/src/pages/session/timeline/steer-chip.stories.tsx`
 - [ ] `packages/app/src/pages/session/timeline/steer-chip.tsx`
@@ -328,7 +340,7 @@ New fork file; path is free in v2.2.5. Copy, then fix imports against 2.x.
 - [ ] `packages/core/script/verify-claude-conversation.ts`
 - [ ] `packages/core/src/cli-agent-language-model.ts`
 - [ ] `packages/core/src/cli-auth.ts`
-- [ ] `packages/core/src/github-overview.ts`
+- [x] `packages/core/src/github-overview.ts` — ported, with its own git helpers, see "GitHub overview"
 - [ ] `packages/core/src/model-default.ts`
 - [ ] `packages/core/src/plugin/provider/cli-agents.ts`
 - [ ] `packages/core/src/plugin/provider/command-code.ts`
@@ -350,14 +362,14 @@ New fork file; path is free in v2.2.5. Copy, then fix imports against 2.x.
 - [ ] `packages/opencode/src/plugin/deepinfra.ts`
 - [ ] `packages/opencode/src/util/random.ts`
 - [ ] `packages/opencode/test/util/random.test.ts`
-- [ ] `packages/protocol/src/groups/github-overview.ts`
+- [x] `packages/protocol/src/groups/github-overview.ts` — now `groups/github.ts`, see "GitHub overview"
 - [ ] `packages/protocol/src/groups/review.ts`
-- [ ] `packages/schema/src/github-overview.ts`
+- [x] `packages/schema/src/github-overview.ts` — ported, see "GitHub overview"
 - [ ] `packages/schema/src/review.ts`
-- [ ] `packages/schema/test/github-overview.test.ts`
+- [x] `packages/schema/test/github-overview.test.ts` — ported
 - [ ] `packages/sdk/js/test/params-security.test.ts`
 - [ ] `packages/sdk/js/test/review-client.test.ts`
-- [ ] `packages/server/src/handlers/github-overview.ts`
+- [x] `packages/server/src/handlers/github-overview.ts` — now `handlers/github.ts`, see "GitHub overview"
 - [ ] `packages/server/src/handlers/review.ts`
 - [ ] `packages/ui/src/components/resize-handle.test.ts`
 - [ ] `packages/ui/src/v2/components/tooltip-v2.test.ts`

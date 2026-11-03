@@ -315,6 +315,8 @@ import type {
   WebsearchQueryOutput,
   ExperimentalUsageLimitsInput,
   ExperimentalUsageLimitsOutput,
+  GithubOverviewInput,
+  GithubOverviewOutput,
   ConfigGetInput,
   ConfigGetOutput,
   ConfigShellsOutput,
@@ -1940,6 +1942,13 @@ const adaptGroupExperimentalUsage = (raw: RawClient["server.usage"]) => ({
   limits: EndpointExperimentalUsageLimits(raw),
 })
 
+const EndpointGithubOverview = (raw: RawClient["server.github"]) => (input?: GithubOverviewInput) =>
+  preserveEffect<GithubOverviewOutput>()(
+    raw["github.overview"]({ query: { location: input?.["location"] } }).pipe(Effect.mapError(mapClientError)),
+  )
+
+const adaptGroupGithub = (raw: RawClient["server.github"]) => ({ overview: EndpointGithubOverview(raw) })
+
 const EndpointConfigGet = (raw: RawClient["server.config"]) => (input?: ConfigGetInput) =>
   preserveEffect<ConfigGetOutput>()(
     raw["config.get"]({ query: { location: input?.["location"] } }).pipe(Effect.mapError(mapClientError)),
@@ -2002,6 +2011,7 @@ const adaptClient = (raw: RawClient) => {
     vcs: adaptGroupVcs(raw["server.vcs"]),
     debug: adaptGroupDebug(raw["server.debug"]),
     websearch: adaptGroupWebsearch(raw["server.websearch"]),
+    github: adaptGroupGithub(raw["server.github"]),
     config: adaptGroupConfig(raw["server.config"]),
   }
   return {

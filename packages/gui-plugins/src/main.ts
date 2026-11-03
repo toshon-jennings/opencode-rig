@@ -15,6 +15,7 @@ import microsoftOffice from "./microsoft-office"
 import sources from "./sources"
 import goal from "./goal"
 import usage from "./usage"
+import github from "./github"
 import health from "./health"
 import rig from "./rig"
 
@@ -36,6 +37,7 @@ export const builtins = compose({
   sources,
   goal,
   usage: { ...usage, mainEntry: () => import("./usage/main") },
+  github,
   health,
   rig,
 })

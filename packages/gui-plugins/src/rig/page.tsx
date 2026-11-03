@@ -6,6 +6,7 @@ import type definition from "./index"
 // A diff's own marks: "+" for what Rig adds to OpenCode, "~" for what it changes.
 const differences = [
   { id: "usage", mark: "+" },
+  { id: "github", mark: "+" },
   { id: "projectless", mark: "+" },
   { id: "badges", mark: "+" },
   { id: "defaults", mark: "~" },

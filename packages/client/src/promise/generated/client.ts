@@ -317,6 +317,8 @@ import type {
   WebsearchQueryOutput,
   ExperimentalUsageLimitsInput,
   ExperimentalUsageLimitsOutput,
+  GithubOverviewInput,
+  GithubOverviewOutput,
   ConfigGetInput,
   ConfigGetOutput,
   ConfigShellsOutput,
@@ -2668,6 +2670,20 @@ export function make(options: ClientOptions) {
             body: { query: input["query"], providerID: input["providerID"] },
             successStatus: 200,
             declaredStatuses: [400, 401, 404, 503],
+            empty: false,
+          },
+          requestOptions,
+        ),
+    },
+    github: {
+      overview: (input?: GithubOverviewInput, requestOptions?: RequestOptions) =>
+        request<GithubOverviewOutput>(
+          {
+            method: "GET",
+            path: `/api/github/overview`,
+            query: { location: input?.["location"] },
+            successStatus: 200,
+            declaredStatuses: [400, 401, 404],
             empty: false,
           },
           requestOptions,

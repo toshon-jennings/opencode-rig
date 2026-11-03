@@ -45,6 +45,7 @@ import type { Vcs } from "@opencode/schema/vcs"
 import type { Review } from "@opencode/schema/review"
 import type { WebSearch } from "@opencode/schema/websearch"
 import type { UsageLimits } from "@opencode/schema/usage-limits"
+import type { GithubOverview } from "@opencode/schema/github-overview"
 import type { Config } from "@opencode/schema/config"
 
 export type ServerInfoOutput = {
@@ -2772,6 +2773,14 @@ export interface ExperimentalUsageApi<E = never> {
   readonly limits: ExperimentalUsageLimitsOperation<E>
 }
 
+export type GithubOverviewInput = { readonly location?: { readonly directory?: string | undefined } | undefined }
+export type GithubOverviewOutput = { readonly location: Location.PublicRef; readonly data: GithubOverview.Overview }
+export type GithubOverviewOperation<E = never> = (input?: GithubOverviewInput) => Effect.Effect<GithubOverviewOutput, E>
+
+export interface GithubApi<E = never> {
+  readonly overview: GithubOverviewOperation<E>
+}
+
 export type ConfigGetInput = { readonly location?: { readonly directory?: string | undefined } | undefined }
 export type ConfigGetOutput = ReadonlyArray<Config.Entry>
 export type ConfigGetOperation<E = never> = (input?: ConfigGetInput) => Effect.Effect<ConfigGetOutput, E>
@@ -3070,6 +3079,7 @@ export interface AppApi<E = never> {
   readonly vcs: VcsApi<E>
   readonly debug: DebugApi<E>
   readonly websearch: WebsearchApi<E>
+  readonly github: GithubApi<E>
   readonly config: ConfigApi<E>
 
   /** @deprecated Use `client.experimental.generate`. Removed in the next minor. */
