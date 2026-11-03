@@ -32,6 +32,7 @@
     "typecheck:profile:packages": "bun script/profile-typecheck-packages.ts",
     "pack": "bun run script/pack.ts",
     "upgrade-opentui": "bun run script/upgrade-opentui.ts",
+    "upstream:scan": "bun run script/upstream-scan.ts",
     "postinstall": "bun run --cwd packages/core fix-node-pty",
     "prepare": "husky",
     "random": "echo 'Random script'",

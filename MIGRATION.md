@@ -84,9 +84,19 @@ In the Review panel's live working-tree view, a row of "Line N" chips under the 
 - **Tests:** `core/test/review.test.ts` (6, real temp git repos). Server, plugin and client suites show failures (OAuth ports, timeouts, plugin entrypoints, MCP sockets) that touch nothing here, but they were not baseline-compared against an untouched checkout.
 - **Merge risk:** one-line registrations (`instance.ts`, `schema/src/index.ts`, `client/script/generate.ts`) plus the `vcs` protocol and handler files, the preview component, `session-review-v2.css`, the two plugin `vcs.ts` files and the review panel.
 
+## Feature: upstream watcher (built; the report was run locally; the GitHub side has not run yet)
+`script/upstream-scan.ts` (`bun run upstream:scan`) and `.github/workflows/upstream-scan.yml` (daily at 14:00 UTC, or run by hand) warn early when Rig falls behind. They replace the fork's scan, which failed 14 of its last 17 runs and never alerted: `gh` treated the `upstream` remote it adds as the repository and was refused (HTTP 403) creating a label on `anomalyco/opencode`. `GH_REPO` now names the fork.
+- **Release lag:** upstream's newest stable `v*` tag against `upstreamBase`.
+- **Merge forecast:** files changed by both Rig (`git diff v<upstreamBase> HEAD`, minus `bun.lock`) and upstream (base to latest), with the upstream commits. Worked out from git each run, so there is no watched-path list to maintain. It assumes `upstreamBase` is bumped whenever an upstream release is merged. Upstream's tags are fetched to `refs/upstream-scan/*`, never into `refs/tags`, so they cannot collide with Rig's release tags.
+- **Zen canary:** one 1-token request to `deepseek-v4.1-flash-free` with the `public` key and Rig's User-Agent (`opencode/latest/<upstreamBase>/desktop`). Outcomes: served, refused ("no longer supports free models"), or unknown. **Zen checks the free-usage limit before the version**, so an exhausted quota reads as unknown, not refused.
+- **Alerts:** one open `upstream-scan` issue whose body is the latest report. Body edits notify nobody, so alerts are comments: Zen newly refusing Rig (on any day), and a one-line digest on Mondays or manual runs while Rig is behind. The issue is closed once Rig is current and Zen is not refusing it.
+- **Only runs from GitHub's default branch**, which is still the 1.x `main`, so the scheduled job starts once `migrate-v2` lands there. Until then, run it locally; local runs only print.
+- **Verified:** the local report up to date (base 2.2.5) and behind (base temporarily set to 2.2.1). Lint clean.
+
 ## Issues to resolve: not yet checked in the installed app
 Free models are rate limited, so anything that can only be seen with one has to wait. If a feature cannot be checked with a paid model either, it stays on this list until someone has seen it work.
 - **Provider health pill:** shows only when a provider fails, and has not been seen on screen. Needs a failing provider (a free model out of quota, or a paid model with a bad key). Tests and typecheck pass.
+- **Upstream watcher, GitHub side:** the issue and comment steps (`publish()`) have not run; they need `migrate-v2` on the default branch, then a manual run from the Actions tab. The canary's "refused" outcome has never been seen: on 2026-11-02 this machine was over the free limit, so both 1.19.5 and 2.2.5 got HTTP 429 `FreeUsageLimitError`.
 
 ## Test notes
 - **Server changes need the whole install flow.** `packages/desktop` `bun run build` does not compile the server: it copies `packages/cli/dist`, which goes stale. After any change under core, protocol or server, run `bun run build --single` in `packages/cli` first (needs bun 1.4.4; the repo checks the version), then the desktop `build` and `pack`.
@@ -286,7 +296,7 @@ Fork changed it; upstream did not touch it 1.19.5→2.2.5. `git apply` the fork 
 New fork file; path is free in v2.2.5. Copy, then fix imports against 2.x.
 
 - [ ] `.claude/launch.json`
-- [ ] `.github/workflows/upstream-scan.yml`
+- [x] `.github/workflows/upstream-scan.yml` — rewritten, see "upstream watcher"
 - [ ] `assets/logo-rig-dark.svg`
 - [ ] `assets/logo-rig-light.svg`
 - [ ] `assets/og-image.html`
@@ -351,7 +361,7 @@ New fork file; path is free in v2.2.5. Copy, then fix imports against 2.x.
 - [ ] `packages/server/src/handlers/review.ts`
 - [ ] `packages/ui/src/components/resize-handle.test.ts`
 - [ ] `packages/ui/src/v2/components/tooltip-v2.test.ts`
-- [ ] `script/upstream-scan.ts`
+- [x] `script/upstream-scan.ts` — rewritten, see "upstream watcher"
 - [ ] `specs/fix-non-git-project-picker.md`
 
 ## added-by-fork/path-taken (1)
