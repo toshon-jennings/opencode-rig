@@ -16,6 +16,7 @@ import sources from "./sources"
 import goal from "./goal"
 import usage from "./usage"
 import github from "./github"
+import mcpTools from "./mcp-tools"
 import health from "./health"
 import rig from "./rig"
 
@@ -38,6 +39,7 @@ export const builtins = compose({
   goal,
   usage: { ...usage, mainEntry: () => import("./usage/main") },
   github,
+  "mcp-tools": mcpTools,
   health,
   rig,
 })

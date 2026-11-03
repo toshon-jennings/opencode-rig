@@ -70,6 +70,13 @@ export const McpHandler = HttpApiBuilder.group(Api, "server.mcp", (handlers) =>
         }),
       )
       .handle(
+        "mcp.tool.list",
+        Effect.fn(function* () {
+          const service = yield* Mcp.Service
+          return yield* response(service.tools())
+        }),
+      )
+      .handle(
         "mcp.clientToken",
         Effect.fn(function* (ctx) {
           // The custom header forces a CORS preflight, so cross-origin pages cannot mint tickets.

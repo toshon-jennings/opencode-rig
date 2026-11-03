@@ -9,6 +9,8 @@ export default {
   "difference.usage.body": "Token and cost totals for every model, in a side panel.",
   "difference.github.title": "GitHub overview",
   "difference.github.body": "Local work, commits, checks, issues and pull requests of the repository, in a side panel.",
+  "difference.mcpTools.title": "MCP tool inspector",
+  "difference.mcpTools.body": "Every connected server's tools and their parameters, from Inspect MCP tools.",
   "difference.projectless.title": "Sessions without a project",
   "difference.projectless.body": "Start in the new-session location menu, under No project.",
   "difference.badges.title": "Model badges",

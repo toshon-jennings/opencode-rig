@@ -158,6 +158,8 @@ import type {
   ExperimentalMcpConnectOutput,
   ExperimentalMcpDisconnectInput,
   ExperimentalMcpDisconnectOutput,
+  ExperimentalMcpToolListInput,
+  ExperimentalMcpToolListOutput,
   ExperimentalMcpClientTokenInput,
   ExperimentalMcpClientTokenOutput,
   CredentialListOutput,
@@ -1314,6 +1316,20 @@ export function make(options: ClientOptions) {
             },
             requestOptions,
           ),
+        tool: {
+          list: (input?: ExperimentalMcpToolListInput, requestOptions?: RequestOptions) =>
+            request<ExperimentalMcpToolListOutput>(
+              {
+                method: "GET",
+                path: `/api/experimental/mcp/tool`,
+                query: { location: input?.["location"] },
+                successStatus: 200,
+                declaredStatuses: [400, 401, 404],
+                empty: false,
+              },
+              requestOptions,
+            ),
+        },
         client: {
           token: (input: ExperimentalMcpClientTokenInput, requestOptions?: RequestOptions) =>
             request<ExperimentalMcpClientTokenOutput>(
@@ -2778,6 +2794,11 @@ export function make(options: ClientOptions) {
       connect: client.experimental.mcp.connect,
       /** @deprecated Use `client.experimental.mcp.disconnect`. Removed in the next minor. */
       disconnect: client.experimental.mcp.disconnect,
+      /** @deprecated Use `client.experimental.mcp.tool`. Removed in the next minor. */
+      tool: {
+        /** @deprecated Use `client.experimental.mcp.tool.list`. Removed in the next minor. */
+        list: client.experimental.mcp.tool.list,
+      },
       /** @deprecated Use `client.experimental.mcp.client`. Removed in the next minor. */
       client: {
         /** @deprecated Use `client.experimental.mcp.client.token`. Removed in the next minor. */

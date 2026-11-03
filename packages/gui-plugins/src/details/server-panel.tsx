@@ -708,6 +708,17 @@ function useMcp(props: ServiceProps, close: () => void): ServiceSource {
             <Icon name="mcp" class="shrink-0 text-v2-icon-icon-muted" />
             <span class="min-w-0 truncate">{ctx.t("mcp.manage")}</span>
           </button>
+          <button
+            type="button"
+            class="session-service-config"
+            onClick={() => {
+              close()
+              builtinContext(ctx).layout.command("mcp-tools.open")
+            }}
+          >
+            <Icon name="bullet-list" class="shrink-0 text-v2-icon-icon-muted" />
+            <span class="min-w-0 truncate">{ctx.t("mcp.tools")}</span>
+          </button>
         </div>
       </Show>
     ),

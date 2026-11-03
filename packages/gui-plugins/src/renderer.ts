@@ -33,6 +33,8 @@ import usage from "./usage"
 import github from "./github"
 import usageRenderer from "./usage/renderer"
 import githubRenderer from "./github/renderer"
+import mcpTools from "./mcp-tools"
+import mcpToolsRenderer from "./mcp-tools/renderer"
 import health from "./health"
 import healthRenderer from "./health/renderer"
 import rig from "./rig"
@@ -62,6 +64,7 @@ export const builtins = compose({
   goal: { ...goal, windowEntry: eager(goalRenderer) },
   usage: { ...usage, windowEntry: eager(usageRenderer) },
   github: { ...github, windowEntry: eager(githubRenderer) },
+  "mcp-tools": { ...mcpTools, windowEntry: eager(mcpToolsRenderer) },
   health: { ...health, windowEntry: eager(healthRenderer) },
   rig: { ...rig, windowEntry: eager(rigRenderer) },
 })

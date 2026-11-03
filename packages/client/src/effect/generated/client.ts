@@ -164,6 +164,8 @@ import type {
   ExperimentalMcpConnectOutput,
   ExperimentalMcpDisconnectInput,
   ExperimentalMcpDisconnectOutput,
+  ExperimentalMcpToolListInput,
+  ExperimentalMcpToolListOutput,
   ExperimentalMcpClientTokenInput,
   ExperimentalMcpClientTokenOutput,
   CredentialListOutput,
@@ -1181,6 +1183,11 @@ const EndpointExperimentalMcpDisconnect = (raw: RawClient["server.mcp"]) => (inp
     ),
   )
 
+const EndpointExperimentalMcpToolList = (raw: RawClient["server.mcp"]) => (input?: ExperimentalMcpToolListInput) =>
+  preserveEffect<ExperimentalMcpToolListOutput>()(
+    raw["mcp.tool.list"]({ query: { location: input?.["location"] } }).pipe(Effect.mapError(mapClientError)),
+  )
+
 const EndpointExperimentalMcpClientToken = (raw: RawClient["server.mcp"]) => (input: ExperimentalMcpClientTokenInput) =>
   preserveEffect<ExperimentalMcpClientTokenOutput>()(
     raw["mcp.clientToken"]({
@@ -1194,6 +1201,7 @@ const adaptGroupExperimentalMcp = (raw: RawClient["server.mcp"]) => ({
   remove: EndpointExperimentalMcpRemove(raw),
   connect: EndpointExperimentalMcpConnect(raw),
   disconnect: EndpointExperimentalMcpDisconnect(raw),
+  tool: { list: EndpointExperimentalMcpToolList(raw) },
   client: { token: EndpointExperimentalMcpClientToken(raw) },
 })
 
@@ -2077,6 +2085,11 @@ const adaptClient = (raw: RawClient) => {
       connect: client.experimental.mcp.connect,
       /** @deprecated Use `client.experimental.mcp.disconnect`. Removed in the next minor. */
       disconnect: client.experimental.mcp.disconnect,
+      /** @deprecated Use `client.experimental.mcp.tool`. Removed in the next minor. */
+      tool: {
+        /** @deprecated Use `client.experimental.mcp.tool.list`. Removed in the next minor. */
+        list: client.experimental.mcp.tool.list,
+      },
       /** @deprecated Use `client.experimental.mcp.client`. Removed in the next minor. */
       client: {
         /** @deprecated Use `client.experimental.mcp.client.token`. Removed in the next minor. */

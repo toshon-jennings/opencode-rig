@@ -274,6 +274,14 @@ export type McpResourceTemplate = {
   mimeType?: string
 }
 
+export type McpTool = {
+  server: string
+  name: string
+  title?: string
+  description?: string
+  inputSchema: { [x: string]: JsonValue }
+}
+
 export type PtyTicketConnectToken = { ticket: string; expires_in: number }
 
 export type CredentialKey = { type: "key"; key: string; metadata?: { [x: string]: JsonValue } }
@@ -4206,6 +4214,12 @@ export type ExperimentalMcpDisconnectInput = {
 
 export type ExperimentalMcpDisconnectOutput = void
 
+export type ExperimentalMcpToolListInput = {
+  readonly location?: { readonly directory?: string | undefined } | undefined
+}
+
+export type ExperimentalMcpToolListOutput = { location: LocationPublicRef; data: Array<McpTool> }
+
 export type ExperimentalMcpClientTokenInput = {
   readonly location?: { readonly directory?: string | undefined } | undefined
   readonly name: string
@@ -5021,6 +5035,12 @@ export type McpDisconnectInput = ExperimentalMcpDisconnectInput
 
 /** @deprecated Use `ExperimentalMcpDisconnectOutput`. Removed in the next minor. */
 export type McpDisconnectOutput = ExperimentalMcpDisconnectOutput
+
+/** @deprecated Use `ExperimentalMcpToolListInput`. Removed in the next minor. */
+export type McpToolListInput = ExperimentalMcpToolListInput
+
+/** @deprecated Use `ExperimentalMcpToolListOutput`. Removed in the next minor. */
+export type McpToolListOutput = ExperimentalMcpToolListOutput
 
 /** @deprecated Use `ExperimentalMcpClientTokenInput`. Removed in the next minor. */
 export type McpClientTokenInput = ExperimentalMcpClientTokenInput

@@ -7,6 +7,7 @@ import type definition from "./index"
 const differences = [
   { id: "usage", mark: "+" },
   { id: "github", mark: "+" },
+  { id: "mcpTools", mark: "+" },
   { id: "projectless", mark: "+" },
   { id: "badges", mark: "+" },
   { id: "defaults", mark: "~" },

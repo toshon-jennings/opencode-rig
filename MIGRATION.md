@@ -105,6 +105,16 @@ A GitHub button at the end of the side tab strip (the `session.panel.end` slot, 
 - **Viewed:** a dev server (`bun run src/index.ts serve` in `packages/cli`) plus `packages/app` `bun dev`, on this repository: header, local work, commits, 10 checks, dependencies, issues, 2 PRs, in dark and light.
 - **Merge risk:** one-line registrations in `core/src/instance.ts`, `schema/src/index.ts`, `protocol/src/api.ts` (3 lines), `protocol/src/client.ts`, `server/src/handlers.ts`, `client/script/generate.ts`, plus the generated client files.
 
+## Feature: MCP tool inspector (built; tests, typecheck and the dev web app viewed; confirmed in the installed app)
+"Inspect MCP tools" (command palette, and a link under "Manage MCP servers" in the session details flyout) opens a dialog: each MCP server with its status or tool count; a connected server expands to its tools. Each tool reads as its call signature, `name(query: string, limit?: number)`, optional parameters marked `?`, then its description (Markdown, first paragraph only) and, under "Show more", the full description and each parameter's description. A signature with more than four parameters shows only the required ones and `…` until expanded. Search matches server names, tool names and descriptions. Replaces the fork's expandable rows in the MCP dialog (`f8311699e2`, `fbeac135d3`).
+- **Server route:** `GET /api/experimental/mcp/tool` (`experimental.mcp.tool.list`, so `client.experimental.mcp.tool.list(...)`) in the existing `server.mcp` group (`protocol/src/groups/mcp.ts`, `server/src/handlers/mcp.ts`), returning `Mcp.Service.tools()`. Schema `Mcp.Tool` (`schema/src/mcp.ts`): server, name, title, description, input schema; output schemas and annotations stay on the server. Experimental, like every new route. The codegen gives it the deprecated `client.mcp.tool.list` alias, as it does every experimental route.
+- **Plugin:** `gui-plugins/src/mcp-tools` (`renderer.tsx`, lazy `dialog.tsx`, `parameters.ts` parses the input schema with Effect Schema: `type`, unions from `anyOf`/`oneOf`, `T[]`). Registered in `renderer.ts` and `main.ts`. The flyout link runs the command by id (`mcp-tools.open`) from `details/server-panel.tsx`, so no plugin imports another. A line in the About Rig ledger.
+- **Changes from the fork:** no model needed (1.x listed tools through `tool.list` with a provider and model) and no name-prefix matching (2.x tags each tool with its server); a dialog of its own instead of rows in the upstream MCP dialog, which stays untouched; no "Required" pills (the `?` says it); Markdown rendered instead of raw `**`/`##`. The fork's palette commands from the same commits are not ported: provider health was dropped earlier (see the model selector), and 2.x has no follow-up mode setting to toggle.
+- **Not covered:** the list refreshes when a server's status changes or the dialog reopens, not on `mcp.tools.changed` alone. Tools of client-attached MCP servers (never listed by `mcp.list`) are not shown.
+- **Tests:** `server/test/mcp-tool.test.ts` (route end to end with a real stdio MCP server; checks that only the declared fields go over the wire), `gui-plugins/src/mcp-tools/parameters.test.ts` (3), `client/test/promise.test.ts` (new keys), protocol experimental-identifier test. `lint:changed` clean.
+- **Viewed:** source server plus `packages/app` dev server against the real global config (gmail 23 tools, learn 3, littlebird "Sign in required", rea 229): palette and flyout entry points, expand, Show more/less, search with and without matches, a 20-parameter signature, dark and light, keyboard focus.
+- **Merge risk:** a few lines each in `schema/src/mcp.ts`, `protocol/src/groups/mcp.ts`, `server/src/handlers/mcp.ts`, the generated client files, `details/server-panel.tsx` and `details/i18n/en.ts`, plus the one-line plugin registrations.
+
 ## Fix: Rig app icon (confirmed in the installed app's Dock)
 The installed Rig showed OpenCode's Dock icon. Only `icons/*/icon.png` had been ported; `icon.icns` and `dock.png` in all three channels were upstream's, and prod also bundled upstream's Icon Composer package (`icons/prod/icon.icon` → `Assets.car`), which macOS 26 draws the Dock icon from instead of the ICNS. The fork's `icon.icns` and `dock.png` (OpenCode's mark plus the cursor bar) are copied for prod, beta and dev, `icon.icon` is deleted and the prod `mac.icon`/`dmg.icon` override in `electron-builder.config.ts` is gone, so every channel uses the Rig ICNS, as 1.x did. `electron-builder.config.test.ts` checks the ICNS and that no channel ships an Icon Composer package. The built bundle has the Rig ICNS and no `Assets.car`.
 - **Not done:** a Rig Icon Composer package (Liquid Glass styles on macOS 26). The ICNS is what 1.x shipped.
@@ -319,9 +329,9 @@ New fork file; path is free in v2.2.5. Copy, then fix imports against 2.x.
 - [ ] `assets/og-image.png`
 - [ ] `docs/claude-cli-conversation-check.json`
 - [ ] `docs/review-v2-hunk-staging.md`
-- [ ] `packages/app/src/components/dialog-select-mcp-helpers.test.ts`
-- [ ] `packages/app/src/components/dialog-select-mcp-helpers.ts`
-- [ ] `packages/app/src/components/dialog-select-mcp.stories.tsx`
+- [x] `packages/app/src/components/dialog-select-mcp-helpers.test.ts` — now `gui-plugins/src/mcp-tools/parameters.ts`, see "MCP tool inspector"
+- [x] `packages/app/src/components/dialog-select-mcp-helpers.ts` — now `gui-plugins/src/mcp-tools/parameters.ts`, see "MCP tool inspector"
+- [x] `packages/app/src/components/dialog-select-mcp.stories.tsx` — not ported; the inspector is a plugin dialog
 - [ ] `packages/app/src/components/model-capability-chips.stories.tsx`
 - [ ] `packages/app/src/components/model-capability-tags.test.ts`
 - [x] `packages/app/src/components/model-capability-tags.ts` — ported as `providers/models/capabilities.ts`
@@ -474,7 +484,7 @@ File no longer exists in 2.2.5 (moved/rewritten). Decide per file: re-implement,
 - [ ] `github/index.ts`
 - [ ] `packages/app/src/components/dialog-connect-provider.tsx`
 - [ ] `packages/app/src/components/dialog-manage-models.tsx`
-- [ ] `packages/app/src/components/dialog-select-mcp.tsx`
+- [x] `packages/app/src/components/dialog-select-mcp.tsx` — the inspector is now the built-in plugin `gui-plugins/src/mcp-tools`
 - [ ] `packages/app/src/components/dialog-select-model.tsx`
 - [ ] `packages/app/src/components/model-tooltip.tsx`
 - [ ] `packages/app/src/components/prompt-input-v2.tsx`

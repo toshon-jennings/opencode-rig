@@ -48,7 +48,7 @@ test("exposes every standard HTTP API group", () => {
   expect(Object.keys(client.integration.command)).toEqual(["connect", "status", "cancel"])
   expect(Object.keys(client.websearch)).toEqual(["providers", "query"])
   expect(Object.keys(client.file)).toEqual(["read", "list", "find", "write", "watch", "unwatch"])
-  expect(Object.keys(client.mcp)).toEqual(["list", "resource", "add", "remove", "connect", "disconnect", "client"])
+  expect(Object.keys(client.mcp)).toEqual(["list", "resource", "add", "remove", "connect", "disconnect", "tool", "client"])
   expect(Object.keys(client.config)).toEqual(["get", "shells", "update"])
   expect(Object.keys(client.vcs)).toEqual(["init", "get", "base", "status", "branch", "diff", "review"])
   expect(Object.keys(client.pty)).toEqual(["list", "create", "get", "update", "remove", "connect"])
@@ -79,7 +79,7 @@ test("exposes every standard HTTP API group", () => {
   ])
   expect(Object.keys(client.experimental.voice)).toEqual(["models", "session"])
   expect(Object.keys(client.experimental.usage)).toEqual(["limits"])
-  expect(Object.keys(client.experimental.mcp)).toEqual(["add", "remove", "connect", "disconnect", "client"])
+  expect(Object.keys(client.experimental.mcp)).toEqual(["add", "remove", "connect", "disconnect", "tool", "client"])
   expect(Object.keys(client.experimental.integration.wellknown)).toEqual(["add"])
   expect(Object.keys(client.experimental.file)).toEqual(["write", "watch", "unwatch"])
   expect(Object.keys(client.experimental.media)).toEqual(["get"])
@@ -154,6 +154,7 @@ test("nests a method under client.experimental exactly when its route is experim
     "mcp.connect",
     "mcp.disconnect",
     "mcp.remove",
+    "mcp.tool.list",
     "migration.v1.status",
     "session.export",
     "session.import",

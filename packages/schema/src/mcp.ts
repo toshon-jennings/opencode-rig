@@ -122,6 +122,17 @@ export const ResourceCatalog = Schema.Struct({
   templates: Schema.Array(ResourceTemplate),
 }).annotate({ identifier: "Mcp.ResourceCatalog" })
 
+export interface Tool extends Schema.Schema.Type<typeof Tool> {}
+export const Tool = Schema.Struct({
+  server: Schema.String,
+  name: Schema.String,
+  title: optional(Schema.String),
+  description: optional(Schema.String),
+  inputSchema: Schema.Record(Schema.String, Schema.Unknown).annotate({
+    description: "The tool's input as the MCP server declares it, a JSON Schema object.",
+  }),
+}).annotate({ identifier: "Mcp.Tool" })
+
 export const ResourceContentPart = Schema.Union([
   Schema.Struct({
     type: Schema.Literal("text"),

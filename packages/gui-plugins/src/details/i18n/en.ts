@@ -10,6 +10,7 @@ export default {
   mcp: "MCP",
   "mcp.empty": "No MCP servers configured",
   "mcp.manage": "Manage MCP servers",
+  "mcp.tools": "Inspect MCP tools",
   plugins: "Plugins",
   "plugins.empty": "No plugins configured",
   skills: "Skills",

@@ -1756,6 +1756,12 @@ export interface McpApi<E = never> {
   /** @deprecated Use `client.experimental.mcp.disconnect`. Removed in the next minor. */
   readonly disconnect: ExperimentalMcpDisconnectOperation<E>
 
+  /** @deprecated Use `client.experimental.mcp.tool`. Removed in the next minor. */
+  readonly tool: {
+    /** @deprecated Use `client.experimental.mcp.tool.list`. Removed in the next minor. */
+    readonly list: ExperimentalMcpToolListOperation<E>
+  }
+
   /** @deprecated Use `client.experimental.mcp.client`. Removed in the next minor. */
   readonly client: {
     /** @deprecated Use `client.experimental.mcp.client.token`. Removed in the next minor. */
@@ -1800,6 +1806,17 @@ export type ExperimentalMcpDisconnectOperation<E = never> = (
   input: ExperimentalMcpDisconnectInput,
 ) => Effect.Effect<ExperimentalMcpDisconnectOutput, E>
 
+export type ExperimentalMcpToolListInput = {
+  readonly location?: { readonly directory?: string | undefined } | undefined
+}
+export type ExperimentalMcpToolListOutput = {
+  readonly location: Location.PublicRef
+  readonly data: ReadonlyArray<Mcp.Tool>
+}
+export type ExperimentalMcpToolListOperation<E = never> = (
+  input?: ExperimentalMcpToolListInput,
+) => Effect.Effect<ExperimentalMcpToolListOutput, E>
+
 export type ExperimentalMcpClientTokenInput = {
   readonly location?: { readonly directory?: string | undefined } | undefined
   readonly name: string
@@ -1818,6 +1835,7 @@ export interface ExperimentalMcpApi<E = never> {
   readonly remove: ExperimentalMcpRemoveOperation<E>
   readonly connect: ExperimentalMcpConnectOperation<E>
   readonly disconnect: ExperimentalMcpDisconnectOperation<E>
+  readonly tool: { readonly list: ExperimentalMcpToolListOperation<E> }
   readonly client: { readonly token: ExperimentalMcpClientTokenOperation<E> }
 }
 
@@ -2977,6 +2995,15 @@ export type McpDisconnectOutput = ExperimentalMcpDisconnectOutput
 
 /** @deprecated Use `ExperimentalMcpDisconnectOperation`. Removed in the next minor. */
 export type McpDisconnectOperation<E = never> = ExperimentalMcpDisconnectOperation<E>
+
+/** @deprecated Use `ExperimentalMcpToolListInput`. Removed in the next minor. */
+export type McpToolListInput = ExperimentalMcpToolListInput
+
+/** @deprecated Use `ExperimentalMcpToolListOutput`. Removed in the next minor. */
+export type McpToolListOutput = ExperimentalMcpToolListOutput
+
+/** @deprecated Use `ExperimentalMcpToolListOperation`. Removed in the next minor. */
+export type McpToolListOperation<E = never> = ExperimentalMcpToolListOperation<E>
 
 /** @deprecated Use `ExperimentalMcpClientTokenInput`. Removed in the next minor. */
 export type McpClientTokenInput = ExperimentalMcpClientTokenInput
