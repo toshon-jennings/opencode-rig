@@ -105,6 +105,10 @@ A GitHub button at the end of the side tab strip (the `session.panel.end` slot, 
 - **Viewed:** a dev server (`bun run src/index.ts serve` in `packages/cli`) plus `packages/app` `bun dev`, on this repository: header, local work, commits, 10 checks, dependencies, issues, 2 PRs, in dark and light.
 - **Merge risk:** one-line registrations in `core/src/instance.ts`, `schema/src/index.ts`, `protocol/src/api.ts` (3 lines), `protocol/src/client.ts`, `server/src/handlers.ts`, `client/script/generate.ts`, plus the generated client files.
 
+## Fix: Rig app icon (confirmed in the installed app's Dock)
+The installed Rig showed OpenCode's Dock icon. Only `icons/*/icon.png` had been ported; `icon.icns` and `dock.png` in all three channels were upstream's, and prod also bundled upstream's Icon Composer package (`icons/prod/icon.icon` → `Assets.car`), which macOS 26 draws the Dock icon from instead of the ICNS. The fork's `icon.icns` and `dock.png` (OpenCode's mark plus the cursor bar) are copied for prod, beta and dev, `icon.icon` is deleted and the prod `mac.icon`/`dmg.icon` override in `electron-builder.config.ts` is gone, so every channel uses the Rig ICNS, as 1.x did. `electron-builder.config.test.ts` checks the ICNS and that no channel ships an Icon Composer package. The built bundle has the Rig ICNS and no `Assets.car`.
+- **Not done:** a Rig Icon Composer package (Liquid Glass styles on macOS 26). The ICNS is what 1.x shipped.
+
 ## Issues to resolve: not yet checked in the installed app
 Free models are rate limited, so anything that can only be seen with one has to wait. If a feature cannot be checked with a paid model either, it stays on this list until someone has seen it work.
 - **Provider health pill:** shows only when a provider fails, and has not been seen on screen. Needs a failing provider (a free model out of quota, or a paid model with a bad key). Tests and typecheck pass.

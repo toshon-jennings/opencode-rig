@@ -316,11 +316,7 @@ export function getConfig() {
         appId,
         productName: "OpenCode Rig",
         protocols: { name: "OpenCode Rig", schemes: ["opencode"] },
-        // An Icon Composer package compiles to Assets.car, which macOS 26 and later draw the app icon from
-        // (Dock, Finder, system dialogs and the system icon styles). Older macOS keeps using the ICNS.
-        mac: { ...base.mac, icon: "resources/icons/icon.icon" },
-        // The DMG volume icon would otherwise use the same actool-generated ICNS.
-        dmg: { ...base.dmg, icon: "resources/icons/icon.icns" },
+        // No Icon Composer package: upstream's draws OpenCode's icon on macOS 26, so the Rig ICNS is used everywhere.
         // Draft until every artifact has landed, so the updater never sees a release with files missing.
         publish: { provider: "github", owner: FORK_OWNER, repo: FORK_REPO, channel: "latest", releaseType: "draft" },
         deb: { fpm: [metainfoFpm(PROD_METAINFO_ID), legacyDesktopEntryFpm] },

@@ -94,8 +94,8 @@ test("legacy Linux launcher stays hidden", async () => {
 
 test.each(channels)("macOS bundle for $channel", ({ channel }) => {
   const config = load(channel)
-  expect(config.mac?.icon).toBe(channel === "prod" ? "resources/icons/icon.icon" : "resources/icons/icon.icns")
-  expect(config.dmg?.icon).toBe(channel === "prod" ? "resources/icons/icon.icns" : undefined)
+  expect(config.mac?.icon).toBe("resources/icons/icon.icns")
+  expect(config.dmg?.icon).toBeUndefined()
   // The prod override must keep the rest of the shared macOS settings.
   expect(config.mac?.target).toEqual(["dmg", "zip"])
 
@@ -123,11 +123,9 @@ test.each(channels)("ships a single PNG dmg background at the window size for $c
   expect(await Bun.file(path.join(import.meta.dirname, "resources/background@2x.png")).exists()).toBe(false)
 })
 
-test("the production Icon Composer package references its bundled artwork", async () => {
-  const icon = await Bun.file(path.join(import.meta.dirname, "icons/prod/icon.icon/icon.json")).json()
-  expect(icon["supported-platforms"]).toEqual({ squares: ["macOS"] })
-  const image = icon.groups[0].layers[0]["image-name"]
-  expect(await Bun.file(path.join(import.meta.dirname, "icons/prod/icon.icon/Assets", image)).exists()).toBe(true)
+test.each(channels)("ships no Icon Composer package for $channel", async ({ channel }) => {
+  // macOS 26 draws the Dock icon from an Icon Composer package over the ICNS; upstream's shows OpenCode's icon.
+  expect(await Bun.file(path.join(import.meta.dirname, `icons/${channel}/icon.icon/icon.json`)).exists()).toBe(false)
 })
 
 test("shared packaging defaults", async () => {
