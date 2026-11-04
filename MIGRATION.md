@@ -118,12 +118,12 @@ A GitHub button at the end of the side tab strip (the `session.panel.end` slot, 
 - **Viewed:** source server plus `packages/app` dev server against the real global config (gmail 23 tools, learn 3, littlebird "Sign in required", rea 229): palette and flyout entry points, expand, Show more/less, search with and without matches, a 20-parameter signature, dark and light, keyboard focus.
 - **Merge risk:** a few lines each in `schema/src/mcp.ts`, `protocol/src/groups/mcp.ts`, `server/src/handlers/mcp.ts`, the generated client files, `details/server-panel.tsx` and `details/i18n/en.ts`, plus the one-line plugin registrations.
 
+## Fix: updater downgrades (confirmed in the installed app's log)
+`allowDowngrade` was on (inherited from upstream), so Rig 0.3.1 took the fork's latest release, 0.2.31 (1.x-based), as an update: every 10 minutes it downloaded about 150 MB and failed only because that build's bundle ID is `ai.opencode.desktop`. An older-versioned release with the Rig bundle ID would have installed on quit. `gui-plugins/src/updater/platform.ts` now sets it to false, as upstream's unmerged `electron-audit-11` branch does. It must stay after the `channel` assignment: electron-updater turns downgrades on when `channel` is set. A bad release is now replaced by a newer version, never rolled back. Verified in the launch log: "Update for version 0.3.1 is not available (latest version: 0.2.31, downgrade is disallowed)", then `up-to-date`.
+
 ## Fix: Rig app icon (confirmed in the installed app's Dock)
 The installed Rig showed OpenCode's Dock icon. Only `icons/*/icon.png` had been ported; `icon.icns` and `dock.png` in all three channels were upstream's, and prod also bundled upstream's Icon Composer package (`icons/prod/icon.icon` → `Assets.car`), which macOS 26 draws the Dock icon from instead of the ICNS. The fork's `icon.icns` and `dock.png` (OpenCode's mark plus the cursor bar) are copied for prod, beta and dev, `icon.icon` is deleted and the prod `mac.icon`/`dmg.icon` override in `electron-builder.config.ts` is gone, so every channel uses the Rig ICNS, as 1.x did. `electron-builder.config.test.ts` checks the ICNS and that no channel ships an Icon Composer package. The built bundle has the Rig ICNS and no `Assets.car`.
 - **Not done:** a Rig Icon Composer package (Liquid Glass styles on macOS 26). The ICNS is what 1.x shipped.
-
-## Issues to resolve: updater downgrade risk
-`gui-plugins/src/updater/platform.ts` sets `allowDowngrade = true`, and macOS installs on quit, so Rig 0.3.1 sees the fork's latest release (0.2.31, 1.x-based) and downloads about 150 MB of it on launch. It only fails because that build's bundle ID is `ai.opencode.desktop` ("Could not locate update bundle for ai.opencode.desktop.rig"). An older-versioned release with the Rig bundle ID would install. Handle it with the updater notify mode work.
 
 ## Issues to resolve: not yet checked in the installed app
 Free models are rate limited, so anything that can only be seen with one has to wait. If a feature cannot be checked with a paid model either, it stays on this list until someone has seen it work.

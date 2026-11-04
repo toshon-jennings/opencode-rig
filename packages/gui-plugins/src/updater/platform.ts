@@ -25,7 +25,8 @@ export const make = Effect.fn("Updater.platform")(function* (channel: string) {
   updateClient.channel = "latest"
   updateClient.requestHeaders = { "User-Agent": userAgent }
   updateClient.allowPrerelease = false
-  updateClient.allowDowngrade = true
+  // Rig's feed still lists 1.x releases, which must never replace a 2.x build. A bad release is replaced by a newer one.
+  updateClient.allowDowngrade = false
   updateClient.autoDownload = false
   updateClient.autoInstallOnAppQuit = process.platform === "darwin"
   yield* Effect.logInfo("auto updater configured", {
