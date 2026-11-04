@@ -705,6 +705,11 @@ export const builtins = compose({
   "microsoft-office": microsoftOffice,
   sources,
   goal,
+  usage: { ...usage, mainEntry: () => import("./usage/main") },
+  github,
+  "mcp-tools": mcpTools,
+  health,
+  rig,
 })
 ```
 
@@ -730,6 +735,11 @@ export const builtins = compose({
   "microsoft-office": { ...microsoftOffice, windowEntry: eager(microsoftOfficeRenderer) },
   sources: { ...sources, windowEntry: eager(sourcesRenderer) },
   goal: { ...goal, windowEntry: eager(goalRenderer) },
+  usage: { ...usage, windowEntry: eager(usageRenderer) },
+  github: { ...github, windowEntry: eager(githubRenderer) },
+  "mcp-tools": { ...mcpTools, windowEntry: eager(mcpToolsRenderer) },
+  health: { ...health, windowEntry: eager(healthRenderer) },
+  rig: { ...rig, windowEntry: eager(rigRenderer) },
 })
 ```
 

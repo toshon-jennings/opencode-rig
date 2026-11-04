@@ -1,5 +1,4 @@
 import { ComposerPill, type ComposerPillProps, type Plugin } from "@opencode/plugin/gui"
-import { catalogModel } from "../context/catalog"
 import type HealthDefinition from "./index"
 import { providerHealth, type Sample } from "./status"
 
@@ -13,10 +12,13 @@ const HISTORY = 30
 const setup: Plugin.Setup<typeof HealthDefinition> = (ctx) => {
   const latest = (input: ComposerPillProps) => {
     if (!input.session.id) return
+
     const assistants = input.session.server.data.session.message
       .list(input.session.id)
       .filter((message) => message.type === "assistant")
+
     const model = assistants.at(-1)?.model
+
     if (!model) return
 
     const samples = assistants
@@ -24,19 +26,26 @@ const setup: Plugin.Setup<typeof HealthDefinition> = (ctx) => {
       .slice(-HISTORY)
       .map((message): Sample => {
         if (message.error) return { ok: false }
+
         return { ok: true, latencyMs: (message.time.streamed ?? message.time.completed!) - message.time.created }
       })
+
     const health = providerHealth(samples)
+
     if (!health || health.status === "operational") return
 
     return {
       health,
-      provider: catalogModel(input.session, model)?.provider.name ?? model.providerID,
+      provider:
+        input.session.server.data.location.provider
+          .list(input.session.directory ? { directory: input.session.directory } : undefined)
+          ?.findLast((provider) => provider.id === model.providerID)?.name ?? model.providerID,
     }
   }
 
   const duration = (ms: number) => {
     const seconds = ms >= 1000
+
     return new Intl.NumberFormat(ctx.locale.locale(), {
       style: "unit",
       unit: seconds ? "second" : "millisecond",
@@ -49,6 +58,7 @@ const setup: Plugin.Setup<typeof HealthDefinition> = (ctx) => {
     id: "main",
     show: (input) => {
       const current = latest(input)
+
       if (!current) return
       const unreachable = current.health.status === "unreachable"
 
