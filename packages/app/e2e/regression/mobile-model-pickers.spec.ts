@@ -255,6 +255,30 @@ test("model dialog toggles a favorite from the keyboard and leads with favorite 
   await expect(dialog.locator('[data-option-key="opencode:mobile-c"]')).toHaveAttribute("data-active", "")
 })
 
+test("a model hidden in Manage models leaves the picker, and its provider switch stays on for the rest", async ({
+  page,
+}) => {
+  const { model, dialog } = await openDesktopPicker(page, "ltr")
+  const sections = dialog.locator('[data-slot="search-list-header"]')
+  const hidden = dialog.locator('[data-option-key="opencode:mobile-b"]')
+  await model.click()
+  await hidden.click()
+  await model.click()
+  await expect(sections).toHaveText(["Recent", "OpenCode"])
+
+  await dialog.getByRole("button", { name: "Manage models", exact: true }).click()
+  const manage = page.getByRole("dialog", { name: "Manage models", exact: true })
+  await manage.getByPlaceholder("Search").fill("Mobile")
+  await manage.locator(".search-list-row", { hasText: "Mobile Model B" }).click()
+  await expect(manage.getByRole("switch", { name: "OpenCode", exact: true })).toBeChecked()
+  await page.keyboard.press("Escape")
+  await expect(manage).toBeHidden()
+
+  await model.click()
+  await expect(sections).toHaveText(["OpenCode"])
+  await expect(hidden).toHaveCount(0)
+})
+
 test("model dialog opens Manage models from its search row with Enter", async ({ page }) => {
   const { model, dialog } = await openDesktopPicker(page, "ltr")
   await model.click()

@@ -189,11 +189,15 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
 
     const recentModel = () => {
       for (const item of models.recent.list()) {
-        if (validModel(item)) return item
+        if (validModel(item) && models.visible(item)) return item
       }
     }
 
-    const defaultModel = () => fallbackModels(providers.connected()).find(validModel)
+    const defaultModel = () => {
+      const items = fallbackModels(providers.connected()).filter(validModel)
+
+      return items.find(models.visible) ?? items[0]
+    }
 
     const fallback = createMemo(() => firstModel(configuredModel, recentModel, defaultModel))
 
@@ -364,12 +368,15 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
       setStore("draft", state)
     }
 
-    const recent = createMemo(() => models.recent.list().filter(validModel).map(models.find).filter(Boolean))
+    const recent = createMemo(() =>
+      models.recent.list().filter(validModel).filter(models.visible).map(models.find).filter(Boolean),
+    )
 
     const favorite = createMemo(() =>
       models.favorite
         .list()
         .filter(validModel)
+        .filter(models.visible)
         .map(models.find)
         .filter((item): item is NonNullable<typeof item> => !!item),
     )
@@ -457,9 +464,10 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
 
           // A session draft owns its variant even when preferences change in another session.
           if (id() && !same) write({ variant: model.variant.current() ?? null })
-          models.setVisibility(item, true)
 
+          // Only a pick shows a model again: an agent switch or a cycle keeps what Manage Models hid.
           if (!options?.recent) return
+          models.setVisibility(item, true)
           models.recent.push(item)
         })
       },

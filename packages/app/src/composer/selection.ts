@@ -152,9 +152,13 @@ export function createComposerModelSelection(input: {
     return !!provider?.models[model.modelID] && connected().has(model.providerID)
   }
 
-  const recent = () => models.recent.list().find(valid)
+  const recent = () => models.recent.list().find((item) => valid(item) && models.visible(item))
 
-  const fallback = () => fallbackModels(providers.connected())[0]
+  const fallback = () => {
+    const items = fallbackModels(providers.connected())
+
+    return items.find(models.visible) ?? items[0]
+  }
 
   const key = () => {
     if (!configuredModel.ready()) return
@@ -173,6 +177,7 @@ export function createComposerModelSelection(input: {
   const recentModels = createMemo(() =>
     models.recent
       .list()
+      .filter(models.visible)
       .map(models.find)
       .filter((item): item is NonNullable<typeof item> => !!item),
   )
@@ -180,6 +185,7 @@ export function createComposerModelSelection(input: {
   const favoriteModels = createMemo(() =>
     models.favorite
       .list()
+      .filter(models.visible)
       .map(models.find)
       .filter((item): item is NonNullable<typeof item> => !!item),
   )
@@ -216,10 +222,10 @@ export function createComposerModelSelection(input: {
           item ? { ...item, variant: same ? (selection.variant.current() ?? null) : undefined } : undefined,
         )
 
-        if (!item) return
+        // Only a pick shows a model again: an agent switch or a cycle keeps what Manage Models hid.
+        if (!item || !options?.recent) return
         models.setVisibility(item, true)
-
-        if (options?.recent) models.recent.push(item)
+        models.recent.push(item)
       })
     },
     visible: models.visible,

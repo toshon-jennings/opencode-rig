@@ -38,7 +38,11 @@ export const DialogSelectModelUnpaid: Component<{ model?: ModelState }> = (props
   const providerName = (provider: { id: string; name: string }) =>
     provider.id === "opencode" ? language.t("provider.connect.opencode.name") : provider.name
 
-  const freeModels = createMemo(() => model.list().filter(isFreeModel))
+  const freeModels = createMemo(() =>
+    model
+      .list()
+      .filter((item) => isFreeModel(item) && model.visible({ modelID: item.id, providerID: item.provider.id })),
+  )
 
   const openProviders = (provider?: string) => {
     void import("@/providers/connect/dialog").then((x) => {
