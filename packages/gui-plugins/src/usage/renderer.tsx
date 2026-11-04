@@ -1,45 +1,38 @@
-import { lazy, onCleanup } from "solid-js"
-import { Command, Panel, type Plugin } from "@opencode/plugin/gui"
-import { onIdle } from "@opencode/plugin/gui/builtin"
+import { lazy, Suspense } from "solid-js"
+import { Command, Slot, type Plugin } from "@opencode/plugin/gui"
 import type Usage from "./index"
 
-/** The usage report: a side tab with token and cost totals per model, opened from the command palette. */
+/** The usage report: a strip across the bottom of the window, because seeing what models cost is what Rig is for. */
 const setup: Plugin.Setup<typeof Usage> = (ctx) => {
-  const UsageTab = lazy(() => import("./panel"))
-  onCleanup(onIdle(() => void UsageTab.preload()))
+  // Main reads the databases, so the web client has nothing to show.
+  if (!ctx.desktop) return
 
-  // One tab object, so strip updates and session switches do not rebuild its trigger.
-  const tab = {
-    id: "main",
-    get title() {
-      return ctx.t("title")
-    },
-  }
+  const UsageStrip = lazy(() => import("./panel"))
+  // The strip shows at startup, so it must not wait for its chunk in the first render.
+  void UsageStrip.preload()
 
-  ctx.add(Panel, {
-    id: "main",
-    region: "side",
-    list: (input) => (input.open.includes("main") ? [tab] : []),
-    render: () => <UsageTab />,
+  ctx.add(Slot, {
+    at: "window.bottom",
+    render: () => (
+      <Suspense>
+        <UsageStrip />
+      </Suspense>
+    ),
   })
 
   ctx.add(Command, {
-    id: "open",
+    id: "toggle",
     get title() {
-      return ctx.t("command.open")
+      return ctx.t("command.toggle")
     },
     get group() {
       return ctx.t("command.category.view")
     },
     keywords: "usage tokens cost models spend",
     get enabled() {
-      return ctx.sessions.current() !== undefined
+      return !ctx.layout.narrow()
     },
-    run: () => {
-      const session = ctx.sessions.current()
-
-      if (session) ctx.layout.open(`${ctx.id}:main`, session, { tab: "select" })
-    },
+    run: () => ctx.stores.strip.update((strip) => void (strip.open = !strip.open)),
   })
 }
 

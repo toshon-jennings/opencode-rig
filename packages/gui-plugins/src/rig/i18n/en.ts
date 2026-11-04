@@ -6,7 +6,7 @@ export default {
   "differences.added": "Added",
   "differences.changed": "Changed",
   "difference.usage.title": "Usage report",
-  "difference.usage.body": "Token and cost totals for every model, in a side panel.",
+  "difference.usage.body": "Token and cost totals for every model, always on across the bottom of the window.",
   "difference.github.title": "GitHub overview",
   "difference.github.body": "Local work, commits, checks, issues and pull requests of the repository, in a side panel.",
   "difference.mcpTools.title": "MCP tool inspector",

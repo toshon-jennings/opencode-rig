@@ -1,6 +1,8 @@
 export default {
   title: "Usage",
-  "command.open": "Open usage",
+  "command.toggle": "Toggle usage panel",
+  expand: "Expand usage panel",
+  collapse: "Collapse usage panel",
   "command.category.view": "View",
   "filter.placeholder": "Filter models…",
   "filter.clear": "Clear filter",
