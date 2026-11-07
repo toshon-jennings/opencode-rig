@@ -12,7 +12,7 @@ export function updaterAction(state: UpdaterState | undefined) {
     case "ready":
       return { label: "action.installRestart" as const, run: "install" as const }
     case "download-required":
-      return { label: "action.download" as const, run: "install" as const }
+      return { label: "notify.download" as const, run: "install" as const }
     case "installing":
       return { label: "action.installing" as const }
     case "disabled":

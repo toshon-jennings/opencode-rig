@@ -87,14 +87,17 @@ const setup: Plugin.MainSetup = async (ctx) => {
       return
     }
 
-    if (state.status !== "ready") return
+    if (state.status !== "ready" && state.status !== "download-required") return
+    const external = state.status === "download-required"
 
     const response = yield* promise(() =>
       dialog.showMessageBox({
         type: "info",
-        message: ctx.t("dialog.ready.message", { version: state.version }),
-        title: ctx.t("dialog.ready.title"),
-        buttons: [ctx.t("dialog.restart"), ctx.t("dialog.later")],
+        message: external
+          ? ctx.t("notify.description", { version: state.version })
+          : ctx.t("dialog.ready.message", { version: state.version }),
+        title: external ? ctx.t("notify.title") : ctx.t("dialog.ready.title"),
+        buttons: [external ? ctx.t("notify.download") : ctx.t("dialog.restart"), ctx.t("dialog.later")],
         defaultId: 0,
         cancelId: 1,
       }),

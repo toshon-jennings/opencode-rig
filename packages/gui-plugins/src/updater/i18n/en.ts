@@ -11,6 +11,10 @@ export default {
   "migration.title": "Move from Beta to Stable",
   "migration.description":
     "For now, OpenCode Beta is moving to OpenCode Stable. Download version {{version}}, then install OpenCode from the disk image to continue receiving updates.",
+  "notify.title": "Update available",
+  "notify.download": "Download OpenCode Rig",
+  "notify.description":
+    "OpenCode Rig {{version}} is available. Download it from the release page, then replace the app in Applications.",
   "section.title": "Updates",
   "releaseNotes.title": "Release notes",
   "releaseNotes.description": "Show What's New popups after updates",

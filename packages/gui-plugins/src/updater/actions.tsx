@@ -10,7 +10,7 @@ type Client = IpcClient<typeof Updater.spec>
 
 type Context = SetupContext<typeof definition>
 
-/** Restarts into the staged update. A beta build moving to stable confirms the installer download first. */
+/** Restarts into the staged update. An update only the release page offers (Rig on macOS) confirms the download first. */
 export function install(ctx: Context, client: Client) {
   const download = () => client.install().catch((cause: unknown) => requestFailed(ctx, cause))
 
@@ -90,8 +90,8 @@ function DialogStableDownload(props: {
     <Dialog fit>
       <DialogHeader>
         <DialogTitleGroup
-          title={ctx.t("migration.title")}
-          description={ctx.t("migration.description", { version: props.version })}
+          title={ctx.t("notify.title")}
+          description={ctx.t("notify.description", { version: props.version })}
         />
       </DialogHeader>
       <DialogFooter>
@@ -99,7 +99,7 @@ function DialogStableDownload(props: {
           {ctx.t("common.cancel")}
         </Button>
         <Button type="button" variant="contrast" autofocus onClick={download}>
-          {ctx.t("action.download")}
+          {ctx.t("notify.download")}
         </Button>
       </DialogFooter>
     </Dialog>

@@ -1,6 +1,8 @@
 import { execFile } from "node:child_process"
+import { readFile } from "node:fs/promises"
+import path from "node:path"
 import { promisify } from "node:util"
-import { app, autoUpdater } from "electron"
+import { app, autoUpdater, shell } from "electron"
 import pkg from "electron-updater"
 import { Effect } from "effect"
 import type { Platform } from "./machine"
@@ -42,6 +44,14 @@ export const make = Effect.fn("Updater.platform")(function* (channel: string) {
         const result = await updateClient.checkForUpdates()
 
         if (!result?.isUpdateAvailable) return undefined
+        const version = result.updateInfo.version
+
+        // Squirrel.Mac applies only an update signed like the running app, and Rig's ad-hoc signature differs on
+        // every build, so a download could never install. Link to the release page instead until releases are
+        // signed with a Developer ID.
+        if (process.platform === "darwin")
+          return { mode: "external", version, url: `${await releasePage()}/tag/v${version}` } as const
+
         const files = result.updateInfo.files
         // electron-updater picks the installer whose name contains process.arch, which emulation on Windows ARM64
         // reports as x64. downloadUpdate() reads this same list, so keeping only the ARM64 installer moves the install
@@ -55,14 +65,23 @@ export const make = Effect.fn("Updater.platform")(function* (channel: string) {
           )
         }
 
-        return { mode: "restart", version: result.updateInfo.version } as const
+        return { mode: "restart", version } as const
       },
       catch: (error) => error,
     }),
     stageUpdate,
     installAndRestart,
+    externalInstall: (url) => Effect.tryPromise({ try: () => shell.openExternal(url), catch: (error) => error }),
   } satisfies Platform
 })
+
+// electron-updater reads its GitHub feed from app-update.yml, and the release page belongs to the same repository.
+async function releasePage() {
+  const config = await readFile(path.join(process.resourcesPath, "app-update.yml"), "utf8")
+  const field = (name: string) => config.match(new RegExp(`^${name}: '?([^'\\n]+)'?$`, "m"))?.[1]
+
+  return `https://github.com/${field("owner")}/${field("repo")}/releases`
+}
 
 function stageUpdate(options: { readonly differential: boolean }) {
   if (process.platform !== "darwin")
