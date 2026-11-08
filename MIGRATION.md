@@ -55,7 +55,7 @@ A separate settings page below About, so upstream's About files stay untouched: 
 - **Direction:** the pixel mark is the one bold element; a ruled list, no cards, no new accent hue, host theme tokens only. The differences list is hand-written: update it when a feature lands.
 - **Lesson:** the About page itself stays OpenCode's (credits, license, trademark, copyright); never brand it.
 
-## Feature: styled DMG (built and mounted; shipped by the release workflow, which has not run on GitHub yet)
+## Feature: styled DMG (done: shipped in v0.3.2)
 The fork's artwork (`build/background.{png,svg}`, `make-background.py`, `DMG-ARTWORK-BRIEF.md`, `fix-dmg-background.sh`) is copied unchanged: it is already derived from the Rig brand ("the prompt is the arrow"). A shared `dmg` block in `electron-builder.config.ts` (540×380, icons at 140/400,225) is kept by the prod override.
 - **Command:** `OPENCODE_CHANNEL=prod bun run dmg` in `packages/desktop` builds `dist/*.dmg` and runs the Finder fix. 2.x's `pack` only tars the `.app`, so the DMG is a separate step.
 - **Verified:** the mounted volume is HFS+ with a 728-byte Finder-written alias, `.background/background.png` is a 540×380 PNG, the window bounds are 540×380, and the background renders (not grey). Label luminance 0.611 / 0.627. Light/Dark was checked in the mockup only; the system appearance was not toggled on the live window.
@@ -63,7 +63,7 @@ The fork's artwork (`build/background.{png,svg}`, `make-background.py`, `DMG-ART
 - **Release:** `rig-release.yml` runs the fix before anything is uploaded, see "release workflow".
 - **Regression test:** `electron-builder.config.test.ts` asserts a single PNG at the window size and no `@2x` beside it.
 
-## Feature: release workflow (built locally step by step; the GitHub side has not run yet)
+## Feature: release workflow (done: published v0.3.2 on 2026-11-08)
 Upstream's `release.yml` only runs on `anomalyco/opencode`, so `.github/workflows/rig-release.yml` (a separate name, to stay out of upstream merges) publishes Rig. It runs on a `v*.*.*` tag or by hand, on one `macos-26` job, and only on `toshon-jennings/opencode-rig`:
 1. Refuses a version that fails the charset check or differs from `packages/desktop/package.json`.
 2. Optional Apple signing through `vars.APPLE_SIGNING_ENABLED`, as in 1.x.
@@ -75,7 +75,7 @@ Uploading once at the end replaces 1.x's publish-then-reupload and its publisher
 - **Verified locally:** each build step in order produced a 0.3.1 `ai.opencode.desktop.rig` app with CLI 2.2.5 and a valid signature. The DMG mounts as HFS+ with `.background/background.png`. Both feed entries match `openssl` sha512 and size of the files.
 - **Verified:** actionlint 1.7.12 with shellcheck reports no problems.
 - **Seen by the user:** the DMG from this build shows the Rig artwork, and its labels stay readable in both Light and Dark.
-- **Not verified:** Finder automation on the runner (it worked for 1.x on the same runner image), and the real run, which needs a pushed tag.
+- **Released:** run 42444020434 published v0.3.2 as Latest with all four files; Finder wrote the background alias on the runner (728 bytes), and the live `latest-mac.yml` reads 0.3.2.
 - **Removed upstream workflows** that would act on the fork's repository: `triage-close-issues`, `triage-close-prs`, `triage-compliance-close`, `triage-contributor`, `triage-pr-standards`, `check-test` (Blacksmith runners, would queue forever), `check-bot-scope`, `check-process-daemon`, `release-process-daemon`. An upstream merge that edits them shows modify/delete conflicts; keep them deleted. Workflows guarded to `anomalyco/opencode` or triggered only by `dev`/`beta` stay.
 
 ## Feature: provider health (built and installed; tests and typecheck pass; the build was confirmed by the user, but the pill itself has not been seen because it shows only on a failing provider)
