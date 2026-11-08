@@ -9,13 +9,13 @@ A Desktop built from this branch (clean port applied) with the bundled CLI built
 
 ## Identity (done, verified in a prod build)
 - **User-Agent / version:** `packages/cli/script/build.ts` bakes `upstreamBase` (root `package.json`, via `Script.upstreamVersion`) as the CLI's version and `latest` as its channel, in the executable, the `package.json` the desktop reads, and the binary's default User-Agent. No env vars needed. The bundled CLI prints `opencode v2.2.5`; `opencode-cli.version` matches.
-- **Rig version:** root and desktop `package.json` are `0.3.1` (above the 1.x-based 0.2.32, for the updater).
+- **Rig version:** root and desktop `package.json` are `0.3.2` (above the 1.x-based 0.2.32, for the updater).
 - **Bundle ID / name:** prod is `ai.opencode.desktop.rig` / "OpenCode Rig" (`electron-builder.config.ts`, `src/main/constants.ts`); dev and beta are "OpenCode Rig Dev/Beta". Linux metainfo files keep the upstream prod id. **Data moves:** Rig no longer shares `~/Library/Application Support/ai.opencode.desktop` with the official app, so Electron-side settings do not carry over (CLI data in `~/.local/share/opencode` is unaffected).
 - **Update feed:** all channels use GitHub releases of `FORK_OWNER/FORK_REPO` (`packages/desktop/fork.ts`); prod is a draft until artifacts land. `script/pack.ts` now writes every publish field into `app-update.yml`.
 - **CLI self-update:** the desktop sets `OPENCODE_DISABLE_AUTOUPDATE=true`, since a CLI reporting 2.2.5 would otherwise replace itself with the official release.
 - **Signing:** opt-in; without Apple credentials the bundle is ad-hoc signed (`adhocSign`, run after anything that modifies the bundle). Verified with `codesign --verify --deep --strict`.
 - **Updater notify mode (macOS):** Rig is ad-hoc signed, so Squirrel.Mac would reject any downloaded update. On macOS `gui-plugins/src/updater/platform.ts` reports an update as `external`, with the release page `https://github.com/<owner>/<repo>/releases/tag/v<version>` built from `owner` and `repo` in the bundled `app-update.yml` (gui-plugins cannot import `packages/desktop/fork.ts`). It downloads nothing; Download opens the page in the browser. This uses 2.x's existing `download-required` state (upstream's beta-to-stable move), so the machine is unchanged; its dialog, the titlebar pill and the settings row now use the new `notify.*` strings (English only so far), with the button reading "Download OpenCode Rig" rather than upstream's "Download OpenCode" so it is clear which app it fetches, and the menu's Check for Updates… handles it too. Windows and Linux still download and install. Revert the darwin check once releases are Developer ID signed. **Verified** in a Beta build pointed at a local feed advertising 0.3.2: it went to `download-required` with no download, and the user confirmed the prompt. Not yet seen: the native box the prod menu shows (Beta sends the menu to the in-window prompt).
-- **Not yet ported:** release workflows. (`resources/opencode-usage` is superseded by the usage plugin; the DMG is ported, see below.)
+- **Release workflow:** ported, see "release workflow". (`resources/opencode-usage` is superseded by the usage plugin; the DMG is ported, see below.)
 
 ## Feature: usage panel (done, verified running in the prod Rig build)
 `packages/gui-plugins/src/usage` is a built-in plugin: a typed contract, a main-process reader, an always-on strip in the `window.bottom` slot and a "Toggle usage panel" command. It replaces the fork's session-page panel, the `opencode-usage` shell script and its IPC/HTTP plumbing.
@@ -55,13 +55,28 @@ A separate settings page below About, so upstream's About files stay untouched: 
 - **Direction:** the pixel mark is the one bold element; a ruled list, no cards, no new accent hue, host theme tokens only. The differences list is hand-written: update it when a feature lands.
 - **Lesson:** the About page itself stays OpenCode's (credits, license, trademark, copyright); never brand it.
 
-## Feature: styled DMG (built and mounted; the result of `bun run dmg` was inspected, not yet shipped)
+## Feature: styled DMG (built and mounted; shipped by the release workflow, which has not run on GitHub yet)
 The fork's artwork (`build/background.{png,svg}`, `make-background.py`, `DMG-ARTWORK-BRIEF.md`, `fix-dmg-background.sh`) is copied unchanged: it is already derived from the Rig brand ("the prompt is the arrow"). A shared `dmg` block in `electron-builder.config.ts` (540×380, icons at 140/400,225) is kept by the prod override.
 - **Command:** `OPENCODE_CHANNEL=prod bun run dmg` in `packages/desktop` builds `dist/*.dmg` and runs the Finder fix. 2.x's `pack` only tars the `.app`, so the DMG is a separate step.
 - **Verified:** the mounted volume is HFS+ with a 728-byte Finder-written alias, `.background/background.png` is a 540×380 PNG, the window bounds are 540×380, and the background renders (not grey). Label luminance 0.611 / 0.627. Light/Dark was checked in the mockup only; the system appearance was not toggled on the live window.
 - **Needs Finder automation permission** for the fix script.
-- **Not done:** the release workflows still do not run the fix after `--publish`; none are ported yet.
+- **Release:** `rig-release.yml` runs the fix before anything is uploaded, see "release workflow".
 - **Regression test:** `electron-builder.config.test.ts` asserts a single PNG at the window size and no `@2x` beside it.
+
+## Feature: release workflow (built locally step by step; the GitHub side has not run yet)
+Upstream's `release.yml` only runs on `anomalyco/opencode`, so `.github/workflows/rig-release.yml` (a separate name, to stay out of upstream merges) publishes Rig. It runs on a `v*.*.*` tag or by hand, on one `macos-26` job, and only on `toshon-jennings/opencode-rig`:
+1. Refuses a version that fails the charset check or differs from `packages/desktop/package.json`.
+2. Optional Apple signing through `vars.APPLE_SIGNING_ENABLED`, as in 1.x.
+3. Builds the CLI (`bun run build --single`, `OPENCODE_CHANNEL=latest`), then the prod desktop, then `electron-builder --mac --arm64 --publish never`.
+4. Runs `build/fix-dmg-background.sh`, refreshes the DMG entry in `latest-mac.yml` with `build/refresh-update-feed.py` (copied from the fork), and drops the stale DMG blockmap. electron-builder 26 has no `app-builder` binary to rebuild it, and macOS updates use the zip's.
+5. Creates the tag and a draft release, uploads the DMG, zip, zip blockmap and `latest-mac.yml`, checks all four are there, then publishes it as Latest.
+
+Uploading once at the end replaces 1.x's publish-then-reupload and its publisher race. **Desktop only:** the standalone CLI downloads are dropped, since the CLI ships inside the app (decided by the user).
+- **Verified locally:** each build step in order produced a 0.3.1 `ai.opencode.desktop.rig` app with CLI 2.2.5 and a valid signature. The DMG mounts as HFS+ with `.background/background.png`. Both feed entries match `openssl` sha512 and size of the files.
+- **Verified:** actionlint 1.7.12 with shellcheck reports no problems.
+- **Seen by the user:** the DMG from this build shows the Rig artwork, and its labels stay readable in both Light and Dark.
+- **Not verified:** Finder automation on the runner (it worked for 1.x on the same runner image), and the real run, which needs a pushed tag.
+- **Removed upstream workflows** that would act on the fork's repository: `triage-close-issues`, `triage-close-prs`, `triage-compliance-close`, `triage-contributor`, `triage-pr-standards`, `check-test` (Blacksmith runners, would queue forever), `check-bot-scope`, `check-process-daemon`, `release-process-daemon`. An upstream merge that edits them shows modify/delete conflicts; keep them deleted. Workflows guarded to `anomalyco/opencode` or triggered only by `dev`/`beta` stay.
 
 ## Feature: provider health (built and installed; tests and typecheck pass; the build was confirmed by the user, but the pill itself has not been seen because it shows only on a failing provider)
 The built-in plugin `gui-plugins/src/health` adds a composer pill that appears only when the provider behind the session's latest answer is struggling (nothing is shown while it is healthy). It replaces the fork's status dots in settings and the status popover, which 2.x does not let a plugin extend.
@@ -377,7 +392,7 @@ New fork file; path is free in v2.2.5. Copy, then fix imports against 2.x.
 - [ ] `packages/desktop/build/background.svg`
 - [ ] `packages/desktop/build/fix-dmg-background.sh`
 - [ ] `packages/desktop/build/make-background.py`
-- [ ] `packages/desktop/build/refresh-update-feed.py`
+- [x] `packages/desktop/build/refresh-update-feed.py` — ported, see "release workflow"
 - [ ] `packages/desktop/fork.ts`
 - [x] `packages/desktop/resources/opencode-usage` — superseded: the query lives in `gui-plugins/src/usage/query.ts`
 - [ ] `packages/llm/test/protocols/shared.test.ts`
@@ -402,7 +417,7 @@ New fork file; path is free in v2.2.5. Copy, then fix imports against 2.x.
 ## added-by-fork/path-taken (1)
 New fork file, but upstream now has a file at that path.
 
-- [ ] `.github/workflows/release.yml`
+- [x] `.github/workflows/release.yml` — now `rig-release.yml`, see "release workflow"
 
 ## conflict (75)
 Both sides changed it. Many are only version bumps in package.json (trivial); the rest need real merging.

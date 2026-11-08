@@ -1,0 +1,167 @@
+# Publishes an OpenCode Rig desktop release. Upstream's release.yml only runs on anomalyco/opencode, so Rig keeps its
+# own under a different name to stay out of upstream merges.
+#
+# Tag a version to publish it, e.g. `git tag v0.3.2 && git push rig v0.3.2`. The tag must match
+# packages/desktop/package.json, which is the version the in-app updater compares against.
+name: rig-release
+run-name: "rig-release ${{ inputs.version || github.ref_name }}"
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to build (without the leading v)"
+        required: true
+        type: string
+
+concurrency: ${{ github.workflow }}-${{ inputs.version || github.ref_name }}
+
+permissions:
+  contents: write
+
+jobs:
+  desktop:
+    if: github.repository == 'toshon-jennings/opencode-rig'
+    # Apple silicon only, like the 1.x releases.
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      # The tag name reaches the shell through the environment, never through string interpolation, and is
+      # charset-checked before anything else consumes it.
+      - name: Resolve version
+        id: version
+        env:
+          RAW_VERSION: ${{ inputs.version || github.ref_name }}
+        run: |
+          version="${RAW_VERSION#v}"
+          if ! printf '%s' "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z]+)*$'; then
+            echo "Refusing to build unrecognised version: $version" >&2
+            exit 1
+          fi
+          expected="$(jq -r .version packages/desktop/package.json)"
+          if [ "$version" != "$expected" ]; then
+            echo "Refusing to build $version: packages/desktop/package.json says $expected." >&2
+            exit 1
+          fi
+          echo "value=$version" >> "$GITHUB_OUTPUT"
+
+      # Signing is optional: without these the build still produces a DMG, just an ad-hoc signed one. Setting
+      # APPLE_SIGNING_ENABLED turns on notarization with no edits here.
+      - name: Import signing certificate
+        if: vars.APPLE_SIGNING_ENABLED == 'true'
+        uses: apple-actions/import-codesign-certs@8f3fb608891dd2244cdab3d69cd68c0d37a7fe93 # v2.0.0
+        with:
+          keychain: build
+          p12-file-base64: ${{ secrets.APPLE_CERTIFICATE }}
+          p12-password: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+
+      - name: Stage notarization key
+        if: vars.APPLE_SIGNING_ENABLED == 'true'
+        env:
+          APPLE_API_KEY_CONTENTS: ${{ secrets.APPLE_API_KEY }}
+        run: printf '%s' "$APPLE_API_KEY_CONTENTS" > "$RUNNER_TEMP/apple-api-key.p8"
+
+      - uses: ./.github/actions/setup-bun
+        with:
+          install-flags: --os=darwin --cpu=arm64
+
+      # Production desktop builds bundle the CLI from packages/cli/dist rather than downloading one.
+      - name: Build CLI
+        run: bun run build --single
+        working-directory: packages/cli
+        env:
+          OPENCODE_CHANNEL: latest
+          OPENCODE_VERSION: ${{ steps.version.outputs.value }}
+
+      - name: Build desktop
+        run: bun run build
+        working-directory: packages/desktop
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+          OPENCODE_CHANNEL: prod
+          OPENCODE_VERSION: ${{ steps.version.outputs.value }}
+
+      # Builds the DMG, the zip, and latest-mac.yml (the feed the in-app updater reads) without uploading:
+      # the DMG still changes in the next step, so everything is uploaded together afterwards.
+      - name: Package
+        run: bunx electron-builder --mac --arm64 --publish never --config electron-builder.config.ts
+        working-directory: packages/desktop
+        env:
+          OPENCODE_CHANNEL: prod
+          OPENCODE_VERSION: ${{ steps.version.outputs.value }}
+          CSC_KEYCHAIN: ${{ vars.APPLE_SIGNING_ENABLED == 'true' && 'build.keychain' || '' }}
+          APPLE_API_KEY: ${{ vars.APPLE_SIGNING_ENABLED == 'true' && format('{0}/apple-api-key.p8', runner.temp) || '' }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+
+      # On Apple Silicon electron-builder makes an APFS image whose background alias Finder cannot resolve, so the
+      # window renders plain grey. fix-dmg-background.sh has Finder rewrite it, which changes the DMG, so its feed entry
+      # is refreshed. Its blockmap now describes the old bytes and is dropped: macOS updates come from the zip.
+      #
+      # This needs Finder automation on the runner. If that is unavailable the script fails rather than shipping grey,
+      # and nothing has been published yet.
+      - name: Render the DMG background
+        working-directory: packages/desktop
+        run: |
+          dmg=dist/opencode-desktop-mac-arm64.dmg
+          ./build/fix-dmg-background.sh "$dmg"
+          python3 build/refresh-update-feed.py dist/latest-mac.yml "$dmg"
+          rm -f "$dmg.blockmap"
+
+      - name: Ensure release tag and draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.value }}
+        run: |
+          tag="v$VERSION"
+          if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" >/dev/null 2>&1; then
+            echo "Tag $tag already exists"
+          else
+            gh api "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/tags/$tag" -f sha="$GITHUB_SHA" >/dev/null
+            echo "Created tag $tag at $GITHUB_SHA"
+          fi
+
+          count="$(gh api "repos/$GITHUB_REPOSITORY/releases?per_page=100" \
+            --jq "[.[] | select(.tag_name == \"$tag\")] | length")"
+          if [ "$count" -gt 1 ]; then
+            echo "Refusing to publish: $count releases already exist for $tag. Delete the duplicates first." >&2
+            exit 1
+          fi
+          if [ "$count" -eq 1 ]; then
+            echo "Release $tag already exists"
+          else
+            gh release create "$tag" --draft --title "$VERSION" --notes "" --repo "$GITHUB_REPOSITORY"
+            echo "Created draft release $tag"
+          fi
+
+      # The release stays a draft until every file has landed, so the updater never reads a feed whose zip is missing.
+      - name: Upload and publish
+        working-directory: packages/desktop/dist
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          TAG: v${{ steps.version.outputs.value }}
+        run: |
+          assets="opencode-desktop-mac-arm64.dmg opencode-desktop-mac-arm64.zip opencode-desktop-mac-arm64.zip.blockmap latest-mac.yml"
+          # shellcheck disable=SC2086
+          gh release upload "$TAG" $assets --clobber
+
+          actual="$(gh release view "$TAG" --json assets -q '.assets[].name')"
+          missing=0
+          for name in $assets; do
+            if ! printf '%s\n' "$actual" | grep -qx "$name"; then
+              echo "MISSING: $name" >&2
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo "Leaving $TAG as a draft: an incomplete release is worse than a late one." >&2
+            exit 1
+          fi
+
+          gh release edit "$TAG" --draft=false --latest
